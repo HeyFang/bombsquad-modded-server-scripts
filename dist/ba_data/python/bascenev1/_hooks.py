@@ -42,8 +42,8 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     to ignore the message.
     """
 
-    import fetchChat
-    return fetchChat.filter_chat_message(msg, client_id)
+    import fetchChat.filter_chat_message as fc
+    return fc(msg, client_id)
 
 def local_chat_message(msg: str) -> None:
     classic = babase.app.classic
