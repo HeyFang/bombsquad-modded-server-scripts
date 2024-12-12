@@ -2,3 +2,4 @@ config.toml
 **/__pycache__/
 *.pyc
 *.pyo
+dist/ba_root/.bsac2
