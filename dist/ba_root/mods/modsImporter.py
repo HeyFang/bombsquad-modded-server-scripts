@@ -9,7 +9,4 @@ import fetchChat
 # ba_meta export plugin
 class modsImpoterPlugin(ba.Plugin):
     def on_app_running(self) -> None:
-        ba.screenmessage("ba.msg")
-        print("ba.msg")
-        bs.broadcastmessage("broadcast")
-        print("bs.broad")
+        print("modsImporterPlugin: on_app_running")
