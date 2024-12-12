@@ -150,13 +150,12 @@
  "Fleet Zone Ping Last Flush Time": 1733726471,
  "Fleet Zone Pings": {
   "prod": {
-   "bahrain.v4": 249.423938877635,
-   "bangkok.v4": 204.95324075188,
-   "delhi.v4": 115.96817811174964,
-   "dubai.v4": 203.8735749136739,
-   "hyderabad.v4": 73.61309136439625,
-   "kolkata.v4": 86.9421966298016,
-   "mumbai.v4": 79.63748222172173
+   "bangkok.v4": 206.1536093037139,
+   "delhi.v4": 98.75600229214615,
+   "dubai.v4": 201.49989572359118,
+   "hyderabad.v4": 62.72620712819662,
+   "kolkata.v4": 71.59745361583737,
+   "mumbai.v4": 90.37859134437531
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -243,9 +242,6 @@
   },
   "fetchChat.modsImpoterPlugin": {
    "enabled": true
-  },
-  "modsImporter.modsImpoterPlugin": {
-   "enabled": true
   }
  },
  "Port": 43210,
@@ -253,7 +249,7 @@
  "Signed In Last Session": false,
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 66,
+ "launchCount": 76,
  "lc14173": 1,
  "lc14292": 1
 }
