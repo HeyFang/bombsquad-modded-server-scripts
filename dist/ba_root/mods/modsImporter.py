@@ -9,4 +9,4 @@ import fetchChat
 # ba_meta export plugin
 class modsImpoterPlugin(ba.Plugin):
     def on_app_running(self) -> None:
-        print("modsImporterPlugin: on_app_running")
+        print("modsImporterPlugin is called")

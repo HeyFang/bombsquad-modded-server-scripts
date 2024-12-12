@@ -42,7 +42,13 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     to ignore the message.
     """
 
-    import fetchChat.filter_chat_message as fc
+    try:
+        from fetchChat import filter_chat_message as fc
+    except ImportError:
+        print("Module fetchChat.filter_chat_message not found")
+        return None
+
+    # Use the imported function
     return fc(msg, client_id)
 
 def local_chat_message(msg: str) -> None:

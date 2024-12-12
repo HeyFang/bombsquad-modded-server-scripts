@@ -1,8 +1,8 @@
 import bascenev1 as bs
 
+print("hello is called")
+
 def hello():
-    print("hello.py is running")
-    bs.broadcastmessage(
-        "Hello World",
-        color = (0, 1, 0.5)
-        )
+    print("inside hello")
+    bs.broadcastmessage("konnichiwa chibi!", clients=None, transient=True, color = (0,0.5,1))
+    return None
