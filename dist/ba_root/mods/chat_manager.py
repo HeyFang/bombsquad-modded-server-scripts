@@ -10,7 +10,7 @@ def handle(msg: str, client_id):
 		args = msg.split()
 		command = args[0].lstrip("/")
 		
-		commands_list = ["kick", "end", "ban"]
+		commands_list = ["kick", "end", "list"]
   
 		ros = bs.get_game_roster()
 		for entity in ros:
