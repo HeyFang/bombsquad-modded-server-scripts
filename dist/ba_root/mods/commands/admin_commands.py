@@ -27,14 +27,6 @@ def end(*args):
         bs.get_foreground_host_activity().end_game()
         bs.chatmessage(f"Admin Command Accepted. Game End")
     
-    # bs.get_foreground_host_activity().end_game()
-    
-    # with _babase.ContextRef(bs.get_foreground_host_activity()):
-    #     # bs.get_foreground_host_activity().end(None, 3.0)
-    #     bs.get_foreground_host_activity().end_game()
-    
-    # bs.get_foreground_host_activity().end_game()
-    
     
 def list(*args):
     ros = bs.get_game_roster()
