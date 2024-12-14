@@ -10,7 +10,6 @@ import logging
 from typing import TYPE_CHECKING, TypeVar, override
 
 import babase
-import custom_hooks as chooks
 
 import _bascenev1
 from bascenev1._activity import Activity
