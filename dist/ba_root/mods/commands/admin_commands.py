@@ -49,3 +49,17 @@ def maxplayers(args):
 def getmaxplayers(*args):
     bs.chatmessage(f"Max player limit is set to {str(bs.get_public_party_max_size())}")
     
+    
+def remove(args):
+    client_id = int(args[0])
+    reason = " ".join(args[1:]) or "inactive"
+    ros = bs.get_game_roster()
+    for player in ros:
+        if player["client_id"] == client_id:
+            for splayer in bs.get_foreground_host_session().sessionplayers:
+                if player["players"][0]["id"] == splayer.id:
+                    try:
+                        splayer.remove_from_game()
+                        bs.chatmessage(f"{player["players"][0]["name"]} was removed for reason: {reason}")
+                    except Exception as e:
+                        print(e)
