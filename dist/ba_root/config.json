@@ -13,7 +13,7 @@
    "Complete": false
   },
   "Free Loader": {
-   "Complete": false
+   "Complete": true
   },
   "Gold Miner": {
    "Complete": false
@@ -103,7 +103,7 @@
    "Complete": false
   },
   "Team Player": {
-   "Complete": false
+   "Complete": true
   },
   "The Great Wall": {
    "Complete": false
@@ -150,12 +150,10 @@
  "Fleet Zone Ping Last Flush Time": 1733726471,
  "Fleet Zone Pings": {
   "prod": {
-   "bangkok.v4": 206.04928145198937,
-   "delhi.v4": 100.25028934620423,
-   "dubai.v4": 196.80682648939182,
-   "hyderabad.v4": 65.68557560009867,
-   "kolkata.v4": 72.8320229898909,
-   "mumbai.v4": 77.58811284438707
+   "delhi.v4": 49.10988965400975,
+   "hyderabad.v4": 89.02982939801905,
+   "kolkata.v4": 256.112611978067,
+   "mumbai.v4": 142.66375539399314
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -249,7 +247,7 @@
  "Signed In Last Session": false,
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 77,
+ "launchCount": 78,
  "lc14173": 1,
  "lc14292": 1
 }
