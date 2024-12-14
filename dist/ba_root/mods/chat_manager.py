@@ -11,7 +11,7 @@ def handle(msg: str, client_id):
     args = msg.split()
     command = args[0].lstrip("/")
 
-    if command not in {"kick", "end", "list"}:
+    if command not in {"kick", "end", "list", "maxplayers", "getmaxplayers"}:
         bs.broadcastmessage("No such command", transient=True, clients=[client_id])
         return msg
 
@@ -26,6 +26,7 @@ def handle(msg: str, client_id):
             if pbid in admins:
                 print(f"{entity['players'][0]['name']} is an admin")
                 try:
+                    # dynamic function call based on command
                     getattr(ac, command)(args[1:])
                 except AttributeError as e:
                     print(f"Error: {e}")

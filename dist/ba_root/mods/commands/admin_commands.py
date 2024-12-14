@@ -1,6 +1,7 @@
 import _babase
 import _bascenev1
 
+import bacommon as bac
 import babase as ba
 import bascenev1 as bs
 
@@ -17,7 +18,6 @@ def kick(args):
         print(e)
     
 
-# fixing end comman atms
 def end(*args):
     print('calling end')
     print(bs.get_foreground_host_activity())
@@ -31,3 +31,21 @@ def end(*args):
 def list(*args):
     ros = bs.get_game_roster()
     print(ros)
+    
+    
+def maxplayers(args):
+    try:
+        party_size = int(args[0])
+    except TypeError:
+        bs.screenmessage("Enter a valid integer limit")
+
+    try:
+        bs.set_public_party_max_size(party_size)
+        bs.chatmessage(f"Max Player limit has been set to {str(party_size)}")
+    except Exception as e:
+        print(e)
+        
+        
+def getmaxplayers(*args):
+    bs.chatmessage(f"Max player limit is set to {str(bs.get_public_party_max_size())}")
+    
