@@ -14,8 +14,6 @@ from bascenev1._team import Team
 from bascenev1._messages import UNHANDLED
 from bascenev1._player import Player
 
-import custom_hooks as chooks
-
 if TYPE_CHECKING:
     from typing import Any
     import bascenev1
