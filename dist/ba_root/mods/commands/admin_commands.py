@@ -21,12 +21,20 @@ def kick(args):
 def end(*args):
     print('calling end')
     print(bs.get_foreground_host_activity())
-    
-    with _babase.ContextRef(bs.get_foreground_host_activity()):
-        # bs.get_foreground_host_activity().end(None, 3.0)
+    print(bs.get_foreground_host_activity().context)
+
+    with bs.get_foreground_host_activity().context:
         bs.get_foreground_host_activity().end_game()
+        bs.chatmessage(f"Admin Command Accepted. Game End")
     
     # bs.get_foreground_host_activity().end_game()
+    
+    # with _babase.ContextRef(bs.get_foreground_host_activity()):
+    #     # bs.get_foreground_host_activity().end(None, 3.0)
+    #     bs.get_foreground_host_activity().end_game()
+    
+    # bs.get_foreground_host_activity().end_game()
+    
     
 def list(*args):
     ros = bs.get_game_roster()
