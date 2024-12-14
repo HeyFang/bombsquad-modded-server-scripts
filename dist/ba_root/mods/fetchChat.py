@@ -7,8 +7,17 @@ print("fetchChat is called")
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
     print(msg, client_id)
-    if msg == "hello":
-        hello.hello()
+    
+    match msg:
+        
+        case "hello":
+            hello.hello()
+
+        case "/end":
+            hello.end(client_id)
+
+        case _:
+            return msg
 
     return msg
 
