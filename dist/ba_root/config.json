@@ -13,7 +13,7 @@
    "Complete": false
   },
   "Free Loader": {
-   "Complete": true
+   "Complete": false
   },
   "Gold Miner": {
    "Complete": false
@@ -103,7 +103,7 @@
    "Complete": false
   },
   "Team Player": {
-   "Complete": true
+   "Complete": false
   },
   "The Great Wall": {
    "Complete": false
@@ -127,29 +127,39 @@
  "Auto Account State": "Server",
  "Auto Balance Teams": true,
  "Campaigns": {},
+ "Custom Team Colors": [
+  [
+   0.1,
+   0.25,
+   1.0
+  ],
+  [
+   1.0,
+   0.25,
+   0.2
+  ]
+ ],
  "Custom Team Names": [
-  "Maou",
-  "Meow"
+  "Red",
+  "Blue"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "Chisato",
-  "Client Input Device #2": "Gori",
-  "Client Input Device #3": "__account__",
-  "Client Input Device #4": "__account__",
-  "Client Input Device #5": "_random",
-  "Client Input Device #6": "shervin palng"
+  "Client Input Device #1": "__account__"
  },
  "FFA Series Length": 24,
  "Fleet Zone Ping Last Flush Time": 1733726471,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 24.441275942201415,
-   "hyderabad.v4": 22.508382111793573,
-   "mumbai.v4": 1.5908054947685595
+   "bangkok.v4": 206.04928145198937,
+   "delhi.v4": 100.25028934620423,
+   "dubai.v4": 196.80682648939182,
+   "hyderabad.v4": 65.68557560009867,
+   "kolkata.v4": 72.8320229898909,
+   "mumbai.v4": 77.58811284438707
   }
  },
- "Free-for-All Playlist Randomize": true,
- "Free-for-All Playlist Selection": "__default__",
+ "Free-for-All Playlist Randomize": false,
+ "Free-for-All Playlist Selection": "FANG EPIC FFA",
  "Free-for-All Playlists": {
   "FANG EPIC FFA": [
    {
@@ -223,15 +233,23 @@
    ]
   }
  },
- "Plugins": {},
+ "Plugins": {
+  "fetchChat.FangPlugin": {
+   "enabled": true
+  },
+  "fetchChat.FangTest": {
+   "enabled": true
+  },
+  "fetchChat.modsImpoterPlugin": {
+   "enabled": true
+  }
+ },
  "Port": 43210,
  "Show Tutorial": false,
  "Signed In Last Session": false,
- "Team Tournament Playlist Randomize": true,
- "Team Tournament Playlist Selection": "cyclones",
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 113,
+ "launchCount": 77,
  "lc14173": 1,
  "lc14292": 1
 }

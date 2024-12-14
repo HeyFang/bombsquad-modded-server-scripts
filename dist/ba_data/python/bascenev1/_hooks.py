@@ -13,6 +13,7 @@ import _bascenev1
 
 if TYPE_CHECKING:
     from typing import Any
+
     import bascenev1
 
 
@@ -42,13 +43,13 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     """
 
     try:
-        import chat_manager as chatm
+        from fetchChat import filter_chat_message as fc
     except ImportError:
-        print("Chat Manager not found")
+        print("Module fetchChat.filter_chat_message not found")
         return None
 
     # Use the imported function
-    return chatm.handle(msg, client_id)
+    return fc(msg, client_id)
 
 def local_chat_message(msg: str) -> None:
     classic = babase.app.classic
