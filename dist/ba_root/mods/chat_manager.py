@@ -5,7 +5,7 @@ import os
 import commands.admin_commands as ac
 
 def handle(msg: str, client_id):
-    # /kick 113 idk no reason
+	# /kick 113 idk no reason
 	if msg.startswith("/"):
 		args = msg.split()
 		command = args[0].lstrip("/")
