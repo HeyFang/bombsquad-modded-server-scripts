@@ -10,6 +10,7 @@ import logging
 from typing import TYPE_CHECKING, TypeVar, override
 
 import babase
+import custom_hooks as chooks
 
 import _bascenev1
 from bascenev1._activity import Activity
@@ -396,7 +397,14 @@ class GameActivity(Activity[PlayerT, TeamT]):
     def on_player_join(self, player: PlayerT) -> None:
         super().on_player_join(player)
 
+        # print("a player has joined the game")
+        # _bascenev1.broadcastmessage(f"Welcome {player.getname()}\nThe Server is under development so might experience several restarts")
         # By default, just spawn a dude.
+        # try:
+        #     self.spawn_player(player)
+        #     chooks.on_player_join(player)
+        # except:
+        #     self.spawn_player(player)
         self.spawn_player(player)
 
     @override
