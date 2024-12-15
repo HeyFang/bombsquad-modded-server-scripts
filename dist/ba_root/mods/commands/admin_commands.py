@@ -63,3 +63,18 @@ def remove(args):
                         bs.chatmessage(f"{player["players"][0]["name"]} was removed for reason: {reason}")
                     except Exception as e:
                         print(e)
+                        
+                        
+                        
+def restart(*args):
+    bs.chatmessage("Restarting The Server...")
+    try:
+        ba.quit()
+    except:
+        bs.chatmessage("Restart Failed")
+        
+        
+        
+def quit(*args):
+    # aint work
+    ba.quit(quit_type=ba.QuitType.HARD)
