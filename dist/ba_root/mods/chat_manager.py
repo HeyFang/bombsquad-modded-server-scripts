@@ -24,15 +24,12 @@ def handle(msg: str, client_id):
                 admins = json.load(file)["admins"]
 
             if pbid in admins:
-                print(f"{entity['players'][0]['name']} is an admin")
                 try:
                     # dynamic function call based on command
                     getattr(ac, command)(args[1:])
                 except AttributeError as e:
                     print(f"Error: {e}")
-                    bs.broadcastmessage("Command function cannot be located", transient=True, clients=[client_id])
             else:
-                bs.chatmessage(f"{entity['players'][0]['name']} Access Denied. You're not an admin")
                 print(f"{entity['players'][0]['name']} is not an admin")
 
     return msg

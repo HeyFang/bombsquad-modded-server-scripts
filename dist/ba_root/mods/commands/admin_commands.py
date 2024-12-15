@@ -77,4 +77,4 @@ def restart(*args):
         
 def quit(*args):
     # aint work
-    ba.quit(quit_type=ba.QuitType.HARD)
+    ba.quit()

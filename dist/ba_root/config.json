@@ -127,12 +127,24 @@
  "Auto Account State": "Server",
  "Auto Balance Teams": true,
  "Campaigns": {},
+ "Custom Team Colors": [
+  [
+   0.1,
+   0.25,
+   1.0
+  ],
+  [
+   1.0,
+   0.25,
+   0.2
+  ]
+ ],
  "Custom Team Names": [
-  "Maou",
-  "Meow"
+  "Red",
+  "Blue"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "Chisato",
+  "Client Input Device #1": "__account__",
   "Client Input Device #2": "Gori",
   "Client Input Device #3": "__account__",
   "Client Input Device #4": "__account__",
@@ -143,13 +155,18 @@
  "Fleet Zone Ping Last Flush Time": 1733726471,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 24.441275942201415,
-   "hyderabad.v4": 22.508382111793573,
-   "mumbai.v4": 1.5908054947685595
+   "bahrain.v4": 277.27550199985853,
+   "bangkok.v4": 235.01524125374453,
+   "delhi.v4": 82.7984838521379,
+   "dubai.v4": 286.38641781386923,
+   "hyderabad.v4": 79.74052136803766,
+   "kolkata.v4": 79.9291065799298,
+   "mumbai.v4": 82.8452322078083,
+   "singapore.v4": 160.24245650212015
   }
  },
- "Free-for-All Playlist Randomize": true,
- "Free-for-All Playlist Selection": "__default__",
+ "Free-for-All Playlist Randomize": false,
+ "Free-for-All Playlist Selection": "FANG EPIC FFA",
  "Free-for-All Playlists": {
   "FANG EPIC FFA": [
    {
@@ -231,7 +248,7 @@
  "Team Tournament Playlist Selection": "cyclones",
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 113,
+ "launchCount": 121,
  "lc14173": 1,
  "lc14292": 1
 }
