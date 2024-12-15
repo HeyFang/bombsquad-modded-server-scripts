@@ -73,8 +73,3 @@ def restart(*args):
     except:
         bs.chatmessage("Restart Failed")
         
-        
-        
-def quit(*args):
-    # aint work
-    ba.quit()

@@ -11,7 +11,7 @@ def handle(msg: str, client_id):
     args = msg.split()
     command = args[0].lstrip("/")
 
-    if command not in {"kick", "end", "list", "maxplayers", "getmaxplayers", "remove", "restart", "quit"}:
+    if command not in {"kick", "end", "list", "maxplayers", "getmaxplayers", "remove", "restart"}:
         bs.broadcastmessage("No such command", transient=True, clients=[client_id])
         return msg
 
