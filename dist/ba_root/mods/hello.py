@@ -1,6 +1,6 @@
 import bascenev1 as bs
 
-def get_entity_by_client_id(client_id):
+def get_entity(client_id):
     ros = bs.get_game_roster()
     for entity in ros:
         if entity["client_id"] == client_id:
@@ -18,7 +18,7 @@ def end(client_id):
         game = bs.get_foreground_host_activity()
         with game.context:
             game.end_game()
-        entity = get_entity_by_client_id(client_id)
+        entity = get_entity(client_id)
         if entity:
             name = entity["players"][0]["name"]
             bs.broadcastmessage(f"{name} ended game", clients=None, transient=True, color=(0, 0.5, 1))
@@ -34,8 +34,8 @@ def kick(msg, client_id):
 
     try:
         bs.disconnect_client(rat, ban_time=60*5)  # seconds
-        rat_entity = get_entity_by_client_id(rat)
-        admin_entity = get_entity_by_client_id(client_id)
+        rat_entity = get_entity(rat)
+        admin_entity = get_entity(client_id)
         if rat_entity and admin_entity:
             nameRat = rat_entity["display_string"]
             name = admin_entity["players"][0]["name"]
@@ -49,7 +49,7 @@ def tint(msg):
     args = msg.split()
     r, g, b = float(args[1]), float(args[2]), float(args[3])
     try:
-        # print(dir(activit.globalsnode))
+        # print(dir(activity.globalsnode))
         activity = bs.get_foreground_host_activity()
         activity.globalsnode.tint = (r, g, b)
     except Exception as e:
@@ -71,7 +71,7 @@ def pause(client_id):
         return None
     try:
         activity.globalsnode.paused = True
-        entity = get_entity_by_client_id(client_id)
+        entity = get_entity(client_id)
         if entity:
             name = entity["players"][0]["name"]
             bs.broadcastmessage(f"{name} paused the game", transient=True, color=(0, 0.5, 1), clients=None)
@@ -85,7 +85,7 @@ def resume(client_id):
         return None
     try:
         activity.globalsnode.paused = False
-        entity = get_entity_by_client_id(client_id)
+        entity = get_entity(client_id)
         if entity:
             name = entity["players"][0]["name"]
             bs.broadcastmessage(f"{name} resumed the game", transient=True, color=(0, 0.5, 1), clients=None)
