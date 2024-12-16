@@ -30,6 +30,8 @@ def handle(msg: str, client_id):
                 except AttributeError as e:
                     print(f"Error: {e}")
             else:
-                print(f"{entity['players'][0]['name']} is not an admin")
+                # print(f"{entity['players'][0]['name']} is not an admin")
+                player_name = entity["players"][0]["name"]
+                bs.broadcastmessage(f"{player_name} - Access Denied. You're don't have admin permissions", transient=True, clients=[client_id])
 
     return msg
