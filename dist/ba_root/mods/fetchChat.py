@@ -3,15 +3,18 @@ import bascenev1 as bs
 import json
 import os
 import commands as cmd
+import hello
 
-def filter_chat_message(msg: str, client_id: int) -> str:
+def filter_chat_message(msg: str, client_id: int) -> str | None:
+    print(msg, client_id)
+    
     if not msg.startswith("/"):
         return msg
 
     args = msg.split()
     command = args[0].lstrip("/")
 
-    if command not in {"kick", "hi"}:
+    if command not in {"kick", "hi", "end"}:
         bs.broadcastmessage("No such command", transient=True, clients=[client_id], color=(1,0,0))
         return msg
 
@@ -25,7 +28,15 @@ def filter_chat_message(msg: str, client_id: int) -> str:
 
             if pbid in admins:
                 try:
-                    getattr(cmd, command)(args[1:])
+                    match command:
+                        case "kick":
+                            hello.kick(msg, client_id)
+                        case "hi":
+                            hello.hello()
+                        case "end":
+                            hello.end(client_id)
+                        case _:
+                            print("No such command")
                 except AttributeError as e:
                     print(f"Error: {e}")
             else:

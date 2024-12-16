@@ -144,18 +144,17 @@
   "Blue"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "__account__"
+  "Client Input Device #1": "\ud83c\udf00Fang"
  },
  "FFA Series Length": 24,
  "Fleet Zone Ping Last Flush Time": 1734198725,
  "Fleet Zone Pings": {
   "prod": {
-   "bangkok.v4": 294.56075399957626,
-   "delhi.v4": 79.37454749207791,
-   "dubai.v4": 431.4048260002892,
-   "hyderabad.v4": 66.81461138990744,
-   "kolkata.v4": 101.18216954430136,
-   "mumbai.v4": 74.61876349376507
+   "bangkok.v4": 212.19306499809318,
+   "delhi.v4": 80.45353952140431,
+   "hyderabad.v4": 54.56249067461249,
+   "kolkata.v4": 81.16576919797444,
+   "mumbai.v4": 78.47862719916884
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -249,7 +248,7 @@
  "Signed In Last Session": false,
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 162,
+ "launchCount": 196,
  "lc14173": 1,
  "lc14292": 1
 }
