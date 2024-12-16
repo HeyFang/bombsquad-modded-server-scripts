@@ -41,3 +41,52 @@ def kick(msg, client_id):
     except Exception as e:
         print(e)
     return None
+
+def tint(msg):
+    args = msg.split()
+    r, g, b = float(args[1]), float(args[2]), float(args[3])
+    try:
+        activity = bs.get_foreground_host_activity()
+        #print(dir(activity.globalsnode))
+        activity.globalsnode.tint = (r, g, b)
+    
+    except Exception as e:
+        print(e)
+    return None
+
+def nv():
+    try:
+        activity = bs.get_foreground_host_activity()
+        activity.globalsnode.tint = (0.4, 0.4, 1)
+        activity.globalsnode.ambient_color = (2, 2, 2)
+    except Exception as e:
+        print(e)
+    return None
+
+def pause(client_id):
+    activity = bs.get_foreground_host_activity()
+    if activity.globalsnode.paused == True:
+        return None
+    try:
+        activity.globalsnode.paused = True
+        for entity in ros:
+            if entity["client_id"] == client_id:
+                name = entity["players"][0]["name"]
+                bs.broadcastmessage(f"{name} paused the game", transient=True, color=(0,0.5,1), clients=None)
+    except Exception as e:
+        print(e)
+    return None
+
+def resume(client_id):
+    activity = bs.get_foreground_host_activity()
+    if activity.globalsnode.paused == False:
+        return None
+    try:
+        activity.globalsnode.paused = False
+        for entity in ros:
+            if entity["client_id"] == client_id:
+                name = entity["players"][0]["name"]
+                bs.broadcastmessage(f"{name} resumed the game", transient=True, color=(0,0.5,1), clients=None)
+    except Exception as e:
+        print(e)
+    return None

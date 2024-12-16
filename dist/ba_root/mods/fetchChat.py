@@ -2,7 +2,6 @@ import babase as ba
 import bascenev1 as bs
 import json
 import os
-import commands as cmd
 import hello
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
@@ -14,7 +13,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     args = msg.split()
     command = args[0].lstrip("/")
 
-    if command not in {"kick", "hi", "end"}:
+    if command not in {"kick", "hi", "end", "tint", "nv", "pause", "resume"}:
         bs.broadcastmessage("No such command", transient=True, clients=[client_id], color=(1,0,0))
         return msg
 
@@ -35,6 +34,14 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                             hello.hello()
                         case "end":
                             hello.end(client_id)
+                        case "tint":
+                            hello.tint(msg)
+                        case "nv":
+                            hello.nv()
+                        case "pause":
+                            hello.pause(client_id)
+                        case "resume":
+                            hello.resume(client_id)
                         case _:
                             print("No such command")
                 except AttributeError as e:
