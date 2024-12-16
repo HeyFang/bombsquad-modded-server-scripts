@@ -31,6 +31,26 @@ def end(*args):
 def list(*args):
     ros = bs.get_game_roster()
     print(ros)
+    bs.chatmessage(f"  ClientID    SessionID   Name")
+    bs.chatmessage(f"----------------------------------------------------------")
+    for entity in ros:
+        if entity["client_id"] == -1:
+            pass
+        else:
+            player_name = entity["players"][0]["name_full"]
+            client_id = entity["client_id"]
+            session_id = entity["players"][0]["id"]
+            pbid = entity["account_id"]     # not sure if use this
+            
+            bs.chatmessage(f"     {client_id}           {session_id}             {player_name[:15]}")
+            
+    
+    # FORMAT PRESERVE
+    # bs.chatmessage(f"  ClientID    SessionID   Name")
+    # bs.chatmessage(f"----------------------------------------------------------")
+    # bs.chatmessage(f"     113           0             Athena")
+    # bs.chatmessage(f"     114           1             {"Yuzuru Asamiya asidj asidjasidsjdijasdjas idjaidaid ajd"[:15]}")
+    # bs.chatmessage(f"     115           2             Chisato")
     
     
 def maxplayers(args):
