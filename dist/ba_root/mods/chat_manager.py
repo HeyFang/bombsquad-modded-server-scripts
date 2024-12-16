@@ -26,7 +26,7 @@ def handle(msg: str, client_id):
             if pbid in admins:
                 try:
                     # dynamic function call based on command
-                    getattr(ac, command)(args[1:])
+                    getattr(ac, command)(args[1:], client_id)
                 except AttributeError as e:
                     print(f"Error: {e}")
             else:

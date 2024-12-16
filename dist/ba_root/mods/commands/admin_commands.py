@@ -5,30 +5,36 @@ import bacommon as bac
 import babase as ba
 import bascenev1 as bs
 
-def kick(args):
-    client_id = args[0]
-    reason = " ".join(args[1:])
+def kick(*params):
+    args = params[0]
+    admin_id = params[1]
+    
+    try:
+        target_id = args[0]
+        reason = " ".join(args[1:]) or "no reason"
+    except:
+        return bs.broadcastmessage("Specify a ClientID (required) and Reason (optional) to kick", transient=True, clients=[admin_id])
     
     try:
         # time in seconds
-        bs.disconnect_client(int(client_id), ban_time=60*5)
-        bs.chatmessage(f"Client ({client_id}) has been kicked")
+        bs.disconnect_client(int(target_id), ban_time=60*5)
+        bs.chatmessage(f"Client - {target_id} has been kicked for: {reason}")
     except Exception as e:
         print("there was an error while kicking client")
         print(e)
     
 
-def end(*args):
-    print('calling end')
-    print(bs.get_foreground_host_activity())
-    print(bs.get_foreground_host_activity().context)
+def end(*params):
+    # print('calling end')
+    # print(bs.get_foreground_host_activity())
+    # print(bs.get_foreground_host_activity().context)
 
     with bs.get_foreground_host_activity().context:
         bs.get_foreground_host_activity().end_game()
         bs.chatmessage(f"Admin Command Accepted. Game End")
     
     
-def list(*args):
+def list(*params):
     ros = bs.get_game_roster()
     print(ros)
     bs.chatmessage(f"  ClientID    SessionID   Name")
@@ -53,7 +59,9 @@ def list(*args):
     # bs.chatmessage(f"     115           2             Chisato")
     
     
-def maxplayers(args):
+def maxplayers(*params):
+    args = params[0]
+    
     try:
         party_size = int(args[0])
     except TypeError:
@@ -66,11 +74,13 @@ def maxplayers(args):
         print(e)
         
         
-def getmaxplayers(*args):
+def getmaxplayers(*params):
     bs.chatmessage(f"Max player limit is set to {str(bs.get_public_party_max_size())}")
     
     
-def remove(args):
+def remove(*params):
+    args = params[0]
+    
     client_id = int(args[0])
     reason = " ".join(args[1:]) or "inactive"
     ros = bs.get_game_roster()
@@ -86,7 +96,7 @@ def remove(args):
                         
                         
                         
-def restart(*args):
+def restart(*params):
     bs.chatmessage("Restarting The Server...")
     try:
         ba.quit()
