@@ -3,6 +3,7 @@ import bascenev1 as bs
 import json
 import os
 import commands.admin_commands as ac
+import commands.user_commands as uc
 
 def handle(msg: str, client_id):
     if not msg.startswith("/"):
@@ -10,8 +11,12 @@ def handle(msg: str, client_id):
 
     args = msg.split()
     command = args[0].lstrip("/")
+    
+    admin_commands = {"kick", "end", "list", "maxplayers", "getmaxplayers", "remove", "restart", "tint", "nv", "time", "slowmo", "cl"}
+    user_commands = {"list"}
 
-    if command not in {"kick", "end", "list", "maxplayers", "getmaxplayers", "remove", "restart", "tint", "nv", "time", "slowmo", "cl"}:
+    # check command existence
+    if command not in admin_commands and command not in user_commands:
         bs.broadcastmessage("No such command", transient=True, clients=[client_id])
         return msg
 
@@ -30,8 +35,14 @@ def handle(msg: str, client_id):
                 except AttributeError as e:
                     print(f"Error: {e}")
             else:
-                # print(f"{entity['players'][0]['name']} is not an admin")
-                player_name = entity["players"][0]["name"]
-                bs.broadcastmessage(f"{player_name} - Access Denied. You're don't have admin permissions", transient=True, clients=[client_id])
+                if command in user_commands:
+                    try:
+                        getattr(uc, command)(args[1:], client_id)
+                    except AttributeError as e:
+                        print(f"Error: {e}")
+                else:
+                    # print(f"{entity['players'][0]['name']} is not an admin")
+                    player_name = entity["players"][0]["name"]
+                    bs.broadcastmessage(f"{player_name} - Access Denied. You're don't have admin permissions", transient=True, clients=[client_id])
 
     return msg

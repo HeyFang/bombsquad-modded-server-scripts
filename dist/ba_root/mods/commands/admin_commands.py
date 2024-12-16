@@ -36,7 +36,7 @@ def end(*params):
     
 def list(*params):
     ros = bs.get_game_roster()
-    print(ros)
+    # print(ros)
     bs.chatmessage(f"  ClientID    SessionID   Name")
     bs.chatmessage(f"----------------------------------------------------------")
     for entity in ros:
@@ -175,9 +175,9 @@ def slowmo(*params):
         print(e)
     
     try:
-        if args[0] == "enable":
+        if args[0] == "on":
             activity.globalsnode.slow_motion = True
-        elif args[0] == "disable":
+        elif args[0] == "off":
             activity.globalsnode.slow_motion = False
     except IndexError as e:
         return bs.broadcastmessage(f"syntax: /slowmo [enable | disable]", transient=True, clients=[client_id])
