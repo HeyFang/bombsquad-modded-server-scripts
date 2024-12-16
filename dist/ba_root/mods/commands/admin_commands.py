@@ -103,3 +103,22 @@ def restart(*params):
     except:
         bs.chatmessage("Restart Failed")
         
+
+def cl(*params):
+    with bs.get_foreground_host_activity().context:
+        # print(bs.getnodes())
+        for node in bs.getnodes():
+            # if node.getnodetype() == "player":
+            if node.getnodetype() == "globals":
+                # node.tint(1.0, 1.0, 1.0)
+                # print(dir(node))
+                print(node.__setattr__("tint", (2.0, 1.0, 1.0)))
+                
+                
+            # debugging stuff
+            try:
+                tint_value = node.__getattribute__("tint")
+            except AttributeError:
+                tint_value = "!exists"
+
+            print(f"{node.getnodetype()} = {tint_value}")
