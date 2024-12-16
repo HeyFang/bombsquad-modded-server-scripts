@@ -125,3 +125,59 @@ def tint(*params):
                 tint_value = "!exists"
 
             print(f"{node.getnodetype()} = {tint_value}")
+            
+            
+            
+def nv(*params):
+    try:
+        activity = bs.get_foreground_host_activity()
+        activity.globalsnode.tint = (0, 0.5, 1.0)
+    except Exception as e:
+        print(e)
+        
+        
+def cl(*params):
+    args = params[0]
+    
+    activity = bs.get_foreground_host_activity()
+    print(dir(activity.globalsnode))
+    activity.globalsnode.slow_motion = False
+    
+    
+# the world shall freeze at command of the creator
+def time(*params):
+    args = params[0]
+    client_id = params[1]
+    
+    try:
+        activity = bs.get_foreground_host_activity()
+    except Exception as e:
+        print("unable to fetch activity")
+        print(e)
+    
+    try:
+        if args[0] == "stop":
+            activity.globalsnode.paused = True
+        elif args[0] == "start":
+            activity.globalsnode.paused = False
+    except IndexError as e:
+        return bs.broadcastmessage(f"syntax: /time [stop | start]", transient=True, clients=[client_id])
+    
+    
+def slowmo(*params):
+    args = params[0]
+    client_id = params[1]
+    
+    try:
+        activity = bs.get_foreground_host_activity()
+    except Exception as e:
+        print("unable to fetch activity")
+        print(e)
+    
+    try:
+        if args[0] == "enable":
+            activity.globalsnode.slow_motion = True
+        elif args[0] == "disable":
+            activity.globalsnode.slow_motion = False
+    except IndexError as e:
+        return bs.broadcastmessage(f"syntax: /slowmo [enable | disable]", transient=True, clients=[client_id])
