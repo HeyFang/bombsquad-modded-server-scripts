@@ -104,7 +104,10 @@ def restart(*params):
         bs.chatmessage("Restart Failed")
         
 
-def cl(*params):
+def tint(*params):
+    args = params[0]
+    r, g, b = float(args[0]), float(args[1]), float(args[2])
+    
     with bs.get_foreground_host_activity().context:
         # print(bs.getnodes())
         for node in bs.getnodes():
@@ -112,7 +115,7 @@ def cl(*params):
             if node.getnodetype() == "globals":
                 # node.tint(1.0, 1.0, 1.0)
                 # print(dir(node))
-                print(node.__setattr__("tint", (2.0, 1.0, 1.0)))
+                print(node.__setattr__("tint", (r, g, b)))
                 
                 
             # debugging stuff
