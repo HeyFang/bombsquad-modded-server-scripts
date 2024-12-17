@@ -131,7 +131,8 @@ def tint(*params):
 def nv(*params):
     try:
         activity = bs.get_foreground_host_activity()
-        activity.globalsnode.tint = (0, 0.5, 1.0)
+        nv_tint = (0, 0.5, 1.0)
+        activity.globalsnode.tint = (1, 1, 1) if activity.globalsnode.tint == nv_tint else nv_tint
     except Exception as e:
         print(e)
         
