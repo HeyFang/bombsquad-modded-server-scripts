@@ -3,3 +3,4 @@ config.toml
 *.pyc
 *.pyo
 dist/ba_root/.bsac2
+dist/ba_root/mods/test.py
