@@ -150,8 +150,9 @@
  "Fleet Zone Ping Last Flush Time": 1734198725,
  "Fleet Zone Pings": {
   "prod": {
-   "kolkata.v4": 83.03705600064859,
-   "mumbai.v4": 77.34231399990676
+   "delhi.v4": 40.428391047032534,
+   "hyderabad.v4": 36.79182214100187,
+   "mumbai.v4": 17.097278111090937
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -245,7 +246,7 @@
  "Signed In Last Session": false,
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 227,
+ "launchCount": 251,
  "lc14173": 1,
  "lc14292": 1
 }

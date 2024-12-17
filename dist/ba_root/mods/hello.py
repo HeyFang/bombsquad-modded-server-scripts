@@ -1,5 +1,7 @@
 import bascenev1 as bs
 
+#don't define activity variable at top to reduce redundancy; few cmds like 'end' wont work since Activity won't die
+
 def get_entity(client_id):
     ros = bs.get_game_roster()
     for entity in ros:
@@ -61,6 +63,17 @@ def nv():
         activity = bs.get_foreground_host_activity()
         activity.globalsnode.tint = (0.4, 0.4, 1)
         activity.globalsnode.ambient_color = (2, 2, 2)
+        bs.broadcastmessage("Night Mode on", transient=True, color=(0, 0.5, 1), clients=None)
+    except Exception as e:
+        print(e)
+    return None
+
+def dv():
+    try:
+        activity = bs.get_foreground_host_activity()
+        activity.globalsnode.tint = (1, 1, 1)
+        activity.globalsnode.ambient_color = (1, 1, 1)
+        bs.broadcastmessage("Night Mode off", transient=True, color=(0, 0.5, 1), clients=None)
     except Exception as e:
         print(e)
     return None
@@ -89,6 +102,20 @@ def resume(client_id):
         if entity:
             name = entity["players"][0]["name"]
             bs.broadcastmessage(f"{name} resumed the game", transient=True, color=(0, 0.5, 1), clients=None)
+    except Exception as e:
+        print(e)
+    return None
+
+def slowmo():
+    try:
+        activity = bs.get_foreground_host_activity()
+        print(activity.globalsnode.slow_motion)
+        if activity.globalsnode.slow_motion == True:
+            activity.globalsnode.slow_motion = False
+            bs.broadcastmessage("Epic mode off", transient=True, color=(0, 0.5, 1), clients=None)
+        else:
+            activity.globalsnode.slow_motion = True
+            bs.broadcastmessage("Epic mode on", transient=True, color=(0, 0.5, 1), clients=None)
     except Exception as e:
         print(e)
     return None
