@@ -12,11 +12,16 @@ def handle(msg: str, client_id):
     args = msg.split()
     command = args[0].lstrip("/")
     
-    admin_commands = {"kick", "end", "maxplayers", "getmaxplayers", "remove", "restart", "tint", "nv", "time", "slowmo", "cl"}
-    user_commands = {"list"}
+    admin_commands = [["kick"], ["end"], ["list"], ["maxplayers"], ["getmaxplayers"], ["remove", "rm"], ["restart", "exit"], ["tint"], ["nv", "night"], ["time"], ["slowmo", "sm"], ["cl"]]
+    user_commands = ["list"]     # dont need aliases for now + increases complexity
+    
+    # uhhh so in simple terms this extracts commands and aliases
+    _admin_commands = list(map(lambda c: getattr(c, "__getitem__", "none")(0), admin_commands))
+    aliases = sum(list(filter(lambda x: x != [], ( list(map(lambda a: a[1:] if len(a) > 1 else [], admin_commands)) ))), [])
+    
 
     # check command existence
-    if command not in admin_commands and command not in user_commands:
+    if command not in _admin_commands and command not in user_commands and command not in aliases:
         bs.broadcastmessage("No such command", transient=True, clients=[client_id])
         return msg
 
@@ -33,6 +38,10 @@ def handle(msg: str, client_id):
                     except AttributeError as e:
                         print(f"Error: {e}")
             elif pbid in admins:
+                # pointing the alias to command
+                if command in aliases:
+                    command = (list(filter(lambda f: f != [], list(map(lambda a: a[0] if command in a else [], admin_commands))) )[0])
+                
                 try:
                     # dynamic function call based on command
                     getattr(ac, command)(args[1:], client_id)
