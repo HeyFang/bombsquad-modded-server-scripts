@@ -144,7 +144,7 @@
   "Blue"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "__account__",
+  "Client Input Device #1": "\ud83c\udf00Fang",
   "Client Input Device #2": "Gori",
   "Client Input Device #3": "__account__",
   "Client Input Device #4": "__account__",
@@ -155,10 +155,9 @@
  "Fleet Zone Ping Last Flush Time": 1733726471,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 80.88478899981055,
-   "hyderabad.v4": 64.21373500006666,
-   "kolkata.v4": 72.67743200009136,
-   "mumbai.v4": 79.47399800013955
+   "delhi.v4": 42.22230864241101,
+   "hyderabad.v4": 34.04345944555098,
+   "mumbai.v4": 16.07032780206646
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -244,7 +243,7 @@
  "Team Tournament Playlist Selection": "cyclones",
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 122,
+ "launchCount": 129,
  "lc14173": 1,
  "lc14292": 1
 }

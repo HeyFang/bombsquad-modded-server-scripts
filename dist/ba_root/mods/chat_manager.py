@@ -12,7 +12,7 @@ def handle(msg: str, client_id):
     args = msg.split()
     command = args[0].lstrip("/")
     
-    admin_commands = {"kick", "end", "list", "maxplayers", "getmaxplayers", "remove", "restart", "tint", "nv", "time", "slowmo", "cl"}
+    admin_commands = {"kick", "end", "maxplayers", "getmaxplayers", "remove", "restart", "tint", "nv", "time", "slowmo", "cl"}
     user_commands = {"list"}
 
     # check command existence
@@ -27,22 +27,20 @@ def handle(msg: str, client_id):
             admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
             with open(admin_path, "r") as file:
                 admins = json.load(file)["admins"]
-
-            if pbid in admins:
+            if command in user_commands:
+                    try:
+                        getattr(uc, command)(args[1:], client_id)
+                    except AttributeError as e:
+                        print(f"Error: {e}")
+            elif pbid in admins:
                 try:
                     # dynamic function call based on command
                     getattr(ac, command)(args[1:], client_id)
                 except AttributeError as e:
                     print(f"Error: {e}")
             else:
-                if command in user_commands:
-                    try:
-                        getattr(uc, command)(args[1:], client_id)
-                    except AttributeError as e:
-                        print(f"Error: {e}")
-                else:
-                    # print(f"{entity['players'][0]['name']} is not an admin")
-                    player_name = entity["players"][0]["name"]
-                    bs.broadcastmessage(f"{player_name} - Access Denied. You're don't have admin permissions", transient=True, clients=[client_id])
+                # print(f"{entity['players'][0]['name']} is not an admin")
+                player_name = entity["players"][0]["name"]
+                bs.broadcastmessage(f"{player_name} - Access Denied. You're don't have admin permissions", transient=True, clients=[client_id])
 
     return msg
