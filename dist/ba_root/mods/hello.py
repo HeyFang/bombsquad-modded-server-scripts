@@ -14,7 +14,6 @@ def hello():
     return None
 
 def end(client_id):
-    print("end is called")
     try:
         game = bs.get_foreground_host_activity()
         with game.context:
@@ -28,7 +27,6 @@ def end(client_id):
     return None
 
 def kick(msg, client_id):
-    print("called kick")
     args = msg.split()
     rat = int(args[1])
     reason = " ".join(args[2:])
@@ -39,8 +37,8 @@ def kick(msg, client_id):
         if rat_entity and admin_entity:
             nameRat = rat_entity["display_string"]
             name = admin_entity["players"][0]["name"]
-            bs.disconnect_client(rat, ban_time=60*5)  # seconds
             bs.broadcastmessage(f"{name} Kicked {nameRat}, reason: {reason}", transient=True, color=(0, 0.5, 1), clients=None)
+            bs.disconnect_client(rat, ban_time=60*5)  # seconds
             print(f"{name} Kicked {nameRat}, reason: {reason}")
     except Exception as e:
         print(e)
