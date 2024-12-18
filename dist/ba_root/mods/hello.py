@@ -61,22 +61,29 @@ def tint(msg):
 def nv():
     try:
         activity = bs.get_foreground_host_activity()
-        activity.globalsnode.tint = (0.4, 0.4, 1)
-        activity.globalsnode.ambient_color = (2, 2, 2)
-        bs.broadcastmessage("Night Mode on", transient=True, color=(0, 0.5, 1), clients=None)
+        nv_tint = (0.4, 0.4, 1.0)
+        nv_ambient = (1.5, 1.5, 1.5)
+        if activity.globalsnode.tint == nv_tint:
+            activity.globalsnode.tint = (1, 1, 1)
+            activity.globalsnode.ambient_color = (1, 1, 1)
+            bs.broadcastmessage("Night Mode off", transient=True, color=(0, 0.5, 1), clients=None)
+        else:
+            activity.globalsnode.tint = nv_tint
+            activity.globalsnode.ambient_color = nv_ambient        
+            bs.broadcastmessage("Night Mode on", transient=True, color=(0, 0.5, 1), clients=None)
     except Exception as e:
         print(e)
     return None
 
-def dv():
-    try:
-        activity = bs.get_foreground_host_activity()
-        activity.globalsnode.tint = (1, 1, 1)
-        activity.globalsnode.ambient_color = (1, 1, 1)
-        bs.broadcastmessage("Night Mode off", transient=True, color=(0, 0.5, 1), clients=None)
-    except Exception as e:
-        print(e)
-    return None
+# def dv():
+#     try:
+#         activity = bs.get_foreground_host_activity()
+#         activity.globalsnode.tint = (1, 1, 1)
+#         activity.globalsnode.ambient_color = (1, 1, 1)
+#         bs.broadcastmessage("Night Mode off", transient=True, color=(0, 0.5, 1), clients=None)
+#     except Exception as e:
+#         print(e)
+#     return None
 
 def pause(client_id):
     activity = bs.get_foreground_host_activity()
