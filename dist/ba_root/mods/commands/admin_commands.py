@@ -4,6 +4,7 @@ import _bascenev1
 import bacommon as bac
 import babase as ba
 import bascenev1 as bs
+import bascenev1lib as bsl
 
 def kick(*params):
     args = params[0]
@@ -136,13 +137,6 @@ def nv(*params):
     except Exception as e:
         print(e)
         
-        
-def cl(*params):
-    args = params[0]
-    
-    activity = bs.get_foreground_host_activity()
-    print(dir(activity.globalsnode))
-    activity.globalsnode.slow_motion = False
     
     
 # the world shall freeze at command of the creator
@@ -182,3 +176,124 @@ def slowmo(*params):
             activity.globalsnode.slow_motion = False
     except IndexError as e:
         return bs.broadcastmessage(f"syntax: /slowmo [enable | disable]", transient=True, clients=[client_id])
+
+
+
+def __getplayer__(target_id, ros):
+    for player in ros:
+        if player["client_id"] == target_id:
+            for splayer in bs.get_foreground_host_session().sessionplayers:
+                if player["players"][0]["id"] == splayer.id:
+                    spaz = splayer.activityplayer
+    return spaz
+    
+    
+def kill(*params):
+    args = params[0]
+    ros = params[2]
+    target_id = int(args[0])
+    
+    spaz = __getplayer__(target_id, ros)
+    
+    try:
+        with bs.get_foreground_host_activity().context:
+            spaz.actor.shatter()
+    except Exception as e:
+        print(e)
+
+
+
+def curse(*params):
+    args = params[0]
+    ros = params[2]
+    target_id = int(args[0])
+    
+    spaz = __getplayer__(target_id, ros)
+    
+    try:
+        with bs.get_foreground_host_activity().context:
+            spaz.actor.curse()
+    except Exception as e:
+        print(e)
+
+
+
+def box(*params):
+    args = params[0]
+    ros = params[2]
+    target_id = int(args[0])
+    
+    spaz = __getplayer__(target_id, ros)
+    
+    try:
+        with bs.get_foreground_host_activity().context:
+            spaz.actor.equip_boxing_gloves()
+    except Exception as e:
+        print(e)
+
+
+
+
+# under development, doesnt work
+def freeze(*params):
+    args = params[0]
+    ros = params[2]
+    target_id = int(args[0])
+    
+    spaz = __getplayer__(target_id, ros)
+    
+    try:
+        with bs.get_foreground_host_activity().context:
+            print(dir(spaz.actor))
+            print(spaz.actor.frozen)
+            spaz.actor.handlemessage(bs.FreezeMessage)
+            print("frozen indeed")
+    except Exception as e:
+        print(e)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# testing command
+
+def cl(*params):
+    args = params[0]
+    ros = params[2]
+    target_id = int(args[0])
+    
+    for player in ros:
+        if player["client_id"] == target_id:
+            for splayer in bs.get_foreground_host_session().sessionplayers:
+                if player["players"][0]["id"] == splayer.id:
+                    try:
+                        # print(dir(splayer.activityplayer))
+                        # print(splayer.activityplayer.node)
+                        # print(dir(splayer.activityplayer.node))
+                        
+                        with bs.get_foreground_host_activity().context:
+                            player = splayer.activityplayer
+                            # ga = bs.get_foreground_host_activity()
+                            # spaz = ga.spawn_player(player)
+                            # spaz.curse()
+                            # print(player.actor)
+                            print(dir(player.actor))
+                            player.actor.shatter()
+                    except Exception as e:
+                        print(e)

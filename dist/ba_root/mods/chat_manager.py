@@ -12,7 +12,7 @@ def handle(msg: str, client_id):
     args = msg.split()
     command = args[0].lstrip("/")
     
-    admin_commands = [["kick"], ["end"], ["list"], ["maxplayers", "max"], ["getmaxplayers"], ["remove", "rm"], ["restart", "exit"], ["tint"], ["nv", "night"], ["time"], ["slowmo", "sm"], ["cl"]]
+    admin_commands = [["kick"], ["end"], ["list"], ["maxplayers", "max"], ["getmaxplayers"], ["remove", "rm"], ["restart", "exit"], ["tint"], ["nv", "night"], ["time", "english_or_spanish"], ["slowmo", "sm"], ["cl"], ["kill"], ["curse"], ["box"], ["freeze"], ["thaw"]]
     user_commands = ["list"]     # dont need aliases for now + increases complexity
     
     # uhhh so in simple terms this extracts commands and aliases
@@ -34,7 +34,7 @@ def handle(msg: str, client_id):
                 admins = json.load(file)["admins"]
             if command in user_commands:
                     try:
-                        getattr(uc, command)(args[1:], client_id)
+                        getattr(uc, command)(args[1:], client_id, ros)
                     except AttributeError as e:
                         print(f"Error: {e}")
             elif pbid in admins:
@@ -44,7 +44,7 @@ def handle(msg: str, client_id):
                 
                 try:
                     # dynamic function call based on command
-                    getattr(ac, command)(args[1:], client_id)
+                    getattr(ac, command)(args[1:], client_id, ros)
                 except AttributeError as e:
                     print(f"Error: {e}")
             else:
