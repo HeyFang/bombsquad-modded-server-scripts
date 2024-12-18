@@ -10,7 +10,8 @@ def get_entity(client_id):
     return None
 
 def hello():
-    print("inside hello")
+    activity = bs.get_foreground_host_activity()
+    print(bs.get_public_party_max_size())
     bs.broadcastmessage(f"konnichiwa chibi!", clients=None, transient=True, color=(0, 0.5, 1))
     return None
 
@@ -59,31 +60,28 @@ def tint(msg):
     return None
 
 def nv():
+    def is_close(a, b, tol=1e-5):
+        return all(abs(x - y) < tol for x, y in zip(a, b))
+
     try:
         activity = bs.get_foreground_host_activity()
         nv_tint = (0.4, 0.4, 1.0)
         nv_ambient = (1.5, 1.5, 1.5)
-        if activity.globalsnode.tint == nv_tint:
+        
+        if is_close(activity.globalsnode.tint, nv_tint):
             activity.globalsnode.tint = (1, 1, 1)
             activity.globalsnode.ambient_color = (1, 1, 1)
+            #print(activity.globalsnode.tint)
             bs.broadcastmessage("Night Mode off", transient=True, color=(0, 0.5, 1), clients=None)
         else:
             activity.globalsnode.tint = nv_tint
-            activity.globalsnode.ambient_color = nv_ambient        
+            activity.globalsnode.ambient_color = nv_ambient
+            #print(activity.globalsnode.tint)
             bs.broadcastmessage("Night Mode on", transient=True, color=(0, 0.5, 1), clients=None)
     except Exception as e:
         print(e)
     return None
 
-# def dv():
-#     try:
-#         activity = bs.get_foreground_host_activity()
-#         activity.globalsnode.tint = (1, 1, 1)
-#         activity.globalsnode.ambient_color = (1, 1, 1)
-#         bs.broadcastmessage("Night Mode off", transient=True, color=(0, 0.5, 1), clients=None)
-#     except Exception as e:
-#         print(e)
-#     return None
 
 def pause(client_id):
     activity = bs.get_foreground_host_activity()
@@ -125,4 +123,24 @@ def slowmo():
             bs.broadcastmessage("Epic mode on", transient=True, color=(0, 0.5, 1), clients=None)
     except Exception as e:
         print(e)
+    return None
+
+#bs.get_public_party_max_size
+#bs.set_public_party_max_size
+#bs.get_chat_messages
+#bs.SessionData
+#bs.Stats
+#bs.get_game_roster
+def maxplayers(msg):
+    args = msg.split()
+    size = int(args[1])
+    if 1 < size < 100:
+        try:
+            bs.set_public_party_max_size(size)
+            #print(bs.get_public_party_max_size())
+            bs.broadcastmessage(f"Max players set to {size}", transient=True, color=(0, 0.5, 1), clients=None)
+        except Exception as e:
+            print(e)
+    else:
+        bs.broadcastmessage("Invalid size. Must be between 2 and 99.", transient=True, color=(1, 0, 0), clients=None)
     return None
