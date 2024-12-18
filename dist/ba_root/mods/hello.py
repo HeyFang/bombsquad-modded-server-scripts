@@ -10,8 +10,6 @@ def get_entity(client_id):
     return None
 
 def hello():
-    activity = bs.get_foreground_host_activity()
-    print(bs.get_public_party_max_size())
     bs.broadcastmessage(f"konnichiwa chibi!", clients=None, transient=True, color=(0, 0.5, 1))
     return None
 
@@ -36,12 +34,12 @@ def kick(msg, client_id):
     reason = " ".join(args[2:])
 
     try:
-        bs.disconnect_client(rat, ban_time=60*5)  # seconds
         rat_entity = get_entity(rat)
         admin_entity = get_entity(client_id)
         if rat_entity and admin_entity:
             nameRat = rat_entity["display_string"]
             name = admin_entity["players"][0]["name"]
+            bs.disconnect_client(rat, ban_time=60*5)  # seconds
             bs.broadcastmessage(f"{name} Kicked {nameRat}, reason: {reason}", transient=True, color=(0, 0.5, 1), clients=None)
             print(f"{name} Kicked {nameRat}, reason: {reason}")
     except Exception as e:
