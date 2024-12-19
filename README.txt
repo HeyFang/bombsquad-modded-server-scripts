@@ -4,10 +4,11 @@
 - [x] end, pause, resume
 - [x] slowmo
 - [x] maxplayers
+- [x] announce
 - [ ] ban
 - [ ] list
 - [ ] remove
-- [ ] quit
+- [x] quit
 - [ ] playerinfo
 - [ ] mute/unmute
 - [ ] past messages

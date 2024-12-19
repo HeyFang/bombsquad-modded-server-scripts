@@ -1,4 +1,5 @@
 import bascenev1 as bs
+import babase as ba
 
 #don't define activity variable at top to reduce redundancy; few cmds like 'end' wont work since Activity won't die
 
@@ -10,6 +11,7 @@ def get_entity(client_id):
     return None
 
 def hello():
+    print()
     bs.broadcastmessage(f"konnichiwa chibi!", clients=None, transient=True, color=(0, 0.5, 1))
     return None
 
@@ -121,8 +123,6 @@ def slowmo():
         print(e)
     return None
 
-#bs.get_public_party_max_size
-#bs.set_public_party_max_size
 #bs.get_chat_messages
 #bs.SessionData
 #bs.Stats
@@ -139,4 +139,27 @@ def maxplayers(msg):
             print(e)
     else:
         bs.broadcastmessage("Invalid size. Must be between 2 and 99.", transient=True, color=(1, 0, 0), clients=None)
+    return None
+
+def past_msgs():
+    #not sure this is good way to do it :/
+    msgs = bs.get_chat_messages()
+    for msg in msgs:
+        bs.chatmessage(msg)
+    return None
+
+def send(msg):
+    text = msg.split(" ", 1)[1]
+    bs.broadcastmessage(text, transient=True, color=(0, 0.5, 1), clients=None)
+    return None
+
+def quit(client_id):
+    try:
+        entity = get_entity(client_id)
+        if entity:
+            name = entity["players"][0]["name"]
+            bs.broadcastmessage(f"{name} restarted server", transient=True, color=(0, 0.5, 1), clients=None)
+            ba.quit()
+    except Exception as e:
+        print(e)
     return None

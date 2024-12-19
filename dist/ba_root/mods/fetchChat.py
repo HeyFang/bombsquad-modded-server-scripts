@@ -11,9 +11,9 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
         return msg
 
     args = msg.split()
-    command = args[0].lstrip("/")
+    command = args[0].lstrip("/").lower()
 
-    if command not in {"kick", "hi", "end", "tint", "nv", "night", "pause", "resume", "sm", "slowmo", "epic", "maxplayers", "mp"}:
+    if command not in {"kick", "hi", "end", "tint", "nv", "night", "pause", "resume", "sm", "slowmo", "epic", "maxplayers", "mp", "lm", "send", "announce", "quit", "restart"}:
         bs.broadcastmessage("No such command", transient=True, clients=[client_id], color=(1,0,0))
         return msg
 
@@ -46,6 +46,12 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                             hello.slowmo()
                         case "maxplayers" | "mp":
                             hello.maxplayers(msg)
+                        case "lm":
+                            hello.past_msgs()
+                        case "send" | "announce":
+                            hello.send(msg)
+                        case "quit" | "restart":
+                            hello.quit(client_id)
                         case _:
                             print("No such command")
                 except AttributeError as e:
