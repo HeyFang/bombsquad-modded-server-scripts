@@ -191,72 +191,160 @@ def __getplayer__(target_id, ros):
 def kill(*params):
     args = params[0]
     ros = params[2]
-    target_id = int(args[0])
     
-    spaz = __getplayer__(target_id, ros)
+    activity = bs.get_foreground_host_activity()
     
-    try:
-        with bs.get_foreground_host_activity().context:
-            spaz.actor.shatter()
-    except Exception as e:
-        print(e)
+    if args[0] == "all":
+        for player in activity.players:
+            with activity.context:
+                player.actor.shatter()
+    else:
+        target_id = int(args[0])
+        spaz = __getplayer__(target_id, ros)
+        
+        try:
+            with activity.context:
+                spaz.actor.shatter()
+        except Exception as e:
+            print(e)
 
 
 
 def curse(*params):
     args = params[0]
     ros = params[2]
-    target_id = int(args[0])
     
-    spaz = __getplayer__(target_id, ros)
+    activity = bs.get_foreground_host_activity()
     
-    try:
-        with bs.get_foreground_host_activity().context:
-            spaz.actor.curse()
-    except Exception as e:
-        print(e)
+    if args[0] == "all":
+        for player in activity.players:
+            with activity.context:
+                player.actor.curse()
+    else:
+        target_id = int(args[0])
+        spaz = __getplayer__(target_id, ros)
+        
+        try:
+            with activity.context:
+                spaz.actor.curse()
+        except Exception as e:
+            print(e)
 
 
 
-def box(*params):
+def gloves(*params):
     args = params[0]
     ros = params[2]
-    target_id = int(args[0])
     
-    spaz = __getplayer__(target_id, ros)
+    activity = bs.get_foreground_host_activity()
     
-    try:
-        with bs.get_foreground_host_activity().context:
-            spaz.actor.equip_boxing_gloves()
-    except Exception as e:
-        print(e)
+    if args[0] == "all":
+        for player in activity.players:
+            with activity.context:
+                player.actor.equip_boxing_gloves()
+    else:
+        target_id = int(args[0])
+        spaz = __getplayer__(target_id, ros)
+        
+        try:
+            with activity.context:
+                spaz.actor.equip_boxing_gloves()
+        except Exception as e:
+            print(e)
 
 
 
 
-# under development, doesnt work
+# you're able to get a bomb but it works so...
+# for all doesnt work, ima sleepy
 def freeze(*params):
     args = params[0]
     ros = params[2]
-    target_id = int(args[0])
     
+    activity = bs.get_foreground_host_activity()
+    
+    target_id = int(args[0])
     spaz = __getplayer__(target_id, ros)
     
     try:
-        with bs.get_foreground_host_activity().context:
-            print(dir(spaz.actor))
-            print(spaz.actor.frozen)
-            spaz.actor.handlemessage(bs.FreezeMessage)
-            print("frozen indeed")
+        with activity.context:
+            spaz.actor.node.frozen = True
+            bs.timer(6.0, (lambda: spaz.actor.node.__setattr__("frozen", False)))
     except Exception as e:
         print(e)
 
 
 
+def thaw(*params):
+    args = params[0]
+    ros = params[2]
+    
+    activity = bs.get_foreground_host_activity()
+    
+    if args[0] == "all":
+        for player in activity.players:
+            with activity.context:
+                player.actor.node.frozen = False
+    else:
+        target_id = int(args[0])
+        spaz = __getplayer__(target_id, ros)
+        
+        try:
+            with activity.context:
+                spaz.actor.node.frozen = False
+        except Exception as e:
+            print(e)
+
+
+
+        
+def heal(*params):
+    args = params[0]
+    ros = params[2]
+    
+    activity = bs.get_foreground_host_activity()
+    
+    if args[0] == "all":
+        for player in activity.players:
+            with activity.context:
+                player.actor.node.handlemessage(bs.PowerupMessage(poweruptype="health"))
+    else:
+        target_id = int(args[0])
+        spaz = __getplayer__(target_id, ros)
+        
+        try:
+            with activity.context:
+                spaz.actor.node.handlemessage(bs.PowerupMessage(poweruptype="health"))
+        except Exception as e:
+            print(e)
 
 
 
 
+
+
+
+def command(*params):
+    args = params[0]
+    ros = params[2]
+    
+    activity = bs.get_foreground_host_activity()
+    
+    if args[0] == "all":
+        for player in activity.players:
+            with activity.context:
+                player.actor.equip_boxing_gloves()
+    else:
+        target_id = int(args[0])
+        spaz = __getplayer__(target_id, ros)
+        
+        try:
+            with activity.context:
+                spaz.actor.node.handlemessage(bs.PowerupMessage(poweruptype="health"))
+        except Exception as e:
+            print(e)
+        
+        
 
 
 
@@ -274,26 +362,33 @@ def freeze(*params):
 # testing command
 
 def cl(*params):
-    args = params[0]
-    ros = params[2]
-    target_id = int(args[0])
+    # args = params[0]
+    # ros = params[2]
+    # target_id = int(args[0])
     
-    for player in ros:
-        if player["client_id"] == target_id:
-            for splayer in bs.get_foreground_host_session().sessionplayers:
-                if player["players"][0]["id"] == splayer.id:
-                    try:
-                        # print(dir(splayer.activityplayer))
-                        # print(splayer.activityplayer.node)
-                        # print(dir(splayer.activityplayer.node))
+    activity = bs.get_foreground_host_activity()
+    print(activity.players)
+
+    for player in activity.players:
+        with activity.context:
+            player.actor.equip_boxing_gloves()
+
+    # for player in ros:
+    #     if player["client_id"] == target_id:
+    #         for splayer in bs.get_foreground_host_session().sessionplayers:
+    #             if player["players"][0]["id"] == splayer.id:
+    #                 try:
+    #                     # print(dir(splayer.activityplayer))
+    #                     # print(splayer.activityplayer.node)
+    #                     # print(dir(splayer.activityplayer.node))
                         
-                        with bs.get_foreground_host_activity().context:
-                            player = splayer.activityplayer
-                            # ga = bs.get_foreground_host_activity()
-                            # spaz = ga.spawn_player(player)
-                            # spaz.curse()
-                            # print(player.actor)
-                            print(dir(player.actor))
-                            player.actor.shatter()
-                    except Exception as e:
-                        print(e)
+    #                     with bs.get_foreground_host_activity().context:
+    #                         player = splayer.activityplayer
+    #                         # ga = bs.get_foreground_host_activity()
+    #                         # spaz = ga.spawn_player(player)
+    #                         # spaz.curse()
+    #                         # print(player.actor)
+    #                         print(dir(player.actor))
+    #                         player.actor.shatter()
+    #                 except Exception as e:
+    #                     print(e)
