@@ -2,7 +2,6 @@ config.toml
 **/__pycache__/
 *.pyc
 *.pyo
-./dist/ba_root/mods/.bsac2
-./dist/ba_root/mods/.bsac2
+*.bsac2
 ./dist/ba_root/mods/config.json
 ./dist/ba_root/mods/config.json.prev
