@@ -11,7 +11,7 @@
 - [x] quit
 - [ ] playerinfo
 - [ ] mute/unmute
-- [ ] past messages
+- [x] past messages
 - [ ] afk remover
 - [ ] add tag
 - [ ] stats
