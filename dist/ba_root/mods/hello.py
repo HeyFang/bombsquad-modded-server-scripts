@@ -176,3 +176,21 @@ def list(client_id):
     except Exception as e:
         print(e)
     return None
+
+def remove(msg, client_id):
+    args = msg.split()
+    rat = int(args[1])
+    admin_entity = get_entity(client_id)
+    rat_entity = get_entity(rat)
+
+    try:
+        session = bs.get_foreground_host_session()
+        for i in session.sessionplayers:
+            if i.inputdevice.client_id == rat:
+                i.remove_from_game()
+        if admin_entity and rat_entity:
+            adminName = admin_entity["players"][0]["name"]
+            ratName = rat_entity["players"][0]["name"]
+            bs.broadcastmessage(f"{adminName} removed {ratName}", clients=None, transient=True, color=(0, 0.5, 1))
+    except:
+        return None

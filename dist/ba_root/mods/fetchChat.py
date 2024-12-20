@@ -13,7 +13,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     args = msg.split()
     command = args[0].lstrip("/").lower()
 
-    admin_commands = {"kick", "hi", "end", "tint", "nv", "night", "pause", "resume", "sm", "slowmo", "epic", "maxplayers", "mp", "lm", "send", "announce", "quit", "restart"}
+    admin_commands = {"kick", "hi", "end", "tint", "nv", "night", "pause", "resume", "sm", "slowmo", "epic", "maxplayers", "mp", "lm", "send", "announce", "quit", "restart", "remove", "rm"}
     user_commands = {"list", "me", "stats", "help"}
 
     if command not in admin_commands and command not in user_commands:
@@ -69,6 +69,8 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                             hello.send(msg)
                         case "quit" | "restart":
                             hello.quit(client_id)
+                        case "rm" | "remove":
+                            hello.remove(msg, client_id)
                         case _:
                             print("No such command")
                 except AttributeError as e:

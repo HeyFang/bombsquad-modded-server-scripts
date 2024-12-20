@@ -6,8 +6,8 @@
 - [x] maxplayers
 - [x] announce
 - [ ] ban
-- [ ] list
-- [ ] remove
+- [x] list
+- [x] remove
 - [x] quit
 - [ ] playerinfo
 - [ ] mute/unmute
