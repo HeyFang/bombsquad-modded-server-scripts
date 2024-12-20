@@ -13,7 +13,10 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     args = msg.split()
     command = args[0].lstrip("/").lower()
 
-    if command not in {"kick", "hi", "end", "tint", "nv", "night", "pause", "resume", "sm", "slowmo", "epic", "maxplayers", "mp", "lm", "send", "announce", "quit", "restart"}:
+    admin_commands = {"kick", "hi", "end", "tint", "nv", "night", "pause", "resume", "sm", "slowmo", "epic", "maxplayers", "mp", "lm", "send", "announce", "quit", "restart"}
+    user_commands = {"list", "me", "stats", "help"}
+
+    if command not in admin_commands and command not in user_commands:
         bs.broadcastmessage("No such command", transient=True, clients=[client_id], color=(1,0,0))
         return msg
 
@@ -25,7 +28,21 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
             with open(admin_path, "r") as file:
                 admins = json.load(file)["admins"]
 
-            if pbid in admins:
+            if command in user_commands:
+                try:
+                    match command:
+                        case "list":
+                            hello.list(client_id)
+                        case "me" | "stats":
+                            hello.stats(pbid)
+                        case "help":
+                            hello.help()
+                        case _:
+                            print("No such command")
+                except AttributeError as e:
+                    print(f"Error: {e}")
+
+            elif pbid in admins:
                 try:
                     match command:
                         case "kick":
