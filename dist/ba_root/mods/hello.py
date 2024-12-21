@@ -192,13 +192,16 @@ def remove(msg, client_id):
         return None
 
 def party_toggle(msg):
-    args = msg.split()
-    if args[1] == "pub" or args[1] == "public":
-        bs.set_public_party_enabled(True)
-        bs.broadcastmessage("Party mode set to Public", transient=True, color=(0, 0.5, 1), clients=None)
-    elif args[1] == "pvt" or args[1] == "private":
-        bs.set_public_party_enabled(False)
-        bs.broadcastmessage("Party mode set to Private", transient=True, color=(0, 0.5, 1), clients=None)
-    print(bs.get_public_party_enabled())
+    try:
+        args = msg.split()
+        if args[1] == "pub" or args[1] == "public":
+            bs.set_public_party_enabled(True)
+            bs.broadcastmessage("Party mode set to Public", transient=True, color=(0, 0.5, 1), clients=None)
+        elif args[1] == "pvt" or args[1] == "private":
+            bs.set_public_party_enabled(False)
+            bs.broadcastmessage("Party mode set to Private", transient=True, color=(0, 0.5, 1), clients=None)
+        print(bs.get_public_party_enabled())
+    except Exception as e:
+        print(e)
     return None
 
