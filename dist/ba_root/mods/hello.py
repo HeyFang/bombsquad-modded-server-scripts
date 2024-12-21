@@ -123,10 +123,6 @@ def slowmo():
         print(e)
     return None
 
-#bs.get_chat_messages
-#bs.SessionData
-#bs.Stats
-#bs.get_game_roster
 def maxplayers(msg):
     args = msg.split()
     size = int(args[1])
@@ -194,3 +190,15 @@ def remove(msg, client_id):
             bs.broadcastmessage(f"{adminName} removed {ratName}", clients=None, transient=True, color=(0, 0.5, 1))
     except:
         return None
+
+def party_toggle(msg):
+    args = msg.split()
+    if args[1] == "pub" or args[1] == "public":
+        bs.set_public_party_enabled(True)
+        bs.broadcastmessage("Party mode set to Public", transient=True, color=(0, 0.5, 1), clients=None)
+    elif args[1] == "pvt" or args[1] == "private":
+        bs.set_public_party_enabled(False)
+        bs.broadcastmessage("Party mode set to Private", transient=True, color=(0, 0.5, 1), clients=None)
+    print(bs.get_public_party_enabled())
+    return None
+
