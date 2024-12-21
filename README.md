@@ -18,3 +18,4 @@
 - [ ] ping
 - [ ] kill, curse, freeze, invsible, godmode
 - [ ] spaz
+- [ ] public/pvt toggle
