@@ -365,15 +365,15 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
         bs.timer(1.0, self._update, repeat=True)
     
     #lets bomb
-        self._bomb_timer = bs.timer(1, (lambda: bs.timer(0.5, self._bomb, repeat=True)))
+        self._bomb_timer = bs.timer(1, (lambda: bs.timer(0.5, self._bomb, repeat=True)), repeat = False)
 
     def _bomb(self):
         for team in self.teams:
             for player in team.players:
                 if player.is_alive():
                     pos = player.position + bs.Vec3(0.0, 2.0, 0.0)
-                    bmb = Bomb(position=pos, bomb_type="land_mine", velocity= (0,3,0)).autoretain()
-                    bs.timer(0.5, (lambda: bmb.arm()))
+                    Bomb(position=pos, bomb_type="land_mine", velocity= (0,3,0)).autoretain().arm()
+                    #fix the arm() delay!
 
     def _update_solo_mode(self) -> None:
         # For both teams, find the first player on the spawn order list with
