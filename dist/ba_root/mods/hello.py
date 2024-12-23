@@ -1,5 +1,6 @@
 import bascenev1 as bs
 import babase as ba
+from roles import banlist, save_banlist
 
 #don't define activity variable at top to reduce redundancy; few cmds like 'end' wont work since Activity won't die
 
@@ -205,3 +206,37 @@ def party_toggle(msg):
         print(e)
     return None
 
+def ban(msg, client_id):
+    args = msg.split()
+    rat = int(args[1])
+    reason = " ".join(args[2:])
+
+    try:
+        rat_entity = get_entity(rat)
+        admin_entity = get_entity(client_id)
+        if rat_entity and admin_entity:
+            nameRat = rat_entity["display_string"]
+            nameAdmin = admin_entity["players"][0]["name"]
+            pbid = rat_entity["account_id"]
+            print(pbid)
+            if pbid not in banlist:
+                banlist.append(pbid)
+                save_banlist()  # Save the updated banlist to the file
+                bs.broadcastmessage(f"{nameAdmin} banned {nameRat}, reason: {reason}", transient=True, color=(0, 0.5, 1), clients=None)
+            else:
+                print(f"User {pbid} is already in the banlist.")
+                print(banlist)
+    except Exception as e:
+        print(e)
+    return None
+
+def unban(msg, client_id):
+    #not with client_id, but with pbid...
+    return None
+
+def bans():
+    try:
+        bs.broadcastmessage(f"Banlist: {banlist}", transient=True, color=(0, 0.5, 1), clients=None)
+    except Exception as e:
+        print(e)
+    return None

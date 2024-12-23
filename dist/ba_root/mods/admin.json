@@ -1,3 +1,9 @@
 {
-    "admins": ["pb-IF4FP0co","pb-IF5dUXgGUQ=="]
+    "admins": [
+        "pb-IF4FP0co",
+        "pb-IF5dUXgGUQ=="
+    ],
+    "banlist": [
+        "pb-IF4FP0co"
+    ]
 }
