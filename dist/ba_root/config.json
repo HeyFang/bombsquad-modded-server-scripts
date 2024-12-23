@@ -127,37 +127,25 @@
  "Auto Account State": "Server",
  "Auto Balance Teams": true,
  "Campaigns": {},
- "Custom Team Colors": [
-  [
-   0.1,
-   0.25,
-   1.0
-  ],
-  [
-   1.0,
-   0.25,
-   0.2
-  ]
- ],
  "Custom Team Names": [
-  "Red",
-  "Blue"
+  "Maou",
+  "Meow"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "\ud83c\udf00Fang",
-  "Client Input Device #2": "Gori",
+  "Client Input Device #1": "Athena",
+  "Client Input Device #2": "__account__",
   "Client Input Device #3": "__account__",
   "Client Input Device #4": "__account__",
   "Client Input Device #5": "_random",
   "Client Input Device #6": "shervin palng"
  },
  "FFA Series Length": 24,
- "Fleet Zone Ping Last Flush Time": 1733726471,
+ "Fleet Zone Ping Last Flush Time": 1734633784,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 44.29250622575887,
-   "hyderabad.v4": 31.87448200070982,
-   "mumbai.v4": 17.045878408267804
+   "delhi.v4": 22.22633436426986,
+   "hyderabad.v4": 19.57343200338073,
+   "mumbai.v4": 1.3781745011219755
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -243,7 +231,7 @@
  "Team Tournament Playlist Selection": "cyclones",
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 129,
+ "launchCount": 154,
  "lc14173": 1,
  "lc14292": 1
 }

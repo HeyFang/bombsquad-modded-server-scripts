@@ -6,6 +6,10 @@ import babase as ba
 import bascenev1 as bs
 import bascenev1lib as bsl
 
+from data import db
+
+# /kick <client_id> <reason>
+# /kick 113 being a weirdo
 def kick(*params):
     args = params[0]
     admin_id = params[1]
@@ -23,7 +27,34 @@ def kick(*params):
     except Exception as e:
         print("there was an error while kicking client")
         print(e)
+
+
+# /ban <client_id> <duration> <reason>
+# /ban 113 30 says pineapple is better on pizza
+# /ban 113 perma says pineapple should be topped with pizza crumbs
+def ban(*params):
+    args = params[0]
+    admin_id = params[1]
+    ros = params[2]
     
+    try:
+        target_id = args[0]
+        duration = int(args[1])
+        reason = " ".join(args[2:]) or "no reason"
+        pbid = list(filter(lambda x: x != "", list(map((lambda x: x["account_id"] if x["client_id"] == int(target_id) else ""), ros)) ))[0]
+    except:
+        return bs.broadcastmessage("Specify a valid ClientID (required) and Duration (required) to ban", transient=True, clients=[admin_id])
+    
+    try:
+        db.ban(pbid, duration, reason)
+        bs.disconnect_client(int(target_id), ban_time=60*5)
+        bs.chatmessage(f"Client - {target_id} has been kicked for: {reason}")
+    except Exception as e:
+        print("there was an error while banning client")
+        print(e)
+    
+
+
 
 def end(*params):
     # print('calling end')
@@ -321,29 +352,23 @@ def heal(*params):
 
 
 
-
-
-
-def command(*params):
+def party_toggle(*params):
     args = params[0]
-    ros = params[2]
     
-    activity = bs.get_foreground_host_activity()
-    
-    if args[0] == "all":
-        for player in activity.players:
-            with activity.context:
-                player.actor.equip_boxing_gloves()
-    else:
-        target_id = int(args[0])
-        spaz = __getplayer__(target_id, ros)
-        
-        try:
-            with activity.context:
-                spaz.actor.node.handlemessage(bs.PowerupMessage(poweruptype="health"))
-        except Exception as e:
-            print(e)
-        
+    try:
+        if args[0] == "pub" or args[0] == "public":
+            bs.set_public_party_enabled(True)
+            bs.broadcastmessage("Party mode set to Public", transient=True, color=(0, 0.5, 1))
+        elif args[0] == "pvt" or args[0] == "private":
+            bs.set_public_party_enabled(False)
+            bs.broadcastmessage("Party mode set to Private", transient=True, color=(0, 0.5, 1))
+        print(bs.get_public_party_enabled())
+    except Exception as e:
+        print(e)
+    return None
+
+
+
         
 
 
@@ -366,12 +391,8 @@ def cl(*params):
     # ros = params[2]
     # target_id = int(args[0])
     
-    activity = bs.get_foreground_host_activity()
-    print(activity.players)
-
-    for player in activity.players:
-        with activity.context:
-            player.actor.equip_boxing_gloves()
+    print('testing')
+    print(db.pb_exists("banned", "pbtesting"))
 
     # for player in ros:
     #     if player["client_id"] == target_id:

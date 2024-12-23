@@ -4,6 +4,8 @@ import json
 import os
 import commands.admin_commands as ac
 import commands.user_commands as uc
+from tinydb import TinyDB, Query
+
 
 def handle(msg: str, client_id):
     if not msg.startswith("/"):
@@ -12,7 +14,7 @@ def handle(msg: str, client_id):
     args = msg.split()
     command = args[0].lstrip("/")
     
-    admin_commands = [["kick"], ["end"], ["list"], ["maxplayers", "max"], ["getmaxplayers"], ["remove", "rm"], ["restart", "exit"], ["tint"], ["nv", "night"], ["time", "english_or_spanish"], ["slowmo", "sm"], ["cl"], ["kill"], ["curse"], ["gloves"], ["freeze"], ["heal"], ["thaw"]]
+    admin_commands = [["kick"], ["ban"], ["end"], ["list"], ["maxplayers", "max"], ["getmaxplayers"], ["remove", "rm"], ["restart", "exit"], ["tint"], ["nv", "night"], ["time", "english_or_spanish"], ["slowmo", "sm"], ["cl"], ["kill"], ["curse"], ["gloves"], ["freeze"], ["heal"], ["thaw"], ["party_toggle", "party"]]
     user_commands = ["list"]     # dont need aliases for now + increases complexity
     
     # uhhh so in simple terms this extracts commands and aliases
@@ -29,9 +31,15 @@ def handle(msg: str, client_id):
     for entity in ros:
         if entity["client_id"] == client_id:
             pbid = entity["account_id"]
-            admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
-            with open(admin_path, "r") as file:
-                admins = json.load(file)["admins"]
+            # admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
+            # with open(admin_path, "r") as file:
+            #     admins = json.load(file)["admins"]
+            
+            customs_path = os.path.join(os.getcwd(), "ba_root/mods/data/customs.json")
+            db = TinyDB(customs_path)
+            admins = db.table("admins")
+            admins = list(map(lambda chisai: chisai["pbid"], admins.all()))
+
             if command in user_commands:
                     try:
                         getattr(uc, command)(args[1:], client_id, ros)

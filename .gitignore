@@ -4,3 +4,6 @@ config.toml
 *.pyo
 dist/ba_root/.bsac2
 dist/ba_root/mods/test.py
+.vscode/sftp.json
+.vscode/sftp.json
+.vscode/sftp.json
