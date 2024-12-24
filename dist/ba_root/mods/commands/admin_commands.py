@@ -140,7 +140,7 @@ def remove(*params):
         if session_id == splayer.id:
             try:
                 splayer.remove_from_game()
-                bs.chatmessage(f"{player_name} was removed for ehe reason: {reason}")
+                bs.chatmessage(f"{player_name} was removed for reason: {reason}")
             except Exception as e:
                 print(e)
     
@@ -252,12 +252,17 @@ def slowmo(*params):
 
 
 
-def __getplayer__(target_id, ros):
-    for player in ros:
-        if player["client_id"] == target_id:
-            for splayer in bs.get_foreground_host_session().sessionplayers:
-                if player["players"][0]["id"] == splayer.id:
-                    spaz = splayer.activityplayer
+def __getplayer__(ros, target_id):
+    session_id = __getsessionid__(ros, target_id)
+    
+    # for player in ros:
+    #     if player["client_id"] == target_id:
+    #         for splayer in bs.get_foreground_host_session().sessionplayers:
+    #             if player["players"][0]["id"] == splayer.id:
+    #                 spaz = splayer.activityplayer
+    for splayer in bs.get_foreground_host_session().sessionplayers:
+        if session_id == splayer.id:
+            spaz = splayer.activityplayer
     return spaz
     
     
@@ -273,7 +278,7 @@ def kill(*params):
                 player.actor.shatter()
     else:
         target_id = int(args[0])
-        spaz = __getplayer__(target_id, ros)
+        spaz = __getplayer__(ros, target_id)
         
         try:
             with activity.context:
@@ -295,7 +300,7 @@ def curse(*params):
                 player.actor.curse()
     else:
         target_id = int(args[0])
-        spaz = __getplayer__(target_id, ros)
+        spaz = __getplayer__(ros, target_id)
         
         try:
             with activity.context:
@@ -317,7 +322,7 @@ def gloves(*params):
                 player.actor.equip_boxing_gloves()
     else:
         target_id = int(args[0])
-        spaz = __getplayer__(target_id, ros)
+        spaz = __getplayer__(ros, target_id)
         
         try:
             with activity.context:
@@ -337,7 +342,7 @@ def freeze(*params):
     activity = bs.get_foreground_host_activity()
     
     target_id = int(args[0])
-    spaz = __getplayer__(target_id, ros)
+    spaz = __getplayer__(ros, target_id)
     
     try:
         with activity.context:
@@ -360,7 +365,7 @@ def thaw(*params):
                 player.actor.node.frozen = False
     else:
         target_id = int(args[0])
-        spaz = __getplayer__(target_id, ros)
+        spaz = __getplayer__(ros, target_id)
         
         try:
             with activity.context:
@@ -383,7 +388,7 @@ def heal(*params):
                 player.actor.node.handlemessage(bs.PowerupMessage(poweruptype="health"))
     else:
         target_id = int(args[0])
-        spaz = __getplayer__(target_id, ros)
+        spaz = __getplayer__(ros, target_id)
         
         try:
             with activity.context:
