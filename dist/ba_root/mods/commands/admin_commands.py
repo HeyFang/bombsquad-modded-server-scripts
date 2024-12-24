@@ -71,10 +71,12 @@ def end(*params):
     ros = params[2]
     player_name = __getplayername__(ros, admin_id)
     
-    with bs.get_foreground_host_activity().context:
+    activity = bs.get_foreground_host_activity()
+    
+    with activity.context:
         try:
-            bs.get_foreground_host_activity().end_game()
-            bs.broadcastmessage(f"{player_name} has ended the game", transient=True, color=(0, 2.55, 1.36))
+            activity.end_game()
+            bs.broadcastmessage(f"{player_name} has ended the game", transient=True, color=(0, 0.5, 0.3))
         except Exception as e:
             print(e)
     
