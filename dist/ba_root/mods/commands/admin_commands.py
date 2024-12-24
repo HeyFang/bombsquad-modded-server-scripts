@@ -255,11 +255,6 @@ def slowmo(*params):
 def __getplayer__(ros, target_id):
     session_id = __getsessionid__(ros, target_id)
     
-    # for player in ros:
-    #     if player["client_id"] == target_id:
-    #         for splayer in bs.get_foreground_host_session().sessionplayers:
-    #             if player["players"][0]["id"] == splayer.id:
-    #                 spaz = splayer.activityplayer
     for splayer in bs.get_foreground_host_session().sessionplayers:
         if session_id == splayer.id:
             spaz = splayer.activityplayer
@@ -430,6 +425,13 @@ def party_toggle(*params):
 
 
 
+def __getsessionplayer__(ros, target_id):
+    session_id = __getsessionid__(ros, target_id)
+    
+    for splayer in bs.get_foreground_host_session().sessionplayers:
+        if session_id == splayer.id:
+            spaz = splayer
+    return spaz
 
 
 
@@ -440,9 +442,12 @@ def cl(*params):
     # args = params[0]
     # ros = params[2]
     # target_id = int(args[0])
+    args = params[0]
+    target_id = int(args[0])
+    ros = params[2]
     
-    print('testing')
-    print(db.pb_exists("banned", "pbtesting"))
+    player = __getsessionplayer__(ros, target_id)
+    print(player.inputdevice.get_player_profiles())
 
     # for player in ros:
     #     if player["client_id"] == target_id:
