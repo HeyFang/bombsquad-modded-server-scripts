@@ -67,13 +67,16 @@ def ban(*params):
 
 
 def end(*params):
-    # print('calling end')
-    # print(bs.get_foreground_host_activity())
-    # print(bs.get_foreground_host_activity().context)
-
+    admin_id = params[1]
+    ros = params[2]
+    player_name = __getplayername__(ros, admin_id)
+    
     with bs.get_foreground_host_activity().context:
-        bs.get_foreground_host_activity().end_game()
-        bs.chatmessage(f"Admin Command Accepted. Game End")
+        try:
+            bs.get_foreground_host_activity().end_game()
+            bs.broadcastmessage(f"{player_name} has ended the game", transient=True, color=(0, 2.55, 1.36))
+        except Exception as e:
+            print(e)
     
     
 # def list(*params):
