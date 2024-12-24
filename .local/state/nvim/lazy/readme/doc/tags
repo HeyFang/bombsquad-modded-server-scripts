@@ -1,0 +1,186 @@
+!_TAG_FILE_ENCODING	utf-8	//
+friendly-snippets-add-snippets-from-a-framework-to-a-filetype	friendly-snippets.md	/## Add snippets from a framework to a filetype.
+friendly-snippets-credits	friendly-snippets.md	/## Credits
+friendly-snippets-excluding-snippets	friendly-snippets.md	/## Excluding snippets
+friendly-snippets-friendly-snippets	friendly-snippets.md	/# Friendly Snippets
+friendly-snippets-html	friendly-snippets.md	/### HTML
+friendly-snippets-install	friendly-snippets.md	/## Install
+friendly-snippets-js	friendly-snippets.md	/### JS
+friendly-snippets-showcase	friendly-snippets.md	/## Showcase
+friendly-snippets-thanks-to-all-contributors	friendly-snippets.md	/## Thanks to all contributors
+friendly-snippets-todo	friendly-snippets.md	/## TODO
+friendly-snippets-usage	friendly-snippets.md	/## Usage
+friendly-snippets-with-coc-nvim	friendly-snippets.md	/### With coc.nvim
+friendly-snippets-with-lazy-nvim	friendly-snippets.md	/### With Lazy.nvim
+friendly-snippets-with-packer	friendly-snippets.md	/### With Packer
+friendly-snippets-with-vim-plug	friendly-snippets.md	/### With vim-plug
+nui.nvim-blocks	nui.nvim.md	/## Blocks
+nui.nvim-components	nui.nvim.md	/## Components
+nui.nvim-extendibility	nui.nvim.md	/## Extendibility
+nui.nvim-input-lua-nui-input	nui.nvim.md	/### \[Input\](lua\/nui\/input)
+nui.nvim-installation	nui.nvim.md	/## Installation
+nui.nvim-layout-lua-nui-layout	nui.nvim.md	/### \[Layout\](lua\/nui\/layout)
+nui.nvim-license	nui.nvim.md	/## License
+nui.nvim-lua-nui-input-default-value	nui.nvim-lua-nui-input.md	/### `default_value`
+nui.nvim-lua-nui-input-disable-cursor-position-patch	nui.nvim-lua-nui-input.md	/### `disable_cursor_position_patch`
+nui.nvim-lua-nui-input-input	nui.nvim-lua-nui-input.md	/# Input
+nui.nvim-lua-nui-input-methods	nui.nvim-lua-nui-input.md	/## Methods
+nui.nvim-lua-nui-input-on-change	nui.nvim-lua-nui-input.md	/### `on_change`
+nui.nvim-lua-nui-input-on-close	nui.nvim-lua-nui-input.md	/### `on_close`
+nui.nvim-lua-nui-input-on-submit	nui.nvim-lua-nui-input.md	/### `on_submit`
+nui.nvim-lua-nui-input-options	nui.nvim-lua-nui-input.md	/## Options
+nui.nvim-lua-nui-input-prompt	nui.nvim-lua-nui-input.md	/### `prompt`
+nui.nvim-lua-nui-input-wiki-page	nui.nvim-lua-nui-input.md	/## Wiki Page
+nui.nvim-lua-nui-layout-anchor	nui.nvim-lua-nui-layout.md	/### `anchor`
+nui.nvim-lua-nui-layout-layout	nui.nvim-lua-nui-layout.md	/# Layout
+nui.nvim-lua-nui-layout-layout-box	nui.nvim-lua-nui-layout.md	/## Layout.Box
+nui.nvim-lua-nui-layout-layout-hide	nui.nvim-lua-nui-layout.md	/### `layout:hide`
+nui.nvim-lua-nui-layout-layout-mount	nui.nvim-lua-nui-layout.md	/### `layout:mount`
+nui.nvim-lua-nui-layout-layout-show	nui.nvim-lua-nui-layout.md	/### `layout:show`
+nui.nvim-lua-nui-layout-layout-unmount	nui.nvim-lua-nui-layout.md	/### `layout:unmount`
+nui.nvim-lua-nui-layout-layout-update	nui.nvim-lua-nui-layout.md	/### `layout:update`
+nui.nvim-lua-nui-layout-methods	nui.nvim-lua-nui-layout.md	/## Methods
+nui.nvim-lua-nui-layout-options-for-float-layout	nui.nvim-lua-nui-layout.md	/## Options (for float layout)
+nui.nvim-lua-nui-layout-options-for-split-layout	nui.nvim-lua-nui-layout.md	/## Options (for split layout)
+nui.nvim-lua-nui-layout-position	nui.nvim-lua-nui-layout.md	/### `position`
+nui.nvim-lua-nui-layout-relative	nui.nvim-lua-nui-layout.md	/### `relative`
+nui.nvim-lua-nui-layout-size	nui.nvim-lua-nui-layout.md	/### `size`
+nui.nvim-lua-nui-layout-wiki-page	nui.nvim-lua-nui-layout.md	/## Wiki Page
+nui.nvim-lua-nui-line-line-append	nui.nvim-lua-nui-line.md	/### `line:append`
+nui.nvim-lua-nui-line-line-content	nui.nvim-lua-nui-line.md	/### `line:content`
+nui.nvim-lua-nui-line-line-highlight	nui.nvim-lua-nui-line.md	/### `line:highlight`
+nui.nvim-lua-nui-line-line-render	nui.nvim-lua-nui-line.md	/### `line:render`
+nui.nvim-lua-nui-line-methods	nui.nvim-lua-nui-line.md	/## Methods
+nui.nvim-lua-nui-line-nuiline	nui.nvim-lua-nui-line.md	/# NuiLine
+nui.nvim-lua-nui-line-parameters	nui.nvim-lua-nui-line.md	/## Parameters
+nui.nvim-lua-nui-line-texts	nui.nvim-lua-nui-line.md	/### `texts`
+nui.nvim-lua-nui-line-wiki-page	nui.nvim-lua-nui-line.md	/## Wiki Page
+nui.nvim-lua-nui-menu-keymap	nui.nvim-lua-nui-menu.md	/### `keymap`
+nui.nvim-lua-nui-menu-lines	nui.nvim-lua-nui-menu.md	/### `lines`
+nui.nvim-lua-nui-menu-max-height	nui.nvim-lua-nui-menu.md	/### `max_height`
+nui.nvim-lua-nui-menu-max-width	nui.nvim-lua-nui-menu.md	/### `max_width`
+nui.nvim-lua-nui-menu-menu	nui.nvim-lua-nui-menu.md	/# Menu
+nui.nvim-lua-nui-menu-menu-tree	nui.nvim-lua-nui-menu.md	/### `menu.tree`
+nui.nvim-lua-nui-menu-methods	nui.nvim-lua-nui-menu.md	/## Methods
+nui.nvim-lua-nui-menu-min-height	nui.nvim-lua-nui-menu.md	/### `min_height`
+nui.nvim-lua-nui-menu-min-width	nui.nvim-lua-nui-menu.md	/### `min_width`
+nui.nvim-lua-nui-menu-on-change	nui.nvim-lua-nui-menu.md	/### `on_change`
+nui.nvim-lua-nui-menu-on-close	nui.nvim-lua-nui-menu.md	/### `on_close`
+nui.nvim-lua-nui-menu-on-submit	nui.nvim-lua-nui-menu.md	/### `on_submit`
+nui.nvim-lua-nui-menu-options	nui.nvim-lua-nui-menu.md	/## Options
+nui.nvim-lua-nui-menu-prepare-item	nui.nvim-lua-nui-menu.md	/### `prepare_item`
+nui.nvim-lua-nui-menu-properties	nui.nvim-lua-nui-menu.md	/## Properties
+nui.nvim-lua-nui-menu-should-skip-item	nui.nvim-lua-nui-menu.md	/### `should_skip_item`
+nui.nvim-lua-nui-menu-wiki-page	nui.nvim-lua-nui-menu.md	/## Wiki Page
+nui.nvim-lua-nui-popup-anchor	nui.nvim-lua-nui-popup.md	/### `anchor`
+nui.nvim-lua-nui-popup-border	nui.nvim-lua-nui-popup.md	/### `border`
+nui.nvim-lua-nui-popup-border-padding	nui.nvim-lua-nui-popup.md	/#### `border.padding`
+nui.nvim-lua-nui-popup-border-style	nui.nvim-lua-nui-popup.md	/#### `border.style`
+nui.nvim-lua-nui-popup-border-text	nui.nvim-lua-nui-popup.md	/#### `border.text`
+nui.nvim-lua-nui-popup-buf-options	nui.nvim-lua-nui-popup.md	/### `buf_options`
+nui.nvim-lua-nui-popup-bufnr	nui.nvim-lua-nui-popup.md	/### `bufnr`
+nui.nvim-lua-nui-popup-enter	nui.nvim-lua-nui-popup.md	/### `enter`
+nui.nvim-lua-nui-popup-focusable	nui.nvim-lua-nui-popup.md	/### `focusable`
+nui.nvim-lua-nui-popup-methods	nui.nvim-lua-nui-popup.md	/## Methods
+nui.nvim-lua-nui-popup-ns-id	nui.nvim-lua-nui-popup.md	/### `ns_id`
+nui.nvim-lua-nui-popup-options	nui.nvim-lua-nui-popup.md	/## Options
+nui.nvim-lua-nui-popup-popup	nui.nvim-lua-nui-popup.md	/# Popup
+nui.nvim-lua-nui-popup-popup-border-set-highlight	nui.nvim-lua-nui-popup.md	/### `popup.border:set_highlight`
+nui.nvim-lua-nui-popup-popup-border-set-style	nui.nvim-lua-nui-popup.md	/### `popup.border:set_style`
+nui.nvim-lua-nui-popup-popup-border-set-text	nui.nvim-lua-nui-popup.md	/### `popup.border:set_text`
+nui.nvim-lua-nui-popup-popup-hide	nui.nvim-lua-nui-popup.md	/### `popup:hide`
+nui.nvim-lua-nui-popup-popup-map	nui.nvim-lua-nui-popup.md	/### `popup:map`
+nui.nvim-lua-nui-popup-popup-mount	nui.nvim-lua-nui-popup.md	/### `popup:mount`
+nui.nvim-lua-nui-popup-popup-off	nui.nvim-lua-nui-popup.md	/### `popup:off`
+nui.nvim-lua-nui-popup-popup-on	nui.nvim-lua-nui-popup.md	/### `popup:on`
+nui.nvim-lua-nui-popup-popup-show	nui.nvim-lua-nui-popup.md	/### `popup:show`
+nui.nvim-lua-nui-popup-popup-unmap	nui.nvim-lua-nui-popup.md	/### `popup:unmap`
+nui.nvim-lua-nui-popup-popup-unmount	nui.nvim-lua-nui-popup.md	/### `popup:unmount`
+nui.nvim-lua-nui-popup-popup-update-layout	nui.nvim-lua-nui-popup.md	/### `popup:update_layout`
+nui.nvim-lua-nui-popup-position	nui.nvim-lua-nui-popup.md	/### `position`
+nui.nvim-lua-nui-popup-relative	nui.nvim-lua-nui-popup.md	/### `relative`
+nui.nvim-lua-nui-popup-size	nui.nvim-lua-nui-popup.md	/### `size`
+nui.nvim-lua-nui-popup-wiki-page	nui.nvim-lua-nui-popup.md	/## Wiki Page
+nui.nvim-lua-nui-popup-win-options	nui.nvim-lua-nui-popup.md	/### `win_options`
+nui.nvim-lua-nui-popup-zindex	nui.nvim-lua-nui-popup.md	/### `zindex`
+nui.nvim-lua-nui-split-buf-options	nui.nvim-lua-nui-split.md	/### `buf_options`
+nui.nvim-lua-nui-split-enter	nui.nvim-lua-nui-split.md	/### `enter`
+nui.nvim-lua-nui-split-methods	nui.nvim-lua-nui-split.md	/## Methods
+nui.nvim-lua-nui-split-ns-id	nui.nvim-lua-nui-split.md	/### `ns_id`
+nui.nvim-lua-nui-split-options	nui.nvim-lua-nui-split.md	/## Options
+nui.nvim-lua-nui-split-position	nui.nvim-lua-nui-split.md	/### `position`
+nui.nvim-lua-nui-split-relative	nui.nvim-lua-nui-split.md	/### `relative`
+nui.nvim-lua-nui-split-size	nui.nvim-lua-nui-split.md	/### `size`
+nui.nvim-lua-nui-split-split	nui.nvim-lua-nui-split.md	/# Split
+nui.nvim-lua-nui-split-wiki-page	nui.nvim-lua-nui-split.md	/## Wiki Page
+nui.nvim-lua-nui-split-win-options	nui.nvim-lua-nui-split.md	/### `win_options`
+nui.nvim-lua-nui-table-bufnr	nui.nvim-lua-nui-table.md	/### `bufnr`
+nui.nvim-lua-nui-table-columns	nui.nvim-lua-nui-table.md	/### `columns`
+nui.nvim-lua-nui-table-data	nui.nvim-lua-nui-table.md	/### `data`
+nui.nvim-lua-nui-table-methods	nui.nvim-lua-nui-table.md	/## Methods
+nui.nvim-lua-nui-table-ns-id	nui.nvim-lua-nui-table.md	/### `ns_id`
+nui.nvim-lua-nui-table-nuitable	nui.nvim-lua-nui-table.md	/# NuiTable
+nui.nvim-lua-nui-table-options	nui.nvim-lua-nui-table.md	/## Options
+nui.nvim-lua-nui-table-tbl-get-cell	nui.nvim-lua-nui-table.md	/### `tbl:get_cell`
+nui.nvim-lua-nui-table-tbl-refresh-cell	nui.nvim-lua-nui-table.md	/### `tbl:refresh_cell`
+nui.nvim-lua-nui-table-tbl-render	nui.nvim-lua-nui-table.md	/### `tbl:render`
+nui.nvim-lua-nui-table-wiki-page	nui.nvim-lua-nui-table.md	/## Wiki Page
+nui.nvim-lua-nui-text-content	nui.nvim-lua-nui-text.md	/### `content`
+nui.nvim-lua-nui-text-extmark	nui.nvim-lua-nui-text.md	/### `extmark`
+nui.nvim-lua-nui-text-methods	nui.nvim-lua-nui-text.md	/## Methods
+nui.nvim-lua-nui-text-nuitext	nui.nvim-lua-nui-text.md	/# NuiText
+nui.nvim-lua-nui-text-parameters	nui.nvim-lua-nui-text.md	/## Parameters
+nui.nvim-lua-nui-text-text-content	nui.nvim-lua-nui-text.md	/### `text:content`
+nui.nvim-lua-nui-text-text-highlight	nui.nvim-lua-nui-text.md	/### `text:highlight`
+nui.nvim-lua-nui-text-text-length	nui.nvim-lua-nui-text.md	/### `text:length`
+nui.nvim-lua-nui-text-text-render	nui.nvim-lua-nui-text.md	/### `text:render`
+nui.nvim-lua-nui-text-text-render-char	nui.nvim-lua-nui-text.md	/### `text:render_char`
+nui.nvim-lua-nui-text-text-set	nui.nvim-lua-nui-text.md	/### `text:set`
+nui.nvim-lua-nui-text-text-width	nui.nvim-lua-nui-text.md	/### `text:width`
+nui.nvim-lua-nui-text-wiki-page	nui.nvim-lua-nui-text.md	/## Wiki Page
+nui.nvim-lua-nui-tree-buf-options	nui.nvim-lua-nui-tree.md	/### `buf_options`
+nui.nvim-lua-nui-tree-bufnr	nui.nvim-lua-nui-tree.md	/### `bufnr`
+nui.nvim-lua-nui-tree-children	nui.nvim-lua-nui-tree.md	/#### `children`
+nui.nvim-lua-nui-tree-data	nui.nvim-lua-nui-tree.md	/#### `data`
+nui.nvim-lua-nui-tree-get-node-id	nui.nvim-lua-nui-tree.md	/### `get_node_id`
+nui.nvim-lua-nui-tree-methods	nui.nvim-lua-nui-tree.md	/### Methods
+nui.nvim-lua-nui-tree-node-collapse	nui.nvim-lua-nui-tree.md	/#### `node:collapse`
+nui.nvim-lua-nui-tree-node-expand	nui.nvim-lua-nui-tree.md	/#### `node:expand`
+nui.nvim-lua-nui-tree-node-get-child-ids	nui.nvim-lua-nui-tree.md	/#### `node:get_child_ids`
+nui.nvim-lua-nui-tree-node-get-depth	nui.nvim-lua-nui-tree.md	/#### `node:get_depth`
+nui.nvim-lua-nui-tree-node-get-id	nui.nvim-lua-nui-tree.md	/#### `node:get_id`
+nui.nvim-lua-nui-tree-node-get-parent-id	nui.nvim-lua-nui-tree.md	/#### `node:get_parent_id`
+nui.nvim-lua-nui-tree-node-has-children	nui.nvim-lua-nui-tree.md	/#### `node:has_children`
+nui.nvim-lua-nui-tree-node-is-expanded	nui.nvim-lua-nui-tree.md	/#### `node:is_expanded`
+nui.nvim-lua-nui-tree-nodes	nui.nvim-lua-nui-tree.md	/### `nodes`
+nui.nvim-lua-nui-tree-ns-id	nui.nvim-lua-nui-tree.md	/### `ns_id`
+nui.nvim-lua-nui-tree-nuitree	nui.nvim-lua-nui-tree.md	/# NuiTree
+nui.nvim-lua-nui-tree-nuitree-node	nui.nvim-lua-nui-tree.md	/## NuiTree.Node
+nui.nvim-lua-nui-tree-options	nui.nvim-lua-nui-tree.md	/## Options
+nui.nvim-lua-nui-tree-parameters	nui.nvim-lua-nui-tree.md	/### Parameters
+nui.nvim-lua-nui-tree-prepare-node	nui.nvim-lua-nui-tree.md	/### `prepare_node`
+nui.nvim-lua-nui-tree-tree-add-node	nui.nvim-lua-nui-tree.md	/### `tree:add_node`
+nui.nvim-lua-nui-tree-tree-get-node	nui.nvim-lua-nui-tree.md	/### `tree:get_node`
+nui.nvim-lua-nui-tree-tree-get-nodes	nui.nvim-lua-nui-tree.md	/### `tree:get_nodes`
+nui.nvim-lua-nui-tree-tree-remove-node	nui.nvim-lua-nui-tree.md	/### `tree:remove_node`
+nui.nvim-lua-nui-tree-tree-render	nui.nvim-lua-nui-tree.md	/### `tree:render`
+nui.nvim-lua-nui-tree-tree-set-nodes	nui.nvim-lua-nui-tree.md	/### `tree:set_nodes`
+nui.nvim-lua-nui-tree-wiki-page	nui.nvim-lua-nui-tree.md	/## Wiki Page
+nui.nvim-menu-lua-nui-menu	nui.nvim.md	/### \[Menu\](lua\/nui\/menu)
+nui.nvim-nui-nvim	nui.nvim.md	/# nui.nvim
+nui.nvim-nui-object	nui.nvim.md	/#### `nui.object`
+nui.nvim-nuiline-lua-nui-line	nui.nvim.md	/### \[NuiLine\](lua\/nui\/line)
+nui.nvim-nuitable-lua-nui-table	nui.nvim.md	/### \[NuiTable\](lua\/nui\/table)
+nui.nvim-nuitext-lua-nui-text	nui.nvim.md	/### \[NuiText\](lua\/nui\/text)
+nui.nvim-nuitree-lua-nui-tree	nui.nvim.md	/### \[NuiTree\](lua\/nui\/tree)
+nui.nvim-popup-lua-nui-popup	nui.nvim.md	/### \[Popup\](lua\/nui\/popup)
+nui.nvim-requirements	nui.nvim.md	/## Requirements
+nui.nvim-split-lua-nui-split	nui.nvim.md	/### \[Split\](lua\/nui\/split)
+nvim-ts-autotag-a-note-on-lazy-loading	nvim-ts-autotag.md	/### A note on lazy loading
+nvim-ts-autotag-contributors	nvim-ts-autotag.md	/## Contributors
+nvim-ts-autotag-enable-update-on-insert	nvim-ts-autotag.md	/### Enable update on insert
+nvim-ts-autotag-extending-the-default-config	nvim-ts-autotag.md	/### Extending the default config
+nvim-ts-autotag-nvim-ts-autotag	nvim-ts-autotag.md	/# nvim-ts-autotag
+nvim-ts-autotag-setup	nvim-ts-autotag.md	/## Setup
+nvim-ts-autotag-sponsor	nvim-ts-autotag.md	/## Sponsor
+nvim-ts-autotag-usage	nvim-ts-autotag.md	/## Usage

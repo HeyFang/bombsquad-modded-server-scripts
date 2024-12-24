@@ -1,0 +1,81 @@
+Metadata-Version: 2.1
+Name: ds-store
+Version: 1.3.1
+Summary: Manipulate Finder .DS_Store files from Python
+Home-page: http://alastairs-place.net/projects/ds_store
+Author: Alastair Houghton
+Author-email: alastair@alastairs-place.net
+Maintainer: Russell Keith-Magee
+Maintainer-email: russell@keith-magee.com
+License: MIT License
+Project-URL: Source, https://github.com/al45stair/ds_store
+Keywords: DS_Store
+Platform: darwin
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Desktop Environment
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.7
+Description-Content-Type: text/x-rst; charset=UTF-8
+License-File: LICENSE
+Requires-Dist: mac-alias (>=2.0.1)
+Provides-Extra: dev
+Requires-Dist: pre-commit ; extra == 'dev'
+Requires-Dist: tox ; extra == 'dev'
+Provides-Extra: docs
+Requires-Dist: sphinx ; extra == 'docs'
+Requires-Dist: sphinx-autobuild ; extra == 'docs'
+Requires-Dist: sphinx-rtd-theme ; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: pytest-tldr ; extra == 'test'
+Requires-Dist: pytest-cov ; extra == 'test'
+
+========
+ds_store
+========
+
+.. image:: https://img.shields.io/pypi/pyversions/ds_store.svg
+   :target: https://pypi.python.org/pypi/ds_store
+   :alt: Python Versions
+
+.. image:: https://img.shields.io/pypi/v/ds_store.svg
+   :target: https://pypi.python.org/pypi/ds_store
+   :alt: PyPI Version
+
+.. image:: https://img.shields.io/pypi/status/ds_store.svg
+   :target: https://pypi.python.org/pypi/ds_store
+   :alt: Maturity
+
+.. image:: https://img.shields.io/pypi/l/ds_store.svg
+   :target: https://github.com/dmgbuild/ds_store/blob/main/LICENSE
+   :alt: MIT License
+
+.. image:: https://github.com/dmgbuild/ds_store/workflows/CI/badge.svg?branch=main
+   :target: https://github.com/dmgbuild/ds_store/actions
+   :alt: Build Status
+
+.. image:: https://readthedocs.org/projects/ds_store/badge/?version=latest
+   :target: http://ds_store.readthedocs.io/en/latest/?badge=latest
+   :alt: Docs Build Status
+
+What is this?
+-------------
+
+``ds_store`` lets you examine and modify ``.DS_Store`` files from Python
+code; since it is written in pure Python, it is portable and will run on any
+platform, not just Mac OS X.
+
+Credit is due to Wim Lewis, Mark Mentovai and Yvan Barthélemy for
+reverse-engineering the .DS_Store file format. See
+`Wim Lewis’ excellent documentation on CPAN`__ for more information.
+
+__ http://search.cpan.org/~wiml/Mac-Finder-DSStore/DSStoreFormat.pod

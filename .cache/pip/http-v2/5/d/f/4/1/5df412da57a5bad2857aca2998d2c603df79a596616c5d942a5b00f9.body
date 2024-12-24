@@ -1,0 +1,89 @@
+Metadata-Version: 2.1
+Name: dmgbuild
+Version: 1.6.2
+Summary: macOS command line utility to build disk images
+Author-email: Alastair Houghton <alastair@alastairs-place.net>
+Maintainer-email: Russell Keith-Magee <russell@keith-magee.com>
+License: New BSD
+Project-URL: Documentation, https://dmgbuild.readthedocs.io/en/latest/
+Project-URL: Homepage, https://github.com/dmgbuild/dmgbuild
+Project-URL: Tracker, https://github.com/dmgbuild/dmgbuild/issues
+Project-URL: Source, https://github.com/dmgbuild/dmgbuild
+Keywords: dmg
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Desktop Environment
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.8
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: ds-store >=1.1.0
+Requires-Dist: mac-alias >=2.0.1
+Requires-Dist: importlib-resources ==5.9 ; python_version <= "3.8"
+Provides-Extra: dev
+Requires-Dist: coverage ==7.6.0 ; extra == 'dev'
+Requires-Dist: pytest ==8.3.2 ; extra == 'dev'
+Requires-Dist: pytest-cov ==5.0.0 ; extra == 'dev'
+Requires-Dist: tox ==4.16.0 ; extra == 'dev'
+Requires-Dist: pre-commit ==3.5.0 ; (python_version < "3.9") and extra == 'dev'
+Requires-Dist: pre-commit ==3.8.0 ; (python_version >= "3.9") and extra == 'dev'
+Provides-Extra: docs
+Requires-Dist: sphinx-rtd-theme ==2.0.0 ; extra == 'docs'
+Requires-Dist: sphinx ==7.1.2 ; (python_version < "3.9") and extra == 'docs'
+Requires-Dist: sphinx-autobuild ==2021.3.14 ; (python_version < "3.9") and extra == 'docs'
+Requires-Dist: sphinx ==7.4.7 ; (python_version >= "3.9") and extra == 'docs'
+Requires-Dist: sphinx-autobuild ==2024.4.16 ; (python_version >= "3.9") and extra == 'docs'
+
+========
+dmgbuild
+========
+
+.. |pyversions| image:: https://img.shields.io/pypi/pyversions/dmgbuild.svg
+   :target: https://pypi.python.org/pypi/dmgbuild
+   :alt: Python Versions
+
+.. |version| image:: https://img.shields.io/pypi/v/dmgbuild.svg
+   :target: https://pypi.python.org/pypi/dmgbuild
+   :alt: PyPI Version
+
+.. |maturity| image:: https://img.shields.io/pypi/status/dmgbuild.svg
+   :target: https://pypi.python.org/pypi/dmgbuild
+   :alt: Maturity
+
+.. |license| image:: https://img.shields.io/pypi/l/dmgbuild.svg
+   :target: https://github.com/dmgbuild/dmgbuild/blob/main/LICENSE
+   :alt: MIT License
+
+.. |ci| image:: https://github.com/dmgbuild/dmgbuild/workflows/CI/badge.svg?branch=main
+   :target: https://github.com/dmgbuild/dmgbuild/actions
+   :alt: Build Status
+
+|pyversions| |version| |maturity| |license| |ci|
+
+What is this?
+-------------
+
+``dmgbuild`` is a command line tool to create macOS disk images (aka
+``.dmg`` files).  While it is possible to create disk images easily enough
+from the command line using the ``hdiutil`` program that ships with macOS,
+there is no easy way to configure the appearance of the resulting disk image
+when the user opens it.
+
+``dmgbuild`` allows for full customization of the resulting disk image,
+without relying on Finder, and without using deprecated APIs (like the
+Alias Manager functions).
+
+``dmgbuild`` is a wrapper around macOS specific tools, so it can't be used on
+Windows or Linux.
+
+See the documentation_ for more information.
+
+.. _documentation: http://dmgbuild.readthedocs.io
