@@ -14,7 +14,7 @@ def handle(msg: str, client_id):
     args = msg.split()
     command = args[0].lstrip("/")
     
-    admin_commands = [["kick"], ["ban"], ["end"], ["list"], ["maxplayers", "max"], ["getmaxplayers"], ["remove", "rm"], ["restart", "exit"], ["tint"], ["nv", "night"], ["time", "english_or_spanish"], ["slowmo", "sm"], ["cl"], ["kill"], ["curse"], ["gloves"], ["freeze"], ["heal"], ["thaw"], ["party_toggle", "party"]]
+    admin_commands = [["kick"], ["ban"], ["end"], ["list"], ["maxplayers", "max"], ["remove", "rm"], ["restart", "exit"], ["tint"], ["nv", "night"], ["time", "english_or_spanish"], ["slowmo", "sm"], ["cl"], ["kill"], ["curse"], ["gloves"], ["freeze"], ["heal"], ["thaw"], ["party_toggle", "party"]]
     user_commands = ["list"]     # dont need aliases for now + increases complexity
     
     # uhhh so in simple terms this extracts commands and aliases

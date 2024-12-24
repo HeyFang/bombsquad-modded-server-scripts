@@ -29,6 +29,15 @@ def kick(*params):
         print(e)
 
 
+def __getpbid__(ros, target_id):
+    return list(filter(lambda x: x != "", list(map((lambda x: x["account_id"] if x["client_id"] == int(target_id) else ""), ros)) ))[0]
+
+def __getsessionid__(ros, target_id):
+    return list(filter(lambda x: x != "", list(map((lambda x: x["players"][0]["id"] if x["client_id"] == int(target_id) else ""), ros)) ))[0]
+
+def __getplayername__(ros, target_id):
+    return list(filter(lambda x: x != "", list(map((lambda x: x["players"][0]["name"] if x["client_id"] == int(target_id) else ""), ros)) ))[0]
+
 # /ban <client_id> <duration> <reason>
 # /ban 113 30 says pineapple is better on pizza
 # /ban 113 perma says pineapple should be topped with pizza crumbs
@@ -41,7 +50,8 @@ def ban(*params):
         target_id = args[0]
         duration = int(args[1])
         reason = " ".join(args[2:]) or "no reason"
-        pbid = list(filter(lambda x: x != "", list(map((lambda x: x["account_id"] if x["client_id"] == int(target_id) else ""), ros)) ))[0]
+        # pbid = list(filter(lambda x: x != "", list(map((lambda x: x["account_id"] if x["client_id"] == int(target_id) else ""), ros)) ))[0]
+        pbid = __getpbid__(ros, target_id)
     except:
         return bs.broadcastmessage("Specify a valid ClientID (required) and Duration (required) to ban", transient=True, clients=[admin_id])
     
@@ -92,39 +102,45 @@ def end(*params):
     
     
 def maxplayers(*params):
-    args = params[0]
-    
-    try:
-        party_size = int(args[0])
-    except TypeError:
-        bs.screenmessage("Enter a valid integer limit")
+    # args = params[0]
+    args = next(iter(params), None)
+    party_size = (next(iter(args), None))
+    admin_id = params[1]
 
     try:
-        bs.set_public_party_max_size(party_size)
-        bs.chatmessage(f"Max Player limit has been set to {str(party_size)}")
+        if party_size == None:
+            print("get the players")
+            bs.broadcastmessage(f"Current party size is set to {str(bs.get_public_party_max_size())}", transient=True, color=(0, 0.5, 1))
+        else:
+            party_size = int(party_size)
+            bs.set_public_party_max_size(party_size)
+            bs.chatmessage(f"Max Player limit has been set to {str(party_size)}")
     except Exception as e:
+        bs.broadcastmessage("syntax: /maxplayers <size>", transient=True, clients=[admin_id])
         print(e)
-        
-        
-def getmaxplayers(*params):
-    bs.chatmessage(f"Max player limit is set to {str(bs.get_public_party_max_size())}")
+
     
     
 def remove(*params):
     args = params[0]
+    target_id = int(args[0])
+    ros = params[2]
     
-    client_id = int(args[0])
     reason = " ".join(args[1:]) or "inactive"
-    ros = bs.get_game_roster()
-    for player in ros:
-        if player["client_id"] == client_id:
-            for splayer in bs.get_foreground_host_session().sessionplayers:
-                if player["players"][0]["id"] == splayer.id:
-                    try:
-                        splayer.remove_from_game()
-                        bs.chatmessage(f"{player["players"][0]["name"]} was removed for reason: {reason}")
-                    except Exception as e:
-                        print(e)
+    session_id = __getsessionid__(ros, target_id)
+    player_name = __getplayername__(ros, target_id)
+    
+    
+    for splayer in bs.get_foreground_host_session().sessionplayers:
+        if session_id == splayer.id:
+            try:
+                splayer.remove_from_game()
+                bs.chatmessage(f"{player_name} was removed for ehe reason: {reason}")
+            except Exception as e:
+                print(e)
+    
+    
+    
                         
                         
                         
@@ -161,12 +177,33 @@ def tint(*params):
             
             
 def nv(*params):
+    # try:
+    #     activity = bs.get_foreground_host_activity()
+    #     nv_tint = (0, 0.5, 1.0)
+    #     activity.globalsnode.tint = (1, 1, 1) if activity.globalsnode.tint == nv_tint else nv_tint
+    # except Exception as e:
+    #     print(e)
+    def is_close(a, b, tol=1e-5):
+        return all(abs(x - y) < tol for x, y in zip(a, b))
+
     try:
         activity = bs.get_foreground_host_activity()
-        nv_tint = (0, 0.5, 1.0)
-        activity.globalsnode.tint = (1, 1, 1) if activity.globalsnode.tint == nv_tint else nv_tint
+        nv_tint = (0.4, 0.4, 1.0)
+        nv_ambient = (1.5, 1.5, 1.5)
+        
+        if is_close(activity.globalsnode.tint, nv_tint):
+            activity.globalsnode.tint = (1, 1, 1)
+            activity.globalsnode.ambient_color = (1, 1, 1)
+            #print(activity.globalsnode.tint)
+            bs.broadcastmessage("Night Mode off", transient=True, color=(0, 0.5, 1), clients=None)
+        else:
+            activity.globalsnode.tint = nv_tint
+            activity.globalsnode.ambient_color = nv_ambient
+            #print(activity.globalsnode.tint)
+            bs.broadcastmessage("Night Mode on", transient=True, color=(0, 0.5, 1), clients=None)
     except Exception as e:
         print(e)
+    return None
         
     
     
@@ -353,16 +390,19 @@ def heal(*params):
 
 
 def party_toggle(*params):
-    args = params[0]
+    # args = params[0]
+    args = next(iter(params), None)
     
     try:
-        if args[0] == "pub" or args[0] == "public":
+        if len(args) == 0:
+            party_mode = bs.get_public_party_enabled()
+            bs.broadcastmessage(f"Party mode is set to {"Public" if party_mode else "Private"}", transient=True, color=(1, 0.5, 1))
+        elif args[0] == "pub" or args[0] == "public":
             bs.set_public_party_enabled(True)
             bs.broadcastmessage("Party mode set to Public", transient=True, color=(0, 0.5, 1))
         elif args[0] == "pvt" or args[0] == "private":
             bs.set_public_party_enabled(False)
             bs.broadcastmessage("Party mode set to Private", transient=True, color=(0, 0.5, 1))
-        print(bs.get_public_party_enabled())
     except Exception as e:
         print(e)
     return None
