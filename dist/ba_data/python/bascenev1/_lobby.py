@@ -45,6 +45,7 @@ class JoinInfo:
         # If we have a keyboard, grab keys for punch and pickup.
         # FIXME: This of course is only correct on the local device;
         #  Should change this for net games.
+        
         keyboard = _bascenev1.getinputdevice('Keyboard', '#1', doraise=False)
         if keyboard is not None:
             self._update_for_keyboard(keyboard)
@@ -64,6 +65,7 @@ class JoinInfo:
                 },
             )
         )
+        
 
         if babase.app.env.demo or babase.app.env.arcade:
             self._messages = [self._joinmsg]
