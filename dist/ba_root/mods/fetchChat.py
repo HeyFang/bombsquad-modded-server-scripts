@@ -6,15 +6,33 @@ import hello
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
     print(msg, client_id)
+
+    #block msgs from banned and muted players
+    ros = bs.get_game_roster()
+    for entity in ros:
+        if entity["client_id"] == client_id:
+            pbid = entity["account_id"]
+            admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
+
+            with open(admin_path, "r") as file:
+                data = json.load(file)
+                banlist = data.get("banlist", [])
+                muted = data.get("muted", [])
+            if pbid in muted or pbid in banlist:
+                return None
     
+    #normal msgs
     if not msg.startswith("/"):
         return msg
 
+    #commands
     elif msg.startswith("/"):
         args = msg.split()
         command = args[0].lstrip("/").lower()
 
-        admin_commands = {"kick", "hi", "end", "tint", "nv", "night", "pause", "resume", "sm", "slowmo", "epic", "maxplayers", "mp", "lm", "send", "announce", "quit", "restart", "remove", "rm", "ban", "unban", "party", "partymode", "bans", "banlist"}
+        admin_commands = {"kick", "hi", "end", "tint", "nv", "night", "pause", "resume", "sm", "slowmo",
+                        "epic", "maxplayers", "mp", "lm", "send", "announce", "quit", "restart", "remove", "rm",
+                        "ban", "unban", "party", "partymode", "bans", "banlist", "mute", "unmute"}
         user_commands = {"list", "me", "stats", "help"}
 
         if command not in admin_commands and command not in user_commands:
@@ -80,6 +98,10 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                                 hello.party_toggle(msg)
                             case "bans" | "banlist":
                                 hello.bans()
+                            case "mute":
+                                hello.mute(msg, client_id)
+                            case "unmute":
+                                hello.unmute(msg, client_id)
                             case _:
                                 print("No such command")
                     except AttributeError as e:

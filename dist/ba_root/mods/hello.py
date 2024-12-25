@@ -1,6 +1,7 @@
 import bascenev1 as bs
 import babase as ba
-from roles import banlist, save_banlist
+from roles import banlist, muted, save_banlist, save_muted
+from onQuit import reset_muted
 
 #don't define activity variable at top to reduce redundancy; few cmds like 'end' wont work since Activity won't die
 
@@ -267,6 +268,28 @@ def unban(msg, client_id):
 def bans():
     try:
         bs.broadcastmessage(f"Banlist: {banlist}", transient=True, color=(0, 0.5, 1), clients=None)
+    except Exception as e:
+        print(e)
+    return None
+
+def mute(msg, client_id):
+    args = msg.split()
+    rat = int(args[1])
+
+    try:
+        rat_entity = get_entity(rat)
+        admin_entity = get_entity(client_id)
+        if rat_entity and admin_entity:
+            nameRat = rat_entity["display_string"]
+            nameAdmin = admin_entity["players"][0]["name"]
+            pbid = rat_entity["account_id"]
+            print(pbid)
+            if pbid not in muted:
+                muted.append(pbid)
+                save_muted()  # Save the updated banlist to the file
+                bs.broadcastmessage(f"{nameAdmin} muted {nameRat}", transient=True, color=(0, 0.5, 1), clients=None) # seconds
+            else:
+                bs.broadcastmessage(f"User {nameRat} already muted", transient=True, color=(1, 0, 0), clients=[client_id])
     except Exception as e:
         print(e)
     return None
