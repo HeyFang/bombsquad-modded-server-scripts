@@ -1049,6 +1049,10 @@ class Lobby:
         return all(chooser.ready for chooser in self.choosers)
 
     def add_chooser(self, sessionplayer: bascenev1.SessionPlayer) -> None:
+        print("works when player tries to get ready")
+        from onJoin import add_chooser as acc
+        
+
         """Add a chooser to the lobby for the provided player."""
         self.choosers.append(
             Chooser(vpos=self._vpos, sessionplayer=sessionplayer, lobby=self)
@@ -1057,6 +1061,7 @@ class Lobby:
             self._sessionteams
         )
         self._vpos -= 48
+        return acc(self, sessionplayer)
 
     def remove_chooser(self, player: bascenev1.SessionPlayer) -> None:
         """Remove a single player's chooser; does not kick them.
