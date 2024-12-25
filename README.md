@@ -5,7 +5,7 @@
 - [x] slowmo
 - [x] maxplayers
 - [x] announce
-- [ ] ban
+- [x] ban/unban/banlist
 - [x] list
 - [x] remove
 - [x] quit
@@ -20,3 +20,6 @@
 - [ ] spaz
 - [x] public/pvt toggle
 - [ ] setup tinydb
+
+## Games
+- [x] Death Overhead.
