@@ -147,17 +147,18 @@
   "Client Input Device #1": "_random"
  },
  "FFA Series Length": 24,
- "Fleet Zone Ping Last Flush Time": 1734690626,
+ "Fleet Zone Ping Last Flush Time": 1735123899,
  "Fleet Zone Pings": {
   "prod": {
-   "bahrain.v4": 290.80799667188694,
-   "bangkok.v4": 276.4429060341431,
-   "delhi.v4": 85.44174688573642,
-   "dubai.v4": 252.528572821971,
-   "hyderabad.v4": 77.56584363155143,
-   "kolkata.v4": 108.01803110122034,
-   "mumbai.v4": 84.11147278000433,
-   "singapore.v4": 138.75102932190794
+   "bahrain.v4": 305.2547354163144,
+   "bangkok.v4": 256.9722040219447,
+   "delhi.v4": 88.4719513661618,
+   "dubai.v4": 234.17994197592634,
+   "hong_kong.v4": 163.61597551972272,
+   "hyderabad.v4": 72.09684787960238,
+   "kolkata.v4": 257.4878126016033,
+   "mumbai.v4": 82.1566965994273,
+   "singapore.v4": 133.15431627474206
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -253,7 +254,7 @@
  "Team Tournament Playlist Selection": "New Games",
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 476,
+ "launchCount": 487,
  "lc14173": 1,
  "lc14292": 1
 }
