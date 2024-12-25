@@ -19,3 +19,4 @@
 - [ ] kill, curse, freeze, invsible, godmode
 - [ ] spaz
 - [x] public/pvt toggle
+- [ ] setup tinydb
