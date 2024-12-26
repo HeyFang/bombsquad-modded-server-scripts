@@ -7,7 +7,7 @@ import hello
 def filter_chat_message(msg: str, client_id: int) -> str | None:
     print(msg, client_id)
 
-    #block msgs from banned and muted players
+    # Block messages from banned and muted players
     ros = bs.get_game_roster()
     for entity in ros:
         if entity["client_id"] == client_id:
@@ -21,22 +21,43 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
             if pbid in muted or pbid in banlist:
                 return None
     
-    #normal msgs
+    # Normal messages
     if not msg.startswith("/"):
         return msg
 
-    #commands
+    # Commands
     elif msg.startswith("/"):
         args = msg.split()
         command = args[0].lstrip("/").lower()
 
-        admin_commands = {"kick", "hi", "end", "tint", "nv", "night", "pause", "resume", "sm", "slowmo",
-                        "epic", "maxplayers", "mp", "lm", "send", "announce", "quit", "restart", "remove", "rm",
-                        "ban", "unban", "party", "partymode", "bans", "banlist", "mute", "unmute"}
-        user_commands = {"list", "me", "stats", "help"}
+        admin_commands = {
+            "kick": hello.kick,
+            "hi": hello.hello,
+            "end": hello.end,
+            "tint": hello.tint,
+            "nv": hello.nv, "night": hello.nv,
+            "pause": hello.pause,
+            "resume": hello.resume,
+            "sm": hello.slowmo, "slowmo": hello.slowmo, "epic": hello.slowmo,
+            "maxplayers": hello.maxplayers, "mp": hello.maxplayers,
+            "lm": hello.past_msgs,
+            "send": hello.send, "announce": hello.send,
+            "quit": hello.quit, "restart": hello.quit,
+            "remove": hello.remove, "rm": hello.remove,
+            "ban": hello.ban,
+            "unban": hello.unban,
+            "party": hello.party_toggle, "partymode": hello.party_toggle,
+            "bans": hello.bans, "banlist": hello.bans,
+            "mute": hello.mute,
+            "unmute": hello.unmute
+        }
+
+        user_commands = {
+            "list": hello.list
+        }
 
         if command not in admin_commands and command not in user_commands:
-            bs.broadcastmessage("No such command", transient=True, clients=[client_id], color=(1,0,0))
+            bs.broadcastmessage("No such command", transient=True, clients=[client_id], color=(1, 0, 0))
             return msg
 
         ros = bs.get_game_roster()
@@ -49,61 +70,23 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
 
                 if command in user_commands:
                     try:
-                        match command:
-                            case "list":
-                                hello.list(client_id)
-                            case "me" | "stats":
-                                hello.stats(pbid)
-                            case "help":
-                                hello.help()
-                            case _:
-                                print("No such command")
+                        func = user_commands[command]
+                        #if command in {"me", "stats"}:
+                        #    func(pbid)
+                        if command in {"list"}:
+                            func(client_id)
                     except AttributeError as e:
                         print(f"Error: {e}")
 
                 elif pbid in admins:
                     try:
-                        match command:
-                            case "kick":
-                                hello.kick(msg, client_id)
-                            case "hi":
-                                hello.hello()
-                            case "end":
-                                hello.end(client_id)
-                            case "tint":
-                                hello.tint(msg, client_id)
-                            case "nv" | "night":
-                                hello.nv()
-                            case "pause":
-                                hello.pause(client_id)
-                            case "resume":
-                                hello.resume(client_id)
-                            case "sm" | "slowmo" | "epic":
-                                hello.slowmo()
-                            case "maxplayers" | "mp":
-                                hello.maxplayers(msg, client_id)
-                            case "lm":
-                                hello.past_msgs()
-                            case "send" | "announce":
-                                hello.send(msg)
-                            case "quit" | "restart":
-                                hello.quit(client_id)
-                            case "rm" | "remove":
-                                hello.remove(msg, client_id)
-                            case "ban":
-                                hello.ban(msg, client_id)
-                            case "unban":
-                                hello.unban(msg, client_id)
-                            case "party" | "partymode":
-                                hello.party_toggle(msg)
-                            case "bans" | "banlist":
-                                hello.bans()
-                            case "mute":
-                                hello.mute(msg, client_id)
-                            case "unmute":
-                                hello.unmute()
-                            case _:
-                                print("No such command")
+                        func = admin_commands[command]
+                        if command in {"maxplayers", "mp", "tint", "send", "announce", "remove", "rm", "ban", "mute"}:
+                            func(msg, client_id)
+                        elif command in {"end", "pause", "resume", "quit", "restart"}:
+                            func(client_id)
+                        else:
+                            func()
                     except AttributeError as e:
                         print(f"Error: {e}")
                 else:
