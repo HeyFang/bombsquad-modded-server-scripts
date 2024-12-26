@@ -150,15 +150,10 @@
  "Fleet Zone Ping Last Flush Time": 1735123899,
  "Fleet Zone Pings": {
   "prod": {
-   "bahrain.v4": 288.3741547020709,
-   "bangkok.v4": 243.56030243206442,
-   "delhi.v4": 86.53283888852457,
-   "dubai.v4": 194.23811064962138,
-   "hong_kong.v4": 142.98839599996427,
-   "hyderabad.v4": 75.73893176811907,
-   "kolkata.v4": 76.7886872658346,
-   "mumbai.v4": 89.39493525624312,
-   "singapore.v4": 104.12725900005171
+   "delhi.v4": 57.09656188680209,
+   "hyderabad.v4": 41.716894545930586,
+   "kolkata.v4": 65.77675590797499,
+   "mumbai.v4": 48.48219184281952
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -252,9 +247,24 @@
  "Signed In Last Session": false,
  "Team Tournament Playlist Randomize": false,
  "Team Tournament Playlist Selection": "New Games",
- "Team Tournament Playlists": {},
+ "Team Tournament Playlists": {
+  "New Games": [
+   {
+    "settings": {
+     "Balance Total Lives": false,
+     "Epic Mode": true,
+     "Lives Per Player": 1,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 60,
+     "map": "Monkey Face"
+    },
+    "type": "bascenev1lib.game.getbombed.EliminationGame"
+   }
+  ]
+ },
  "Teams Series Length": 7,
- "launchCount": 534,
+ "launchCount": 536,
  "lc14173": 1,
  "lc14292": 1
 }

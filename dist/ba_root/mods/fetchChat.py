@@ -101,7 +101,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                             case "mute":
                                 hello.mute(msg, client_id)
                             case "unmute":
-                                hello.unmute(msg, client_id)
+                                hello.unmute()
                             case _:
                                 print("No such command")
                     except AttributeError as e:
