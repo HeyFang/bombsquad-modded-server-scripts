@@ -71,7 +71,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                             case "end":
                                 hello.end(client_id)
                             case "tint":
-                                hello.tint(msg)
+                                hello.tint(msg, client_id)
                             case "nv" | "night":
                                 hello.nv()
                             case "pause":
@@ -81,7 +81,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                             case "sm" | "slowmo" | "epic":
                                 hello.slowmo()
                             case "maxplayers" | "mp":
-                                hello.maxplayers(msg)
+                                hello.maxplayers(msg, client_id)
                             case "lm":
                                 hello.past_msgs()
                             case "send" | "announce":

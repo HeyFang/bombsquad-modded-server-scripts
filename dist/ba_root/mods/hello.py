@@ -31,6 +31,9 @@ def end(client_id):
     return None
 
 def kick(msg, client_id):
+    if len(msg.split()) < 2:
+        bs.broadcastmessage("/kick <client_id>", transient=True, color=(1, 0, 0), clients=[client_id])
+        return None
     args = msg.split()
     rat = int(args[1])
     reason = " ".join(args[2:])
@@ -48,7 +51,10 @@ def kick(msg, client_id):
         print(e)
     return None
 
-def tint(msg):
+def tint(msg, client_id):
+    if len(msg.split()) < 2:
+        bs.broadcastmessage("/tint <r> <g> <b>", transient=True, color=(1, 0, 0), clients=[client_id])
+        return None
     args = msg.split()
     r, g, b = float(args[1]), float(args[2]), float(args[3])
     try:
@@ -125,7 +131,10 @@ def slowmo():
         print(e)
     return None
 
-def maxplayers(msg):
+def maxplayers(msg, client_id):
+    if len(msg.split()) < 2:
+        bs.broadcastmessage("/maxplayers <size(int)>", transient=True, color=(1, 0, 0), clients=[client_id])
+        return None
     args = msg.split()
     size = int(args[1])
     if 1 < size < 100:
@@ -176,6 +185,9 @@ def list(client_id):
     return None
 
 def remove(msg, client_id):
+    if len(msg.split()) < 2:
+        bs.broadcastmessage("/remove <client_id>", transient=True, color=(1, 0, 0), clients=[client_id])
+        return None
     args = msg.split()
     rat = int(args[1])
     admin_entity = get_entity(client_id)
@@ -273,6 +285,9 @@ def bans():
     return None
 
 def mute(msg, client_id):
+    if len(msg.split()) < 2:
+        bs.broadcastmessage("/mute <client_id>", transient=True, color=(1, 0, 0), clients=[client_id])
+        return None
     args = msg.split()
     rat = int(args[1])
 
