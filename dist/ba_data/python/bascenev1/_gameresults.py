@@ -66,6 +66,10 @@ class GameResults:
         self._none_is_winner = scoreconfig.none_is_winner
         self._scoretype = scoreconfig.scoretype
 
+        # Save statistics to JSON when the game ends
+        stats = game.session.stats
+        stats.fetch_player_statistics()
+
     def set_team_score(self, team: bascenev1.Team, score: int | None) -> None:
         """Set the score for a given team.
 

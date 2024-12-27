@@ -523,3 +523,16 @@ class Stats:
                     )
         except Exception:
             logging.exception('Error announcing kill.')
+
+
+    def fetch_player_statistics(self) -> dict[str, dict[str, int]]:
+        player_stats = {}
+        for name, record in self._player_records.items():
+            player_stats[name] = {
+                'name_full': record.name_full,
+                'kills': record.kill_count,
+                'deaths': record.killed_count,
+                'score': record.score,
+            }
+        print(player_stats)
+        return player_stats
