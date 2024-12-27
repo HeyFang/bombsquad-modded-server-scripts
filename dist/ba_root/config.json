@@ -144,19 +144,19 @@
   "Blue"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "__account__"
+  "Client Input Device #1": "watermelon"
  },
  "FFA Series Length": 24,
  "Fleet Zone Ping Last Flush Time": 1735123899,
  "Fleet Zone Pings": {
   "prod": {
-   "bahrain.v4": 295.3862829999707,
-   "bangkok.v4": 408.80824999999277,
-   "delhi.v4": 79.27520092992927,
-   "dubai.v4": 228.78404478594393,
-   "hyderabad.v4": 66.20788943990829,
-   "kolkata.v4": 92.70762683007752,
-   "mumbai.v4": 66.72991713791816
+   "bahrain.v4": 191.01124430400415,
+   "bangkok.v4": 210.18008649800475,
+   "delhi.v4": 73.27320703999783,
+   "dubai.v4": 181.79278200000226,
+   "hyderabad.v4": 165.12785559800324,
+   "kolkata.v4": 88.00454875200381,
+   "mumbai.v4": 87.69703460000045
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -263,11 +263,165 @@
      "map": "Monkey Face"
     },
     "type": "bascenev1lib.game.getbombed.EliminationGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Kills to Win Per Player": 5,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Rampage"
+    },
+    "type": "bascenev1lib.game.deathmatch.DeathMatchGame"
+   }
+  ],
+  "cyclones": [
+   {
+    "settings": {
+     "Balance Total Lives": 1,
+     "Epic Mode": 1,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Football Stadium"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": 1,
+     "Epic Mode": 1,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "The Pad"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": 1,
+     "Epic Mode": 1,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Roundabout"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": 1,
+     "Epic Mode": 1,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Courtyard"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": 1,
+     "Epic Mode": 1,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Hockey Stadium"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": 1,
+     "Epic Mode": 1,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Doom Shroom"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Bomb Spawning": 1000,
+     "Entire Team Must Finish": false,
+     "Epic Mode": true,
+     "Laps": 2,
+     "Mine Spawning": 2000,
+     "Time Limit": 0,
+     "map": "Big G"
+    },
+    "type": "bascenev1lib.game.race.RaceGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Hold Time": 20,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Monkey Face"
+    },
+    "type": "bascenev1lib.game.keepaway.KeepAwayGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": true,
+     "Epic Mode": true,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Step Right Up"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": true,
+     "Epic Mode": true,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Rampage"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": true,
+     "Epic Mode": true,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Monkey Face"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": true,
+     "Epic Mode": true,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Zigzag"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
    }
   ]
  },
  "Teams Series Length": 7,
- "launchCount": 540,
+ "launchCount": 580,
  "lc14173": 1,
  "lc14292": 1
 }
