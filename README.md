@@ -14,12 +14,12 @@
 - [x] past messages
 - [ ] afk remover
 - [ ] add tag
-- [ ] stats
+- [x] stats
 - [ ] ping
 - [ ] kill, curse, freeze, invsible, godmode
 - [ ] spaz
 - [x] public/pvt toggle
-- [ ] setup tinydb
+- [x] setup tinydb for stats
 
 ## Games
 - [x] Death Overhead.
