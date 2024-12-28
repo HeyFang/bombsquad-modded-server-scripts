@@ -530,9 +530,9 @@ class Stats:
         for name, record in self._player_records.items():
             player_stats[name] = {
                 'name_full': record.name_full,
-                'kills': record.kill_count,
-                'deaths': record.killed_count,
-                'score': record.score,
+                'kills': record.accum_kill_count,
+                'deaths': record.accum_killed_count,
+                'score': record.accumscore,
             }
-        print(player_stats)
+        #print(player_stats)
         return player_stats
