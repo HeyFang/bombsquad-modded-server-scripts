@@ -7,6 +7,7 @@ import copy
 import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
+import statsSys
 
 from efro.util import asserttype
 import babase
@@ -66,9 +67,13 @@ class GameResults:
         self._none_is_winner = scoreconfig.none_is_winner
         self._scoretype = scoreconfig.scoretype
 
-        # Save statistics to JSON when the game ends
-        stats = game.session.stats
-        stats.fetch_player_statistics()
+       
+        #stats = game.session.stats
+        #stats.fetch_player_statistics()
+
+        statsSys.get_stats()
+
+
 
     def set_team_score(self, team: bascenev1.Team, score: int | None) -> None:
         """Set the score for a given team.
