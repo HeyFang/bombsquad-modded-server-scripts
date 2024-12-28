@@ -144,14 +144,15 @@
   "Blue"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "\ud83c\udf00Fang"
+  "Client Input Device #1": "watermelon"
  },
  "FFA Series Length": 24,
  "Fleet Zone Ping Last Flush Time": 1735123899,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 69.44688299999768,
-   "hyderabad.v4": 61.55799700000841
+   "delhi.v4": 57.73008362003384,
+   "hyderabad.v4": 52.615930206164194,
+   "mumbai.v4": 28.579853759993057
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -416,7 +417,7 @@
   ]
  },
  "Teams Series Length": 7,
- "launchCount": 580,
+ "launchCount": 616,
  "lc14173": 1,
  "lc14292": 1
 }
