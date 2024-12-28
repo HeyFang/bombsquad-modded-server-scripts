@@ -20,6 +20,7 @@
 - [ ] spaz
 - [x] public/pvt toggle
 - [x] setup tinydb for stats
+- [ ] team-lives balancer
 
 ## Games
 - [x] Death Overhead.
