@@ -21,7 +21,7 @@ def get_stats():
         for entity in ros:
             for player in entity['players']:
                 name = player['name']
-                print(f"Checking player: {name}")
+                #print(f"Checking player: {name}")
                 if name in player_stats:
                     pb_id = entity['account_id']
                     v2_id = entity['display_string']
@@ -35,7 +35,7 @@ def get_stats():
 
                     if existing_record:
                         # update the existing record
-                        print(f"Updating existing record for pb_id: {pb_id}")
+                        #print(f"Updating existing record for pb_id: {pb_id}")
                         db.update({
                             'kills': existing_record[0]['kills'] + kills,
                             'deaths': existing_record[0]['deaths'] + deaths,
@@ -43,7 +43,7 @@ def get_stats():
                         }, Player.pb_id == pb_id)
                     else:
                         # unsert a new record
-                        print(f"Inserting new record for pb_id: {pb_id}")
+                        #print(f"Inserting new record for pb_id: {pb_id}")
                         combined_stats.append({
                             'pb_id': pb_id,
                             'v2_id': v2_id,
@@ -55,7 +55,7 @@ def get_stats():
                     print(f"Player {name} not found in player_stats")
 
         #this only works when new player is being registered else empty
-        print("Combined Stats:", combined_stats)
+        #print("Combined Stats:", combined_stats)
 
         # save data
         if combined_stats:

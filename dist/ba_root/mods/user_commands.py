@@ -12,3 +12,6 @@ def list(msg, client_id):
     except Exception as e:
         print(e)
     return None
+
+#def stats(msg, client_id):
+#stats of thyself if no arguements, else /stats <client_id>
