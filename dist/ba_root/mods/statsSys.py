@@ -15,10 +15,13 @@ def get_stats():
 
         combined_stats = []
 
+        # iterate through the game roster and compare the player by name
         for entity in ros:
             for player in entity['players']:
                 name = player['name']
+                # check if the player is in the player_stats
                 if name in player_stats:
+                    # fetch the player stats
                     pb_id = entity['account_id']
                     v2_id = entity['display_string']
                     kills = player_stats[name]['kills']
@@ -31,27 +34,23 @@ def get_stats():
 
                     if existing_record:
                         # update the existing record
-                        new_kills = existing_record[0]['kills'] + kills
-                        new_deaths = existing_record[0]['deaths'] + deaths
-                        new_kd = new_kills / new_deaths if new_deaths != 0 else new_kills
+                        # print(f"Updating existing record for pb_id: {pb_id}")
                         db.update({
                             'games_played': existing_record[0]['games_played'] + 1,
-                            'kills': new_kills,
-                            'deaths': new_deaths,
-                            'score': existing_record[0]['score'] + score,
-                            'KD': new_kd
+                            'kills': existing_record[0]['kills'] + kills,
+                            'deaths': existing_record[0]['deaths'] + deaths,
+                            'score': existing_record[0]['score'] + score
                         }, Player.pb_id == pb_id)
                     else:
                         # insert a new record
-                        kd = kills / deaths if deaths != 0 else kills
+                        # print(f"Inserting new record for pb_id: {pb_id}")
                         combined_stats.append({
                             'pb_id': pb_id,
                             'v2_id': v2_id,
                             'games_played': 1,
                             'kills': kills,
                             'deaths': deaths,
-                            'score': score,
-                            'KD': kd
+                            'score': score
                         })
                 else:
                     print(f"Player {name} not found in player_stats")
@@ -65,13 +64,14 @@ def get_stats():
         sorted_records = sorted(all_records, key=lambda x: x['score'], reverse=True)
         top_100_records = sorted_records[:100]
         for rank, record in enumerate(top_100_records, start=1):
+            record['rank'] = rank
             db.update({'rank': rank}, Query().pb_id == record['pb_id'])
 
         # keep only top 100 records in the database
         db.purge()  # clear the database
         db.insert_multiple(top_100_records)  # insert top 100 records
 
-        print("data in db.json:", db.all())
+        #print("data in db.json:", db.all())
 
         with open(db_path, 'r') as json_file:
             data = json.load(json_file)

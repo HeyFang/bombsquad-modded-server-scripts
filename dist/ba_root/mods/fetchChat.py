@@ -28,7 +28,8 @@ admin_commands = {
 }
 
 user_commands = {
-    "list": uc.list
+    "list": uc.list,
+    "me": uc.stats, "stats": uc.stats
 }
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
