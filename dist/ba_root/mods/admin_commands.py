@@ -7,6 +7,7 @@ import threading
 #use both msg and client_id as arguments in chat commands even if you dont need them, (i did it so to avoid if-else conditions)
 
 def get_entity(client_id):
+    """Iterate through the game roster and return the entity with the given client_id."""
     ros = bs.get_game_roster()
     for entity in ros:
         if entity["client_id"] == client_id:
