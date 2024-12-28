@@ -3,7 +3,7 @@ from tinydb import TinyDB, Query
 import json
 import os
 
-# Initialize the TinyDB database
+# initialize the TinyDB database
 db_path = os.path.join(os.getcwd(), 'ba_root/mods/db.json')
 db = TinyDB(db_path)
 
@@ -29,12 +29,12 @@ def get_stats():
                     deaths = player_stats[name]['deaths']
                     score = player_stats[name]['score']
 
-                    # Check if the pb_id already exists in the database
+                    # check if the pb_id already exists in the database
                     Player = Query()
                     existing_record = db.search(Player.pb_id == pb_id)
 
                     if existing_record:
-                        # Update the existing record
+                        # update the existing record
                         print(f"Updating existing record for pb_id: {pb_id}")
                         db.update({
                             'kills': existing_record[0]['kills'] + kills,
@@ -42,7 +42,7 @@ def get_stats():
                             'score': existing_record[0]['score'] + score
                         }, Player.pb_id == pb_id)
                     else:
-                        # Insert a new record
+                        # unsert a new record
                         print(f"Inserting new record for pb_id: {pb_id}")
                         combined_stats.append({
                             'pb_id': pb_id,
@@ -54,16 +54,17 @@ def get_stats():
                 else:
                     print(f"Player {name} not found in player_stats")
 
+        #this only works when new player is being registered else empty
         print("Combined Stats:", combined_stats)
 
-        # Save new combined stats to TinyDB
+        # save data
         if combined_stats:
             db.insert_multiple(combined_stats)
 
-        # Verify that data is inserted
-        print("Data in TinyDB:", db.all())
+        
+        print("data in db.json:", db.all())
 
-        # Pretty-print the JSON data
+        # stupid indentation
         with open(db_path, 'r') as json_file:
             data = json.load(json_file)
 
