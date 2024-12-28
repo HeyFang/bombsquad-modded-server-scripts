@@ -1,21 +1,13 @@
+import babase as ba
 import bascenev1 as bs
 import json
 import os
 import admin_commands as ac
 import user_commands as uc
 
-# Load admin data once at the start
-admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
-with open(admin_path, "r") as file:
-    admin_data = json.load(file)
-banlist = set(admin_data.get("banlist", []))
-muted = set(admin_data.get("muted", []))
-admins = set(admin_data.get("admins", []))
-
-# Admin and user commands dictionaries
 admin_commands = {
     "kick": ac.kick,
-    "hi": ac,
+    "hi": ac.hello,
     "end": ac.end,
     "tint": ac.tint,
     "nv": ac.nv, "night": ac.nv,
@@ -47,6 +39,12 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     for entity in ros:
         if entity["client_id"] == client_id:
             pbid = entity["account_id"]
+            admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
+
+            with open(admin_path, "r") as file:
+                data = json.load(file)
+                banlist = data.get("banlist", [])
+                muted = data.get("muted", [])
             if pbid in muted or pbid in banlist:
                 return None
     
@@ -55,30 +53,38 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
         return msg
 
     # Commands
-    args = msg.split()
-    command = args[0].lstrip("/").lower()
+    elif msg.startswith("/"):
+        args = msg.split()
+        command = args[0].lstrip("/").lower()
 
-    if command not in admin_commands and command not in user_commands:
-        bs.broadcastmessage("No such command", transient=True, clients=[client_id], color=(1, 0, 0))
+        
+
+        if command not in admin_commands and command not in user_commands:
+            bs.broadcastmessage("No such command", transient=True, clients=[client_id], color=(1, 0, 0))
+            return msg
+
+        ros = bs.get_game_roster()
+        for entity in ros:
+            if entity["client_id"] == client_id:
+                pbid = entity["account_id"]
+                admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
+                with open(admin_path, "r") as file:
+                    admins = json.load(file)["admins"]
+
+                if command in user_commands:
+                    try:
+                        func = user_commands[command]    
+                        func(msg, client_id)
+                    except AttributeError as e:
+                        print(f"Error: {e}")
+
+                elif pbid in admins:
+                    try:
+                        func = admin_commands[command]
+                        func(msg, client_id)
+                    except AttributeError as e:
+                        print(f"Error: {e}")
+                else:
+                    print(f"{entity['players'][0]['name']} is not an admin")
         return None
-
-    for entity in ros:
-        if entity["client_id"] == client_id:
-            pbid = entity["account_id"]
-
-            if command in user_commands:
-                try:
-                    user_commands[command](msg, client_id)
-                except AttributeError as e:
-                    print(f"Error: {e}")
-                return None
-
-            if pbid in admins:
-                try:
-                    admin_commands[command](msg, client_id)
-                except AttributeError as e:
-                    print(f"Error: {e}")
-            else:
-                print(f"{entity['players'][0]['name']} is not an admin")
-            return None
     return msg
