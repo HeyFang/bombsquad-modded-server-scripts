@@ -144,19 +144,20 @@
   "Blue"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "watermelon"
+  "Client Input Device #1": "Feng"
  },
  "FFA Series Length": 24,
  "Fleet Zone Ping Last Flush Time": 1735123899,
  "Fleet Zone Pings": {
   "prod": {
-   "bahrain.v4": 308.355279030183,
-   "bangkok.v4": 259.6974860729645,
-   "delhi.v4": 78.8125864224248,
-   "dubai.v4": 226.4516843763933,
-   "hyderabad.v4": 69.91426358087487,
-   "kolkata.v4": 80.06168806235176,
-   "mumbai.v4": 81.18256781876612
+   "bahrain.v4": 187.83166725194587,
+   "bangkok.v4": 240.81632839404847,
+   "delhi.v4": 87.48941766178814,
+   "dubai.v4": 268.2243075258657,
+   "hyderabad.v4": 71.75423497796146,
+   "kolkata.v4": 84.15719428417106,
+   "mumbai.v4": 88.88188488616561,
+   "singapore.v4": 111.2896604059124
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -421,7 +422,7 @@
   ]
  },
  "Teams Series Length": 7,
- "launchCount": 631,
+ "launchCount": 635,
  "lc14173": 1,
  "lc14292": 1
 }
