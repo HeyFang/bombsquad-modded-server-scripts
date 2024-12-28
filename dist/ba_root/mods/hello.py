@@ -4,6 +4,7 @@ from roles import banlist, muted, save_banlist, save_muted
 import threading
 
 #don't define activity variable at top to reduce redundancy; few cmds like 'end' wont work since Activity won't die
+#use both msg and client_id as arguments in chat commands even if you dont need them, (i did it so to avoid if-else conditions)
 
 def get_entity(client_id):
     ros = bs.get_game_roster()
@@ -12,13 +13,13 @@ def get_entity(client_id):
             return entity
     return None
 
-def hello():
+def hello(msg, client_id):
     ros = bs.get_game_roster()
     print(ros)
     bs.broadcastmessage(f"konnichiwa chibi!", clients=None, transient=True, color=(0, 0.5, 1))
     return None
 
-def end(client_id):
+def end(msg, client_id):
     try:
         game = bs.get_foreground_host_activity()
         with game.context:
@@ -66,7 +67,7 @@ def tint(msg, client_id):
         print(e)
     return None
 
-def nv():
+def nv(msg, client_id):
     def is_close(a, b, tol=1e-5):
         return all(abs(x - y) < tol for x, y in zip(a, b))
 
@@ -90,7 +91,7 @@ def nv():
     return None
 
 
-def pause(client_id):
+def pause(msg, client_id):
     activity = bs.get_foreground_host_activity()
     if activity.globalsnode.paused:
         return None
@@ -104,7 +105,7 @@ def pause(client_id):
         print(e)
     return None
 
-def resume(client_id):
+def resume(msg, client_id):
     activity = bs.get_foreground_host_activity()
     if not activity.globalsnode.paused:
         return None
@@ -118,7 +119,7 @@ def resume(client_id):
         print(e)
     return None
 
-def slowmo():
+def slowmo(msg, client_id):
     try:
         activity = bs.get_foreground_host_activity()
         print(activity.globalsnode.slow_motion)
@@ -149,19 +150,19 @@ def maxplayers(msg, client_id):
         bs.broadcastmessage("Invalid size. Must be between 2 and 99.", transient=True, color=(1, 0, 0), clients=None)
     return None
 
-def past_msgs():
+def past_msgs(msg, client_id):
     #not sure this is good way to do it :/
     msgs = bs.get_chat_messages()
     for msg in msgs:
         bs.chatmessage(msg)
     return None
 
-def send(msg):
+def send(msg, client_id):
     text = msg.split(" ", 1)[1]
     bs.broadcastmessage(text, transient=True, color=(0, 0.5, 1), clients=None)
     return None
 
-def quit(client_id):
+def quit(msg, client_id):
     try:
         entity = get_entity(client_id)
         if entity:
@@ -172,7 +173,7 @@ def quit(client_id):
         print(e)
     return None
 
-def list(client_id):
+def list(msg, client_id):
     try:
         roster = bs.get_game_roster()
         bs.broadcastmessage(f"{'ID':<2} | {'Name':<10} | {'Client_id':<9} | {'Pb-Id':<10}" + "\n" + "_" * 35, transient=True, color=(1,1,1), clients=[client_id])
@@ -206,7 +207,7 @@ def remove(msg, client_id):
     except:
         return None
 
-def party_toggle(msg):
+def party_toggle(msg, client_id):
     try:
         args = msg.split()
         if args[1] == "pub" or args[1] == "public":
@@ -278,7 +279,7 @@ def unban(msg, client_id):
         print(e)
     return None
 
-def bans():
+def bans(msg, client_id):
     try:
         bs.broadcastmessage(f"Banlist: {banlist}", transient=True, color=(0, 0.5, 1), clients=None)
     except Exception as e:
@@ -312,7 +313,7 @@ def mute(msg, client_id):
         print(e)
     return None
 
-def unmute():
+def unmute(msg, client_id):
     #unmutes all
     try:
         if muted:

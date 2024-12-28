@@ -70,23 +70,15 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
 
                 if command in user_commands:
                     try:
-                        func = user_commands[command]
-                        #if command in {"me", "stats"}:
-                        #    func(pbid)
-                        if command in {"list"}:
-                            func(client_id)
+                        func = user_commands[command]    
+                        func(msg, client_id)
                     except AttributeError as e:
                         print(f"Error: {e}")
 
                 elif pbid in admins:
                     try:
                         func = admin_commands[command]
-                        if command in {"maxplayers", "mp", "tint", "send", "announce", "remove", "rm", "ban", "mute"}:
-                            func(msg, client_id)
-                        elif command in {"end", "pause", "resume", "quit", "restart"}:
-                            func(client_id)
-                        else:
-                            func()
+                        func(msg, client_id)
                     except AttributeError as e:
                         print(f"Error: {e}")
                 else:
