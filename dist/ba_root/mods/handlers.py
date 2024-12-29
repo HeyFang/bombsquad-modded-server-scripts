@@ -15,7 +15,7 @@ def on_game_begins(self):
                 # 'vr_depth': 390,
                 'scale': 1.4,
                 'color': (0.4, 0.8, 1.0, 1.0),
-                'text': f"🐤 || EONI vs CYCLONES || {chr(0x1F600)}",
+                'text': f"\ue04d || EONI vs CYCLONES || {chr(0x1F600)}",
                 # 'transition': 'fade_in'
             },
         )

@@ -4,6 +4,7 @@ import json
 def list(*params):
     # ros = bs.get_game_roster()
     ros = params[2]
+    print(ros)
     bs.chatmessage(f"  ClientID    SessionID   Name")
     bs.chatmessage(f"----------------------------------------------------------")
     for entity in ros:
