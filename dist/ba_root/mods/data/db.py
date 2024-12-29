@@ -13,7 +13,8 @@ banned = db.table("banned")
 def pb_exists(tablename, pbid):
     table = db.table(tablename)
     entity = Query()
-    return len(table.search(entity.pbid == pbid)) != 0
+    # return boolean as well as table
+    return len(table.search(entity.pbid == pbid)) != 0, table.search(entity.pbid == pbid)
 
 
 def duration_to_ms(duration: int):
@@ -30,8 +31,10 @@ def ban(pbid: str, duration: int, reason: str = "no reason provided"):
     duration = f"{str(duration)} (days)"
     
     # check if exists... then insert
-    if pb_exists("banned", pbid):
-        print(f"pbid ({pbid}) is already banned") 
+    player_exists = pb_exists("banned", pbid)[0]
+    
+    if player_exists:
+        print(f"pbid ({pbid}) is already banned")
     else:
         banned.insert({
             "pbid": pbid,
@@ -41,3 +44,24 @@ def ban(pbid: str, duration: int, reason: str = "no reason provided"):
             "reason": reason
         })
         print(f"Banned ({pbid}) for {duration} till {release_in_format}")
+
+
+def unban(pbid: str):
+    player_exists = pb_exists("banned", pbid)[0]
+    table = db.table("banned")
+    entity = Query()
+    
+    if player_exists:
+        try:
+            print(f"Player ({pbid}) has been unbanned")
+            table.remove(entity.pbid == pbid)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+    
+
+def is_banned(pbid: str):
+    # returns True if player exists in database else False
+    _banned, _player = pb_exists("banned", pbid)
+    return _banned, _player

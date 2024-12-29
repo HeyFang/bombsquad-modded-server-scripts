@@ -9,7 +9,7 @@ import logging
 from typing import TYPE_CHECKING
 
 import babase
-
+import bascenev1 as bs
 import _bascenev1
 from bascenev1._player import Player
 
@@ -266,6 +266,12 @@ class Session:
 
         This should return True or False to accept/reject.
         """
+        try:
+            from player_join import _on_player_join
+        except ImportError:
+            print("PlayerJoin script not found")
+        
+        _on_player_join(player)
         # Limit player counts *unless* we're in a stress test.
         if (
             babase.app.classic is not None

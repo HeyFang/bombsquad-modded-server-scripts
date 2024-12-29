@@ -182,12 +182,6 @@ def tint(*params):
             
             
 def nv(*params):
-    # try:
-    #     activity = bs.get_foreground_host_activity()
-    #     nv_tint = (0, 0.5, 1.0)
-    #     activity.globalsnode.tint = (1, 1, 1) if activity.globalsnode.tint == nv_tint else nv_tint
-    # except Exception as e:
-    #     print(e)
     def is_close(a, b, tol=1e-5):
         return all(abs(x - y) < tol for x, y in zip(a, b))
 
@@ -330,22 +324,43 @@ def gloves(*params):
 
 # you're able to get a bomb but it works so...
 # for all doesnt work, ima sleepy
+# old freeze command
+# def freeze(*params):
+#     args = params[0]
+#     ros = params[2]
+    
+#     activity = bs.get_foreground_host_activity()
+    
+#     target_id = int(args[0])
+#     spaz = __getplayer__(ros, target_id)
+    
+#     try:
+#         with activity.context:
+#             spaz.actor.node.frozen = True
+#             bs.timer(6.0, (lambda: spaz.actor.node.__setattr__("frozen", False)))
+#     except Exception as e:
+#         print(e)
+
+
 def freeze(*params):
     args = params[0]
     ros = params[2]
     
     activity = bs.get_foreground_host_activity()
     
-    target_id = int(args[0])
-    spaz = __getplayer__(ros, target_id)
-    
-    try:
-        with activity.context:
-            spaz.actor.node.frozen = True
-            bs.timer(6.0, (lambda: spaz.actor.node.__setattr__("frozen", False)))
-    except Exception as e:
-        print(e)
-
+    if args[0] == "all":
+        for player in activity.players:
+            with activity.context:
+                player.actor.node.handlemessage(bs.FreezeMessage())
+    else:
+        target_id = int(args[0])
+        spaz = __getplayer__(ros, target_id)
+        
+        try:
+            with activity.context:
+                spaz.actor.node.handlemessage(bs.FreezeMessage())
+        except Exception as e:
+            print(e)
 
 
 def thaw(*params):
@@ -439,32 +454,13 @@ def __getsessionplayer__(ros, target_id):
 # testing command
 
 def cl(*params):
-    # args = params[0]
-    # ros = params[2]
-    # target_id = int(args[0])
     args = params[0]
-    target_id = int(args[0])
+    admin_id = params[1]
     ros = params[2]
     
-    player = __getsessionplayer__(ros, target_id)
-    print(player.inputdevice.get_player_profiles())
-
-    # for player in ros:
-    #     if player["client_id"] == target_id:
-    #         for splayer in bs.get_foreground_host_session().sessionplayers:
-    #             if player["players"][0]["id"] == splayer.id:
-    #                 try:
-    #                     # print(dir(splayer.activityplayer))
-    #                     # print(splayer.activityplayer.node)
-    #                     # print(dir(splayer.activityplayer.node))
-                        
-    #                     with bs.get_foreground_host_activity().context:
-    #                         player = splayer.activityplayer
-    #                         # ga = bs.get_foreground_host_activity()
-    #                         # spaz = ga.spawn_player(player)
-    #                         # spaz.curse()
-    #                         # print(player.actor)
-    #                         print(dir(player.actor))
-    #                         player.actor.shatter()
-    #                 except Exception as e:
-    #                     print(e)
+    # player = __getsessionplayer__(ros, target_id)
+    # print(player.inputdevice.get_player_profiles())
+    
+    activity = bs.get_foreground_host_activity()
+    activity.header1.text = f"{" ".join(args[0:])}"
+    # print(dir(activity.header1))

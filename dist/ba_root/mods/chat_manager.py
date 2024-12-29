@@ -14,7 +14,27 @@ def handle(msg: str, client_id):
     args = msg.split()
     command = args[0].lstrip("/")
     
-    admin_commands = [["kick"], ["ban"], ["end"], ["list"], ["maxplayers", "max"], ["remove", "rm"], ["restart", "exit"], ["tint"], ["nv", "night"], ["time", "english_or_spanish"], ["slowmo", "sm"], ["cl"], ["kill"], ["curse"], ["gloves"], ["freeze"], ["heal"], ["thaw"], ["party_toggle", "party"]]
+    admin_commands = [
+        ["kick"], 
+        ["ban"], 
+        ["end"], 
+        ["remove", "rm"], 
+        ["list"], 
+        ["maxplayers", "max"], 
+        ["restart", "exit"], 
+        ["tint"], 
+        ["nv", "night"], 
+        ["time"], 
+        ["slowmo", "sm", "epic"], 
+        ["kill"], 
+        ["curse"], 
+        ["gloves"], 
+        ["freeze"], 
+        ["heal"], 
+        ["thaw"], 
+        ["party", "partymode"],
+        ["cl"], 
+    ]
     user_commands = ["list"]     # dont need aliases for now + increases complexity
     
     # uhhh so in simple terms this extracts commands and aliases
@@ -58,6 +78,6 @@ def handle(msg: str, client_id):
             else:
                 # print(f"{entity['players'][0]['name']} is not an admin")
                 player_name = entity["players"][0]["name"]
-                bs.broadcastmessage(f"{player_name} - Access Denied. You're don't have admin permissions", transient=True, clients=[client_id])
+                bs.broadcastmessage(f"{player_name} - Access Denied. You don't have admin permissions", transient=True, clients=[client_id])
 
     return msg

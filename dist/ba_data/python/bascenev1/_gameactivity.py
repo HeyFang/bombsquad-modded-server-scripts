@@ -10,7 +10,8 @@ import logging
 from typing import TYPE_CHECKING, TypeVar, override
 
 import babase
-
+import bascenev1 as bs
+import bascenev1lib
 import _bascenev1
 from bascenev1._activity import Activity
 from bascenev1._player import PlayerInfo
@@ -18,6 +19,8 @@ from bascenev1._messages import PlayerDiedMessage, StandMessage
 from bascenev1._score import ScoreConfig
 from bascenev1 import _map
 from bascenev1 import _music
+
+import handlers as h
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Sequence
@@ -378,6 +381,9 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 },
                 callback=babase.WeakCall(self._on_tournament_query_response),
             )
+        
+        h.on_game_begins(self)
+        
 
     def _on_tournament_query_response(
         self, data: dict[str, Any] | None
@@ -395,7 +401,6 @@ class GameActivity(Activity[PlayerT, TeamT]):
     @override
     def on_player_join(self, player: PlayerT) -> None:
         super().on_player_join(player)
-
         # print("a player has joined the game")
         # _bascenev1.broadcastmessage(f"Welcome {player.getname()}\nThe Server is under development so might experience several restarts")
         # By default, just spawn a dude.
