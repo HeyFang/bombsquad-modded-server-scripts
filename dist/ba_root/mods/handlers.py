@@ -39,3 +39,41 @@ def on_game_begins(self):
                 'text': "Welcome to our server. We hope you enjoy your stay here :D"
             },
         )
+        
+        
+        self.script2 = bs.newnode(
+            'text',
+            attrs={
+                'position': (20, 75),
+                'h_attach': 'left',
+                'h_align': 'left',
+                'v_attach': 'bottom',
+                # 'v_align': "center",
+                'maxwidth': 300,
+                'shadow': 0.5,
+                # 'vr_depth': 390,
+                'scale': 0.8,
+                'color': (1, 1, 1, 1),
+                'text': f"Scripts developed by "
+            },
+        )
+        
+        self.script2 = bs.newnode(
+            'text',
+            attrs={
+                'position': (20, 50),
+                'h_attach': 'left',
+                'h_align': 'left',
+                'v_attach': 'bottom',
+                # 'v_align': "center",
+                'maxwidth': 300,
+                'shadow': 0.5,
+                # 'vr_depth': 390,
+                'scale': 0.8,
+                'color': (1, 1, 1, 1),
+                'text': f"{ba.charstr(ba.SpecialChar.CROWN)} Fang | {ba.charstr(ba.SpecialChar.MOON)} Yuzuru"
+            },
+        )
+        
+        
+        print(dir(self.script2))

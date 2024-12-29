@@ -461,6 +461,28 @@ def cl(*params):
     # player = __getsessionplayer__(ros, target_id)
     # print(player.inputdevice.get_player_profiles())
     
-    activity = bs.get_foreground_host_activity()
-    activity.header1.text = f"{" ".join(args[0:])}"
+    # activity = bs.get_foreground_host_activity()
+    # activity.header1.text = f"{" ".join(args[0:])}"
+    # schar = args[0]
+    # bs.chatmessage(f"{ba.charstr(ba.SpecialChar[schar])}")
+    
+    with bs.get_foreground_host_activity().context:
+        _bascenev1.newnode(
+                'timedisplay', attrs={'time2': 1000 * 1000, 'timemin': 0}
+            )
+        # img = bs.newnode(
+        #                 'image',
+        #                 attrs={
+        #                     'texture': bs.Texture,
+        #                     'position': (0, 0),
+        #                     'scale': (50, 50),
+        #                     'opacity': 1.0,
+        #                     'vr_depth': 315,
+        #                     'color': (1, 1, 1),
+        #                     'absolute_scale': True,
+        #                     'attach': 'bottomCenter',
+        #                 },
+        #             )
+        # bs.timer(5.0, img.delete)
+    
     # print(dir(activity.header1))
