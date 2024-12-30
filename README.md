@@ -21,6 +21,7 @@
 - [x] public/pvt toggle
 - [x] setup tinydb for stats
 - [ ] team-lives balancer
+- [x] screen texts
 
 ## Games
 - [x] Death Overhead.
