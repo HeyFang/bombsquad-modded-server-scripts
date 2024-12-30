@@ -18,6 +18,7 @@ from bascenev1._messages import PlayerDiedMessage, StandMessage
 from bascenev1._score import ScoreConfig
 from bascenev1 import _map
 from bascenev1 import _music
+import screenText as text
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Sequence
@@ -237,6 +238,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
             None
         )
         self._zoom_message_times: dict[int, float] = {}
+        self._rank: Callable[[], None] | None = None
 
     @property
     def map(self) -> _map.Map:
@@ -378,6 +380,8 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 },
                 callback=babase.WeakCall(self._on_tournament_query_response),
             )
+        
+        text.on_game_begin(self)
 
     def _on_tournament_query_response(
         self, data: dict[str, Any] | None

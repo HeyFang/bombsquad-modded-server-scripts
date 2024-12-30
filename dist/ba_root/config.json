@@ -147,16 +147,15 @@
   "Client Input Device #1": "\ud83c\udf00Fang"
  },
  "FFA Series Length": 24,
- "Fleet Zone Ping Last Flush Time": 1735123899,
+ "Fleet Zone Ping Last Flush Time": 1735577397,
  "Fleet Zone Pings": {
   "prod": {
-   "bahrain.v4": 222.17264395777602,
-   "bangkok.v4": 234.747276600298,
-   "delhi.v4": 76.81756675809491,
-   "dubai.v4": 212.03387451387806,
-   "hyderabad.v4": 65.00717380731572,
-   "kolkata.v4": 84.22652500779435,
-   "mumbai.v4": 78.18162183415751
+   "bangkok.v4": 265.37149887010537,
+   "delhi.v4": 87.82722219347296,
+   "dubai.v4": 278.08002624804067,
+   "hyderabad.v4": 69.44042424440359,
+   "kolkata.v4": 119.68438921632037,
+   "mumbai.v4": 81.61321841061996
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -249,7 +248,7 @@
  "Show Tutorial": false,
  "Signed In Last Session": false,
  "Team Tournament Playlist Randomize": false,
- "Team Tournament Playlist Selection": "New Games",
+ "Team Tournament Playlist Selection": "new one",
  "Team Tournament Playlists": {
   "New Games": [
    {
@@ -418,10 +417,34 @@
     },
     "type": "bascenev1lib.game.elimination.EliminationGame"
    }
+  ],
+  "new one": [
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Kills to Win Per Player": 5,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Rampage"
+    },
+    "type": "bascenev1lib.game.deathmatch.DeathMatchGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": false,
+     "Epic Mode": true,
+     "Lives Per Player": 1,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 60,
+     "map": "Monkey Face"
+    },
+    "type": "bascenev1lib.game.getbombed.EliminationGame"
+   }
   ]
  },
  "Teams Series Length": 7,
- "launchCount": 643,
+ "launchCount": 808,
  "lc14173": 1,
  "lc14292": 1
 }

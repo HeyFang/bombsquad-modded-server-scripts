@@ -15,8 +15,8 @@ def get_entity(client_id):
     return None
 
 def hello(msg, client_id):
-    ros = bs.get_game_roster()
-    print(ros)
+    print(help(bs.newnode(text)))
+    
     bs.broadcastmessage(f"konnichiwa chibi!", clients=None, transient=True, color=(0, 0.5, 1))
     return None
 
