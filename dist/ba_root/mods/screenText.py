@@ -66,6 +66,8 @@ def ranks(self):
                     
                     if pb_id:
                         rank = st.get_rank(pb_id)
+                        if rank is None:
+                            rank = " "
                         
                         # Create a new PlayerTag above the player's head displaying their rank
                         player_rank_texts[player] = PlayerTag(player, f'#{rank}')
