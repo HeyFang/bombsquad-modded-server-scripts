@@ -33,7 +33,7 @@ PlayerT = TypeVar('PlayerT', bound='bascenev1.Player')
 TeamT = TypeVar('TeamT', bound='bascenev1.Team')
 
 def create_animated_text(letters, start_x, start_y, color_keys):
-    letter_spacing = 10
+    letter_spacing = 12
     for i, letter in enumerate(letters):
         letter_position = (start_x + i * letter_spacing, start_y, 0)
 

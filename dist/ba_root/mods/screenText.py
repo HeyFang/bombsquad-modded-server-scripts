@@ -1,8 +1,11 @@
+from bascenev1._gameutils import animate
 import bascenev1 as bs
 import babase as ba
 from tinydb import TinyDB, Query
 import os
+import random
 import statsSys as st
+
 
 # initialize the TinyDB database
 db_path = os.path.join(os.getcwd(), 'ba_root/mods/db.json')
@@ -107,9 +110,9 @@ def on_game_begin(self):
                 'maxwidth': 300,
                 'shadow': 0.5,
                 # 'vr_depth': 390,
-                'scale': 1.4,
-                'color': (0.0, 1.0, 1.0, 1.0),
-                'text': "Welcome to our server. We hope you enjoy your stay here :D"
+                'scale': 1.2,
+                'color': (0.0, 0.9, 0.9, 0.9),
+                'text': "Still remember us? We're back after 4 years :D"
             },
         )
         
@@ -215,7 +218,51 @@ def on_game_begin(self):
                 'text': f"{ba.charstr(ba.SpecialChar.TROPHY1)}"
             },
         )
+        self.loop_text = bs.newnode(
+            "text",
+            attrs = {
+                "position": (0, -200),
+                "h_attach": "center",
+                "h_align": "center",
+                "v_attach": "center",
+                "v_align": "center",
+                # "maxwidth": 300,
+                "shadow": 0.5,
+                "scale": 1.0,
+                "color": (0.4, 1.0, 0.8, 1),
+                "text": ""
+            }
+        )
+        assert self.loop_text
+        animate(
+            self.loop_text,
+            'opacity',
+            {
+                0: 0.0,    # Start fully transparent
+                1.0: 1.0,  # Fade in to fully opaque at 1 second
+                4.0: 1.0,  # Stay fully opaque until 4 seconds
+                5.0: 0.0   # Fade out to fully transparent at 5 seconds
+            },
+            loop=True
+        )
 
+        def change_text():
+            arr = [
+                "Join the official discord community by clicking on stats button",
+                "For ban related appeals contact the admins in discord server",
+                "Come play minecraft with us in the cyclones discord community"
+            ]
+            key = round(random.random() * (len(arr) - 1))
+            
+            self.loop_text.text = arr[key]
+            bs.timer(4, ba.Call( (lambda: self.loop_text.__setattr__("text", "")) ))
+        
+        bs.timer(6, ba.Call(change_text), repeat=True)
+        
+        
+        
+
+        
         ranks(self)
         
 

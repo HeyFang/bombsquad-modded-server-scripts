@@ -96,13 +96,14 @@ def read_stats(pb_id=None):
                 player_stats = player_stats[0]
                 v2_id = player_stats.get('v2_id')
                 rank = player_stats.get('rank')
+                score = player_stats.get('score')
                 kills = player_stats.get('kills')
                 deaths = player_stats.get('deaths')
                 games_played = player_stats.get('games_played')
-                return v2_id, rank, kills, deaths, games_played
+                return v2_id, rank, score, kills, deaths, games_played
             else:
                 print(f"No stats found for player with pb_id: {pb_id}")
-                return None
+                return " "
         else:
             # Fetch stats for all players
             all_stats = db.all()
@@ -110,10 +111,11 @@ def read_stats(pb_id=None):
             for player_stats in all_stats:
                 v2_id = player_stats.get('v2_id')
                 rank = player_stats.get('rank')
+                score = player_stats.get('score')
                 kills = player_stats.get('kills')
                 deaths = player_stats.get('deaths')
                 games_played = player_stats.get('games_played')
-                filtered_stats.append((v2_id, rank, kills, deaths, games_played))
+                filtered_stats.append((v2_id, rank, score, kills, deaths, games_played))
             return filtered_stats
     except Exception as e:
         print(e)
@@ -134,9 +136,9 @@ def get_top3():
         top_3_v2_ids = [record['v2_id'][1:] for record in top_3_records]
         
         # Return the top 3 v2_ids individually
-        return (top_3_v2_ids[0] if len(top_3_v2_ids) > 0 else None,
-                top_3_v2_ids[1] if len(top_3_v2_ids) > 1 else None,
-                top_3_v2_ids[2] if len(top_3_v2_ids) > 2 else None)
+        return (top_3_v2_ids[0] if len(top_3_v2_ids) > 0 else " ",
+                top_3_v2_ids[1] if len(top_3_v2_ids) > 1 else " ",
+                top_3_v2_ids[2] if len(top_3_v2_ids) > 2 else " ")
     except Exception as e:
         print(e)
         return None, None, None
