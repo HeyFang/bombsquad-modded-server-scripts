@@ -3,5 +3,3 @@ config.toml
 *.pyc
 *.pyo
 *.bsac2
-./dist/ba_root/mods/config.json
-./dist/ba_root/mods/config.json.prev
