@@ -1,6 +1,7 @@
 import bascenev1 as bs
 from tinydb import TinyDB, Query
 import os
+import statsSys
 
 # initialize the TinyDB database
 db_path = os.path.join(os.getcwd(), 'ba_root/mods/db.json')
@@ -28,50 +29,33 @@ def list(msg, client_id):
     return None
 
 def stats(msg, client_id):
-    # stats of thyself if no arguments, else /stats <client_id>
-    args = msg.split()
-    # check if msg is /me or /stats
-    if len(args) < 2:
-        # get the entity of the client_id
-        entity = get_entity(client_id)
-        if entity:
-            pb_id = entity["account_id"]
+    if len(msg.split()) < 2:
+        urself = get_entity(client_id)
+        if urself:
+            pb_id = urself['account_id']
+            specific_player_stats = statsSys.read_stats(pb_id)
+            if specific_player_stats:
+                v2_id, rank, kills, deaths, games_played = specific_player_stats
+                #print(f"v2_id: {v2_id}, rank: {rank}, kills: {kills}, deaths: {deaths}, games_played: {games_played}")
+                kd = kills / deaths if deaths > 0 else kills
+                bs.broadcastmessage(f"{v2_id} | Rank: {rank} | Kills: {kills} | Deaths: {deaths} | K/D: {kd:.2f} | Games Played: {games_played}", transient=True, color=(1,1,1), clients=None)
+
         else:
-            bs.broadcastmessage("Player not found", transient=True, clients=[client_id], color=(1, 0, 0))
-            return
-    # else msg is /stats <client_id>
+            print("Player not found")
+        return msg
+    
     else:
         args = msg.split()
         target = int(args[1])
-        # get the entity of the target client_id
-        entity = get_entity(target)
-        if entity:
-            pb_id = entity["account_id"]
-        else:
-            bs.broadcastmessage("Player not found", transient=True, clients=[client_id], color=(1, 0, 0))
-            return
-        
-    # get the stats of the player
-    Player = Query()
-    record = db.search(Player.pb_id == pb_id)
-
-
-    if record:
-        name = record[0]['v2_id']
-        games_played = record[0]['games_played']
-        kills = record[0]['kills']
-        deaths = record[0]['deaths']
-        score = record[0]['score']
-        rank = record[0]['rank']
-        # calculate the kill/death ratio
-        kd = kills / deaths if deaths > 0 else kills
-
-        bs.broadcastmessage(f"{name} | Rank: {rank} | Score: {score} | Kills: {kills} | Deaths: {deaths} | K/D: {kd:.2f} | Games: {games_played}", transient=True, clients=None, color=(1, 1, 1))
-    else:
-        bs.broadcastmessage("Player not found", transient=True, clients=[client_id], color=(1, 0, 0))
-    
-    return None
-
+        target_entity = get_entity(target)
+        if target_entity:
+            target_pb = target_entity['account_id']
+            specific_player_stats = statsSys.read_stats(target_pb)
+            if specific_player_stats:
+                v2_id, rank, kills, deaths, games_played = specific_player_stats
+                #print(f"v2_id: {v2_id}, rank: {rank}, kills: {kills}, deaths: {deaths}, games_played: {games_played}")
+                kd = kills / deaths if deaths > 0 else kills
+                bs.broadcastmessage(f"{v2_id} | Rank: {rank} | Kills: {kills} | Deaths: {deaths} | K/D: {kd:.2f} | Games Played: {games_played}", transient=True, color=(1,1,1), clients=None)        
 
 
         

@@ -18,7 +18,9 @@ from bascenev1._messages import PlayerDiedMessage, StandMessage
 from bascenev1._score import ScoreConfig
 from bascenev1 import _map
 from bascenev1 import _music
+import statsSys
 import screenText as text
+import bascenev1 as bs
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Sequence
@@ -30,8 +32,78 @@ if TYPE_CHECKING:
 PlayerT = TypeVar('PlayerT', bound='bascenev1.Player')
 TeamT = TypeVar('TeamT', bound='bascenev1.Team')
 
+def create_animated_text(letters, start_x, start_y, color_keys):
+    letter_spacing = 10
+    for i, letter in enumerate(letters):
+        letter_position = (start_x + i * letter_spacing, start_y, 0)
+
+        letter_node = bs.newnode(
+            'text',
+            attrs={
+                'text': letter,
+                'position': letter_position,
+                'h_attach': 'right',
+                'h_align': 'center',
+                'v_attach': 'top',
+                'shadow': 1.0,
+                'flatness': 1.0,
+                'color': (1, 1, 1, 1),  # Initial color
+                'scale': 0.8,
+            }
+        )
+
+        # Add animation to the letter node
+        animation_duration = 0.7
+        delay_offset = i * 0.05
+
+        bs.animate_array(
+            node=letter_node,
+            attr='color',
+            size=4,
+            keys={
+                0.0 + delay_offset: color_keys[0],      # Start color
+                0.05 + delay_offset: color_keys[1],     # Slightly brighter
+                0.1 + delay_offset: color_keys[2],      # Even brighter
+                0.15 + delay_offset: color_keys[3],     # Shine
+                0.2 + delay_offset: color_keys[4],      # Dim slightly
+                0.25 + delay_offset: color_keys[5],     # More dim
+                0.3 + delay_offset: color_keys[0],      # Back to start color
+                animation_duration + delay_offset: color_keys[0], # End color (for looping)
+            },
+            loop=True
+        )
+
+# Define color keys for gold, silver, and bronze animations
+gold_keys = [
+    (1.0, 0.84, 0.0, 1.0),  # Gold
+    (1.0, 0.9, 0.5, 1.0),   # Brighter gold
+    (1.0, 0.95, 0.75, 1.0), # Even brighter gold
+    (1.0, 1.0, 1.0, 1.0),   # Shine white
+    (1.0, 0.95, 0.75, 1.0), # Dim slightly
+    (1.0, 0.9, 0.5, 1.0),   # More dim
+]
+
+silver_keys = [
+    (0.75, 0.75, 0.75, 1.0), 
+    (0.85, 0.85, 0.85, 1.0),  
+    (0.95, 0.95, 0.95, 1.0),  
+    (1.0, 1.0, 1.0, 1.0),     
+    (0.95, 0.95, 0.95, 1.0),  
+    (0.85, 0.85, 0.85, 1.0),  
+]
+
+bronze_keys = [
+    (0.8, 0.5, 0.2, 1.0),  
+    (0.85, 0.55, 0.3, 1.0),  
+    (0.9, 0.6, 0.4, 1.0),  
+    (1.0, 1.0, 1.0, 1.0),  
+    (0.9, 0.6, 0.4, 1.0),  
+    (0.85, 0.55, 0.3, 1.0),  
+]
+
 
 class GameActivity(Activity[PlayerT, TeamT]):
+    
     """Common base class for all game bascenev1.Activities.
 
     Category: **Gameplay Classes**
@@ -380,8 +452,20 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 },
                 callback=babase.WeakCall(self._on_tournament_query_response),
             )
-        
+        t1, t2, t3 = statsSys.get_top3()
+        #print(f"Top 3: {t1}, {t2}, {t3}")
+        letters_t1 = list(t1)
+        create_animated_text(letters_t1, start_x=-100, start_y=-125, color_keys=gold_keys)
+
+        # Create animated text for top2 with silver animation
+        letters_t2 = list(t2)
+        create_animated_text(letters_t2, start_x=-100, start_y=-155, color_keys=silver_keys)
+
+        # Create animated text for top3 with bronze animation
+        letters_t3 = list(t3)
+        create_animated_text(letters_t3, start_x=-100, start_y=-185, color_keys=bronze_keys)
         text.on_game_begin(self)
+        #rank = statsSys.get_rank()
 
     def _on_tournament_query_response(
         self, data: dict[str, Any] | None
@@ -727,7 +811,14 @@ class GameActivity(Activity[PlayerT, TeamT]):
             self._tournament_time_limit_title_text = None
 
         super().end(results, delay, force)
-
+        statsSys.insert_stats()
+        # all_player_stats = statsSys.read_stats()
+        # if all_player_stats:
+        #     for player_stats in all_player_stats:
+        #         v2_id, rank, kills, deaths, games_played = player_stats
+        #         print(f"v2_id: {v2_id}, rank: {rank}, kills: {kills}, deaths: {deaths}, games_played: {games_played}")
+        t1, t2, t3 = statsSys.get_top3()
+        print(f"Top 3: {t1}, {t2}, {t3}")
     def end_game(self) -> None:
         """Tell the game to wrap up and call bascenev1.Activity.end().
 

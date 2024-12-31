@@ -7,8 +7,9 @@ import os
 db_path = os.path.join(os.getcwd(), 'ba_root/mods/db.json')
 db = TinyDB(db_path)
 
-def get_stats():
+def insert_stats():
     try:
+        #print("Fetching stats...")
         ros = bs.get_game_roster()
         stats = bs.get_foreground_host_session().stats
         player_stats = stats.fetch_player_statistics()  
@@ -83,3 +84,75 @@ def get_stats():
     except Exception as e:
         print(e)
     return None
+
+
+def read_stats(pb_id=None):
+    try:
+        if pb_id:
+            # Fetch stats for a specific player
+            Player = Query()
+            player_stats = db.search(Player.pb_id == pb_id)
+            if player_stats:
+                player_stats = player_stats[0]
+                v2_id = player_stats.get('v2_id')
+                rank = player_stats.get('rank')
+                kills = player_stats.get('kills')
+                deaths = player_stats.get('deaths')
+                games_played = player_stats.get('games_played')
+                return v2_id, rank, kills, deaths, games_played
+            else:
+                print(f"No stats found for player with pb_id: {pb_id}")
+                return None
+        else:
+            # Fetch stats for all players
+            all_stats = db.all()
+            filtered_stats = []
+            for player_stats in all_stats:
+                v2_id = player_stats.get('v2_id')
+                rank = player_stats.get('rank')
+                kills = player_stats.get('kills')
+                deaths = player_stats.get('deaths')
+                games_played = player_stats.get('games_played')
+                filtered_stats.append((v2_id, rank, kills, deaths, games_played))
+            return filtered_stats
+    except Exception as e:
+        print(e)
+        return None
+
+def get_top3():
+    try:
+        # Fetch all player stats
+        all_stats = db.all()
+        
+        # Sort records by rank in ascending order
+        sorted_records = sorted(all_stats, key=lambda x: x['rank'])
+        
+        # Get the top 3 records
+        top_3_records = sorted_records[:3] if sorted_records else []
+        
+        # Extract the v2_id of the top 3 players
+        top_3_v2_ids = [record['v2_id'][1:] for record in top_3_records]
+        
+        # Return the top 3 v2_ids individually
+        return (top_3_v2_ids[0] if len(top_3_v2_ids) > 0 else None,
+                top_3_v2_ids[1] if len(top_3_v2_ids) > 1 else None,
+                top_3_v2_ids[2] if len(top_3_v2_ids) > 2 else None)
+    except Exception as e:
+        print(e)
+        return None, None, None
+    
+def get_rank(pb_id):
+    try:
+        # Fetch stats for a specific player
+        Player = Query()
+        player_stats = db.search(Player.pb_id == pb_id)
+        if player_stats:
+            player_stats = player_stats[0]
+            rank = player_stats.get('rank')
+            return rank
+        else:
+            print(f"No stats found for player with pb_id: {pb_id}")
+            return None
+    except Exception as e:
+        print(e)
+        return None

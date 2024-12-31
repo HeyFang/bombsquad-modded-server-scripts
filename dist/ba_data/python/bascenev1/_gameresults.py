@@ -7,7 +7,7 @@ import copy
 import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
-import statsSys
+
 
 from efro.util import asserttype
 import babase
@@ -71,7 +71,7 @@ class GameResults:
         #stats = game.session.stats
         #stats.fetch_player_statistics()
 
-        statsSys.get_stats()
+        
 
 
 
