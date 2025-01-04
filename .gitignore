@@ -2,3 +2,4 @@
 *.pyc
 *.pyo
 *.bsac2
+.vscode/sftp.json

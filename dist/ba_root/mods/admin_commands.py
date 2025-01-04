@@ -5,6 +5,7 @@ import threading
 
 #don't define activity variable at top to reduce redundancy; few cmds like 'end' wont work since Activity won't die
 #use both msg and client_id as arguments in chat commands even if you dont need them, (i did it so to avoid if-else conditions)
+# hello sync
 
 def get_entity(client_id):
     """Iterate through the game roster and return the entity with the given client_id."""
@@ -74,7 +75,7 @@ def nv(msg, client_id):
 
     try:
         activity = bs.get_foreground_host_activity()
-        nv_tint = (0.4, 0.4, 1.0)
+        nv_tint = (0.5, 0.5, 1.0)
         nv_ambient = (1.5, 1.5, 1.5)
         
         if is_close(activity.globalsnode.tint, nv_tint):
@@ -142,6 +143,7 @@ def maxplayers(msg, client_id):
     size = int(args[1])
     if 1 < size < 100:
         try:
+            bs.get_foreground_host_session().max_players = size
             bs.set_public_party_max_size(size)
             #print(bs.get_public_party_max_size())
             bs.broadcastmessage(f"Max players set to {size}", transient=True, color=(0, 0.5, 1), clients=None)

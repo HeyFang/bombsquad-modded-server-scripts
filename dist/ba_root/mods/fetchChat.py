@@ -1,4 +1,3 @@
-import babase as ba
 import bascenev1 as bs
 import json
 import os
@@ -29,7 +28,8 @@ admin_commands = {
 
 user_commands = {
     "list": uc.list,
-    "me": uc.stats, "stats": uc.stats
+    "me": uc.stats, "stats": uc.stats, "rank": uc.stats,
+    "pb": uc.pb
 }
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
@@ -78,6 +78,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                         func(msg, client_id)
                     except AttributeError as e:
                         print(f"Error: {e}")
+                    return msg
 
                 elif pbid in admins:
                     try:

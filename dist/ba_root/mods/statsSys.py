@@ -9,33 +9,32 @@ db = TinyDB(db_path)
 
 def insert_stats():
     try:
-        #print("Fetching stats...")
+        # Fetching stats
         ros = bs.get_game_roster()
         stats = bs.get_foreground_host_session().stats
         player_stats = stats.fetch_player_statistics()  
 
         combined_stats = []
 
-        # iterate through the game roster and compare the player by name
+        # Iterate through the game roster and compare the player by name
         for entity in ros:
             for player in entity['players']:
                 name = player['name']
-                # check if the player is in the player_stats
+                # Check if the player is in the player_stats
                 if name in player_stats:
-                    # fetch the player stats
+                    # Fetch the player stats
                     pb_id = entity['account_id']
                     v2_id = entity['display_string']
                     kills = player_stats[name]['kills']
                     deaths = player_stats[name]['deaths']
                     score = player_stats[name]['score']
 
-                    # check if the pb_id already exists in the database
+                    # Check if the pb_id already exists in the database
                     Player = Query()
                     existing_record = db.search(Player.pb_id == pb_id)
 
                     if existing_record:
-                        # update the existing record
-                        # print(f"Updating existing record for pb_id: {pb_id}")
+                        # Update the existing record
                         db.update({
                             'games_played': existing_record[0]['games_played'] + 1,
                             'kills': existing_record[0]['kills'] + kills,
@@ -43,8 +42,7 @@ def insert_stats():
                             'score': existing_record[0]['score'] + score
                         }, Player.pb_id == pb_id)
                     else:
-                        # insert a new record
-                        # print(f"Inserting new record for pb_id: {pb_id}")
+                        # Insert a new record
                         combined_stats.append({
                             'pb_id': pb_id,
                             'v2_id': v2_id,
@@ -56,11 +54,11 @@ def insert_stats():
                 else:
                     print(f"Player {name} not found in player_stats")
 
-        # save data
+        # Save data
         if combined_stats:
             db.insert_multiple(combined_stats)
 
-        # calculate ranks based on scores
+        # Calculate ranks based on scores
         all_records = db.all()
         sorted_records = sorted(all_records, key=lambda x: x['score'], reverse=True)
         top_100_records = sorted_records[:100]
@@ -68,11 +66,9 @@ def insert_stats():
             record['rank'] = rank
             db.update({'rank': rank}, Query().pb_id == record['pb_id'])
 
-        # keep only top 100 records in the database
-        db.purge()  # clear the database
-        db.insert_multiple(top_100_records)  # insert top 100 records
-
-        #print("data in db.json:", db.all())
+        # Keep only top 100 records in the database
+        db.truncate()  # Clear the database, try db.purge() if truncate() doesn't work
+        db.insert_multiple(top_100_records)  # Insert top 100 records
 
         with open(db_path, 'r') as json_file:
             data = json.load(json_file)
@@ -83,7 +79,7 @@ def insert_stats():
         return combined_stats
     except Exception as e:
         print(e)
-    return None
+    return combined_stats
 
 
 def read_stats(pb_id=None):
@@ -141,7 +137,7 @@ def get_top3():
                 top_3_v2_ids[2] if len(top_3_v2_ids) > 2 else " ")
     except Exception as e:
         print(e)
-        return None, None, None
+        return " ", " ", " "
     
 def get_rank(pb_id):
     try:

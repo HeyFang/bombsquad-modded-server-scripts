@@ -40,7 +40,7 @@ class PlayerTag:
                     attrs={
                         'text': letter,
                         'in_world': True,
-                        'shadow': 1.0,
+                        'shadow': 0.5,
                         'flatness': 1.0,
                         'color': color,
                         'scale': 0.01,
@@ -68,15 +68,29 @@ def ranks(self):
                             break
                     
                     if pb_id:
-                        rank = st.get_rank(pb_id)
-                        if rank is None:
-                            rank = " "
+                        rank =  st.get_rank(pb_id)
                         
-                        # Create a new PlayerTag above the player's head displaying their rank
-                        player_rank_texts[player] = PlayerTag(player, f'#{rank}')
+                        match rank:
+                            case None:
+                                rank = " "
+                                player_rank_texts[player] = PlayerTag(player, f'{rank}')
+                            case 1:
+                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.CROWN)} {rank}', (1, 1, 0.0))
+                            case 2:
+                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.DRAGON)} {rank}', (0.75, 0.75, 0.75))
+                            case 3:
+                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.HELMET)} {rank}', (0.9, 0.4, 0.2))
+                            case 4:
+                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.FIREBALL)} {rank}', (0.8, 0.8, 0.8))
+                            case 5:
+                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.VIKING_HELMET)} {rank}', (0.8, 0.8, 0.8))
+                            
+                            case _:
+                                player_rank_texts[player] = PlayerTag(player, f'#{rank}')
+    
     except Exception as e:
         print(f"Error updating ranks: {e}")
-
+current_message_index = 0
 
 def on_game_begin(self):
     # chars = ba.SpecialChar(64)
@@ -92,7 +106,7 @@ def on_game_begin(self):
                 'maxwidth': 200,
                 'shadow': 0.5,
                 # 'vr_depth': 390,
-                'scale': 1.4,
+                'scale': 1.6,
                 'color': (0.0, 1.0, 1.0),
                 'text': f"{ba.charstr(ba.SpecialChar.CROWN)} || EONI vs CYCLONES || {ba.charstr(ba.SpecialChar.CROWN)}",
                 # 'transition': 'fade_in'
@@ -110,7 +124,7 @@ def on_game_begin(self):
                 'maxwidth': 300,
                 'shadow': 0.5,
                 # 'vr_depth': 390,
-                'scale': 1.2,
+                'scale': 1.4,
                 'color': (0.0, 0.9, 0.9, 0.9),
                 'text': "Still remember us? We're back after 4 years :D"
             },
@@ -120,7 +134,7 @@ def on_game_begin(self):
         self.script2 = bs.newnode(
             'text',
             attrs={
-                'position': (0, 30),
+                'position': (0, 40),
                 'h_attach': 'right',
                 'h_align': 'right',
                 'v_attach': 'bottom',
@@ -128,7 +142,7 @@ def on_game_begin(self):
                 'maxwidth': 300,
                 'shadow': 0.5,
                 # 'vr_depth': 390,
-                'scale': 0.7,
+                'scale': 0.8,
                 'color': (1, 1, 1, 1),
                 'text': f"Scripts developed by "
             },
@@ -137,7 +151,7 @@ def on_game_begin(self):
         self.script2 = bs.newnode(
             'text',
             attrs={
-                'position': (-15, 5),
+                'position': (-15, 10),
                 'h_attach': 'right',
                 'h_align': 'right',
                 'v_attach': 'bottom',
@@ -145,7 +159,7 @@ def on_game_begin(self):
                 'maxwidth': 300,
                 'shadow': 0.5,
                 # 'vr_depth': 390,
-                'scale': 0.7,
+                'scale': 0.8,
                 'color': (1, 1, 1, 1),
                 'text': f"{ba.charstr(ba.SpecialChar.CROWN)}Fang & Yuzuru{ba.charstr(ba.SpecialChar.MOON)}"
             },
@@ -173,7 +187,7 @@ def on_game_begin(self):
         self.t3 = bs.newnode(
             'text',
             attrs={
-                'position': (-130,-120),
+                'position': (-150,-120),
                 'h_attach': 'right',
                 'h_align': 'left',
                 'v_attach': 'top',
@@ -189,7 +203,7 @@ def on_game_begin(self):
         self.t2 = bs.newnode(
             'text',
             attrs={
-                'position': (-130,-150),
+                'position': (-150,-150),
                 'h_attach': 'right',
                 'h_align': 'left',
                 'v_attach': 'top',
@@ -205,7 +219,7 @@ def on_game_begin(self):
         self.t1 = bs.newnode(
             'text',
             attrs={
-                'position': (-130,-180),
+                'position': (-150,-180),
                 'h_attach': 'right',
                 'h_align': 'left',
                 'v_attach': 'top',
@@ -220,49 +234,64 @@ def on_game_begin(self):
         )
         self.loop_text = bs.newnode(
             "text",
-            attrs = {
-                "position": (0, -200),
+            attrs={
+                "position": (0, -220),
                 "h_attach": "center",
                 "h_align": "center",
                 "v_attach": "center",
                 "v_align": "center",
-                # "maxwidth": 300,
                 "shadow": 0.5,
                 "scale": 1.0,
                 "color": (0.4, 1.0, 0.8, 1),
                 "text": ""
             }
         )
-        assert self.loop_text
-        animate(
-            self.loop_text,
-            'opacity',
-            {
-                0: 0.0,    # Start fully transparent
-                1.0: 1.0,  # Fade in to fully opaque at 1 second
-                4.0: 1.0,  # Stay fully opaque until 4 seconds
-                5.0: 0.0   # Fade out to fully transparent at 5 seconds
-            },
-            loop=True
-        )
+
+        # List of messages to display
+        messages = [
+            "Join our Discord by clicking on stats button",
+            "For ban related appeals contact the admins in Discord",
+            "For complaints be sure to get ss and id of player using /pb <id>",
+            "Eoni Discord Server: discord.gg/zcT3UnA",
+            "Cyclones Discord Server: discord.gg/cv9r8Nq8fj",
+            "use /rank or /me to check stats",
+            "Ranks are assigned to only top 100 players"
+        ]
+
+        # Index to keep track of the current message
+        
 
         def change_text():
-            arr = [
-                "Join the official discord community by clicking on stats button",
-                "For ban related appeals contact the admins in discord server",
-                "Come play minecraft with us in the cyclones discord community"
-            ]
-            key = round(random.random() * (len(arr) - 1))
+            global current_message_index
             
-            self.loop_text.text = arr[key]
-            bs.timer(4, ba.Call( (lambda: self.loop_text.__setattr__("text", "")) ))
-        
+            # Set the text to the current message
+            self.loop_text.text = messages[current_message_index]
+            
+            # Animate the text to fade in and fade out
+            animate(
+                self.loop_text,
+                'opacity',
+                {
+                    0: 0.0,    # Start fully transparent
+                    1.0: 1.0,  # Fade in to fully opaque at 1 second
+                    4.0: 1.0,  # Stay fully opaque until 4 seconds
+                    5.0: 0.0   # Fade out to fully transparent at 5 seconds
+                },
+                loop=False
+            )
+            
+            # Increment the message index and wrap around if necessary
+            current_message_index = (current_message_index + 1) % len(messages)
+            
+            # Clear the text after it fades out
+            bs.timer(5, ba.Call(lambda: self.loop_text.__setattr__("text", "")))
+
+        # Set up a timer to change the text every 6 seconds
         bs.timer(6, ba.Call(change_text), repeat=True)
         
         
         
 
         
-        ranks(self)
         
 

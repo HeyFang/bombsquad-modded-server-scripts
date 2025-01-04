@@ -33,7 +33,7 @@ PlayerT = TypeVar('PlayerT', bound='bascenev1.Player')
 TeamT = TypeVar('TeamT', bound='bascenev1.Team')
 
 def create_animated_text(letters, start_x, start_y, color_keys):
-    letter_spacing = 12
+    letter_spacing = 11
     for i, letter in enumerate(letters):
         letter_position = (start_x + i * letter_spacing, start_y, 0)
 
@@ -435,6 +435,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
             PlayerInfo(name=p.getname(full=True), character=p.character)
             for p in self.players
         ]
+        text.ranks(self)
 
         # Sort this by name so high score lists/etc will be consistent
         # regardless of player join order.
@@ -452,18 +453,19 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 },
                 callback=babase.WeakCall(self._on_tournament_query_response),
             )
+        statsSys.insert_stats()
         t1, t2, t3 = statsSys.get_top3()
-        #print(f"Top 3: {t1}, {t2}, {t3}")
+        print(f"Top 3: {t1}, {t2}, {t3}")
         letters_t1 = list(t1)
-        create_animated_text(letters_t1, start_x=-100, start_y=-125, color_keys=gold_keys)
+        create_animated_text(letters_t1, start_x=-120, start_y=-125, color_keys=gold_keys)
 
         # Create animated text for top2 with silver animation
         letters_t2 = list(t2)
-        create_animated_text(letters_t2, start_x=-100, start_y=-155, color_keys=silver_keys)
+        create_animated_text(letters_t2, start_x=-120, start_y=-155, color_keys=silver_keys)
 
         # Create animated text for top3 with bronze animation
         letters_t3 = list(t3)
-        create_animated_text(letters_t3, start_x=-100, start_y=-185, color_keys=bronze_keys)
+        create_animated_text(letters_t3, start_x=-120, start_y=-185, color_keys=bronze_keys)
         text.on_game_begin(self)
         #rank = statsSys.get_rank()
 
@@ -486,6 +488,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
 
         # By default, just spawn a dude.
         self.spawn_player(player)
+        text.ranks(self)
 
     @override
     def handlemessage(self, msg: Any) -> Any:

@@ -17,8 +17,7 @@ from bascenev1lib.actor.scoreboard import Scoreboard
 from bascenev1lib.actor.bomb import Bomb
 
 if TYPE_CHECKING:
-    from typing import Any, Sequence
-
+    from typing import Any, Sequence #smtg
 
 class Icon(bs.Actor):
     """Creates in in-game icon on screen."""
