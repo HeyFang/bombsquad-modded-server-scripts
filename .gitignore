@@ -3,3 +3,4 @@
 *.pyo
 *.bsac2
 .vscode/sftp.json
+dist/ba_root/mods/db.json
