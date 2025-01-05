@@ -19,7 +19,7 @@ cd bombsquad-modded-server-scripts
 chmod +x ballisticakit_server dist/ballisticakit_headless
 ```
 - This should install all the necessary packages
-- 
+  
 ## Setup
 - Open the <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/config.toml">config.toml</a> file and configure it as you like. Make sure that you remove the `#` at the beginning of any line you want to uncomment, which makes changes effective.
 - Open <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/dist/ba_root/mods/admin.json">admin.json</a> and add PB-IDs of Admins, who can use in-game <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/Feaures.md#Commands">server commands</a>
