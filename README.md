@@ -9,7 +9,7 @@
 To set up a cloud server, <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/CloudSetup.md#Instructions">click here</a>. If you already have Ubuntu ready or prefer to run it locally on Ubuntu, you can skip to the next step.
 
 ## Installation
-- Copy The following command text as is and paste it in ubuntu terminal & run it
+- Copy the command below exactly as it is, paste it into the Ubuntu terminal, and execute it.
 ```
 sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt update && sudo apt upgrade -y
