@@ -1,11 +1,13 @@
 # About
-- Game Party Server for <a href="https://www.froemling.net/apps/bombsquad">BombSquad</a> Game
-- This is a Modded Server for Version linux_x86_64_server 1.7.37 API v9
-- You can find Original Non-Modded Version <a href="https://ballistica.net/downloads">here</a>
+- Game Party Server for <a href="https://www.froemling.net/apps/bombsquad">Bomb Squad</a> Game
+- This is a Modded Version of BombSquad linux_x86_64_server, build 1.7.37 API v9
+- You can find Vanilla Version (Basic Original) <a href="https://ballistica.net/downloads">here</a>
+
 ## <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/Features.md#Features">Features (click here)</a>
 
 # Instructions for Installation & Setup
-- To Make a Cloud Server, <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/CloudSetup.md#Instructions">click here</a> OR skip to next step if you are already ready with ubuntu OR if you just want to run in local Ubuntu
+To set up a cloud server, <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/CloudSetup.md#Instructions">click here</a>. If you already have Ubuntu ready or prefer to run it locally on Ubuntu, you can skip to the next step.
+
 ## Installation
 - Copy The following command text as is and paste it in ubuntu terminal & run it
 ```
@@ -16,10 +18,12 @@ git clone https://github.com/HeyFang/bombsquad-modded-server-scripts.git
 cd bombsquad-modded-server-scripts
 chmod +x ballisticakit_server dist/ballisticakit_headless
 ```
-- This Should have Installed all the necessary Packages
+- This should install all the necessary packages
+- 
 ## Setup
-- Open <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/config.toml">config.toml</a> and configure it as you like (Made sure to remove `#` at the start of the line to uncomment it which makes changes effective)
-- Open <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/dist/ba_root/mods/admin.json">admin.json</a> and Add Admins, who can use in-game <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/Feaures.md#Commands">server commands</a>
+- Open the <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/config.toml">config.toml</a> file and configure it as you like. Make sure that you remove the `#` at the beginning of any line you want to uncomment, which makes changes effective.
+- Open <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/dist/ba_root/mods/admin.json">admin.json</a> and add PB-IDs of Admins, who can use in-game <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/Feaures.md#Commands">server commands</a>
+
 # Instructions for Running Game Server
 ## Start Server
 - Run the following command to start server:
@@ -27,20 +31,21 @@ chmod +x ballisticakit_server dist/ballisticakit_headless
 tmux new -s 43210
 ./ballisticakit_server
 ```
-- we named the running tmux as `43210` to connect with it later if needed
-  - you can use any name as you want.
-  - run `tmux ls` to list running tmux, in case u forget the name used before.
+- We named the running tmux as `43210` to connect with it later if needed
+- You can replace `43210` with any name of your choice.
+- If you forget the session name, run `tmux ls` to list all tmux sessions.
+  
 ## Stop Server
-- If you not inside Tmux Session `43210`, <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/README.md#Re-Connecting">Reconnect as explained below</a>
-- Use `Ctrl + C` to stop running server party `(ballisticakit_server)`
-- Use `Ctrl + D` or run `exit` to exit Tmux Session
-- Run the following cmd to Close/Stop Tmux Session `43210`
+- If you are not inside Tmux Session `43210`, <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/README.md#Re-Connecting">Reconnect as explained below</a>
+- Use `Ctrl + c` to stop running server party `(ballisticakit_server)`
+- Use `Ctrl + b` then `d` to exit session and keep it running in background
+- Run the following cmd to terminate tmux session `43210`
 ```
 tmux kill-session -t 43210
 ```
 ## Re-Connecting
 - If you are not inside Tmux Session `43210`,
-  - Run `tmux ls` to view running tmux to make sure `43210` is online
+  - Run `tmux ls` to view all running sessions and confirm `43210` is active
   - Run the following command to connect back
   ```
   tmux attach -t 43210
