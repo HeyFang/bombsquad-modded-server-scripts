@@ -22,7 +22,7 @@ chmod +x ballisticakit_server dist/ballisticakit_headless
   
 ## Setup
 - Open the <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/config.toml">config.toml</a> file and configure it as you like. Make sure that you remove the `#` at the beginning of any line you want to uncomment, which makes changes effective.
-- Open <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/dist/ba_root/mods/admin.json">admin.json</a> and add PB-IDs of Admins, who can use in-game <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/Feaures.md#Commands">server commands</a>
+- Open <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/dist/ba_root/mods/admin.json">admin.json</a> and add PB-IDs of Admins, who can use in-game <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/Features.md#Commands">server commands</a>
 
 # Instructions for Running Game Server
 ## Start Server
@@ -34,19 +34,21 @@ tmux new -s 43210
 - We named the running tmux as `43210` to connect with it later if needed
 - You can replace `43210` with any name of your choice.
 - If you forget the session name, run `tmux ls` to list all tmux sessions.
-  
-## Stop Server
-- If you are not inside Tmux Session `43210`, <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/README.md#Re-Connecting">Reconnect as explained below</a>
-- Use `Ctrl + c` to stop running server party `(ballisticakit_server)`
 - Use `Ctrl + b` then `d` to exit session and keep it running in background
+
+## Re-Connecting
+- If you are not inside Tmux Session `43210`,
+- Run `tmux ls` to view all running sessions and confirm `43210` is active
+- Run the following command to connect back
+```
+tmux attach -t 43210
+```
+
+## Stop Server
+- If you are not inside Tmux Session `43210`, <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/README.md#Re-Connecting">Reconnect as explained above</a>
+- Use `Ctrl + c` to stop running server party `(ballisticakit_server)`
 - Run the following cmd to terminate tmux session `43210`
 ```
 tmux kill-session -t 43210
 ```
-## Re-Connecting
-- If you are not inside Tmux Session `43210`,
-  - Run `tmux ls` to view all running sessions and confirm `43210` is active
-  - Run the following command to connect back
-  ```
-  tmux attach -t 43210
-  ```
+
