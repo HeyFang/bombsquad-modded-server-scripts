@@ -21,6 +21,7 @@ from bascenev1 import _music
 import statsSys
 import screenText as text
 import bascenev1 as bs
+import threading
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Sequence
@@ -453,9 +454,8 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 },
                 callback=babase.WeakCall(self._on_tournament_query_response),
             )
-        statsSys.insert_stats()
+        threading.Thread(target=self.process_stats).start()
         t1, t2, t3 = statsSys.get_top3()
-        print(f"Top 3: {t1}, {t2}, {t3}")
         letters_t1 = list(t1)
         create_animated_text(letters_t1, start_x=-120, start_y=-125, color_keys=gold_keys)
 
@@ -794,6 +794,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
         # so it can grab our score prefs.
         if isinstance(results, GameResults):
             results.set_game(self)
+        
 
         # If we had a standard time-limit that had not expired, stop it so
         # it doesnt tick annoyingly.
@@ -813,15 +814,18 @@ class GameActivity(Activity[PlayerT, TeamT]):
             self._tournament_time_limit_text = None
             self._tournament_time_limit_title_text = None
 
+        
         super().end(results, delay, force)
+        
+    
+    def process_stats(self) -> None:
+        bs.pushcall(self._insert_stats, from_other_thread=True)
+   
+    def _insert_stats(self) -> None:
         statsSys.insert_stats()
-        # all_player_stats = statsSys.read_stats()
-        # if all_player_stats:
-        #     for player_stats in all_player_stats:
-        #         v2_id, rank, kills, deaths, games_played = player_stats
-        #         print(f"v2_id: {v2_id}, rank: {rank}, kills: {kills}, deaths: {deaths}, games_played: {games_played}")
-        t1, t2, t3 = statsSys.get_top3()
-        print(f"Top 3: {t1}, {t2}, {t3}")
+
+    
+
     def end_game(self) -> None:
         """Tell the game to wrap up and call bascenev1.Activity.end().
 

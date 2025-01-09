@@ -8,6 +8,7 @@ db_path = os.path.join(os.getcwd(), 'ba_root/mods/db.json')
 db = TinyDB(db_path)
 
 def insert_stats():
+    combined_stats = []
     try:
         # Fetching stats
         ros = bs.get_game_roster()
@@ -58,17 +59,13 @@ def insert_stats():
         if combined_stats:
             db.insert_multiple(combined_stats)
 
-        # Calculate ranks based on scores
+         # Calculate ranks based on scores
         all_records = db.all()
-        sorted_records = sorted(all_records, key=lambda x: x['score'], reverse=True)
-        top_100_records = sorted_records[:100]
-        for rank, record in enumerate(top_100_records, start=1):
-            record['rank'] = rank
+        scores = [record['score'] for record in all_records]
+        sorted_scores = sorted(scores, reverse=True)
+        for record in all_records:
+            rank = sorted_scores.index(record['score']) + 1
             db.update({'rank': rank}, Query().pb_id == record['pb_id'])
-
-        # Keep only top 100 records in the database
-        db.truncate()  # Clear the database, try db.purge() if truncate() doesn't work
-        db.insert_multiple(top_100_records)  # Insert top 100 records
 
         with open(db_path, 'r') as json_file:
             data = json.load(json_file)
