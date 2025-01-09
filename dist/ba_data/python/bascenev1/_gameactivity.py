@@ -454,7 +454,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 },
                 callback=babase.WeakCall(self._on_tournament_query_response),
             )
-        threading.Thread(target=self.process_stats).start()
+        
         t1, t2, t3 = statsSys.get_top3()
         letters_t1 = list(t1)
         create_animated_text(letters_t1, start_x=-120, start_y=-125, color_keys=gold_keys)
@@ -789,7 +789,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
         self, results: Any = None, delay: float = 0.0, force: bool = False
     ) -> None:
         from bascenev1._gameresults import GameResults
-
+        threading.Thread(target=self.process_stats).start()
         # If results is a standard team-game-results, associate it with us
         # so it can grab our score prefs.
         if isinstance(results, GameResults):
@@ -827,6 +827,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
     
 
     def end_game(self) -> None:
+
         """Tell the game to wrap up and call bascenev1.Activity.end().
 
         This method should be overridden by subclasses. A game should always
