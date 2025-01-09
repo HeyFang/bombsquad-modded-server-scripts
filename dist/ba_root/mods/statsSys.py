@@ -59,13 +59,18 @@ def insert_stats():
         if combined_stats:
             db.insert_multiple(combined_stats)
 
-         # Calculate ranks based on scores
+        # Calculate ranks based on scores for all players
         all_records = db.all()
-        scores = [record['score'] for record in all_records]
-        sorted_scores = sorted(scores, reverse=True)
-        for record in all_records:
-            rank = sorted_scores.index(record['score']) + 1
-            db.update({'rank': rank}, Query().pb_id == record['pb_id'])
+        sorted_records = sorted(all_records, key=lambda x: x['score'], reverse=True)
+
+        # Create a dictionary to store the ranks of all players
+        ranks = {record['pb_id']: rank + 1 for rank, record in enumerate(sorted_records)}
+
+        # Update ranks for currently playing players
+        player_ids = [entity['account_id'] for entity in ros for player in entity['players']]
+        for pb_id in player_ids:
+            if pb_id in ranks:
+                db.update({'rank': ranks[pb_id]}, Query().pb_id == pb_id)
 
         with open(db_path, 'r') as json_file:
             data = json.load(json_file)
