@@ -149,6 +149,8 @@ def get_rank(pb_id):
         if player_stats:
             player_stats = player_stats[0]
             rank = player_stats.get('rank')
+            if rank > 100:
+                return None
             return rank
         else:
             print(f"No stats found for player with pb_id: {pb_id}")
