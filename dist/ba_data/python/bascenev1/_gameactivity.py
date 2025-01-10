@@ -21,6 +21,7 @@ from bascenev1 import _music
 import statsSys
 import screenText as text
 import bascenev1 as bs
+import threading
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Sequence
@@ -33,9 +34,30 @@ PlayerT = TypeVar('PlayerT', bound='bascenev1.Player')
 TeamT = TypeVar('TeamT', bound='bascenev1.Team')
 
 def create_animated_text(letters, start_x, start_y, color_keys):
-    letter_spacing = 11
+    letter_spacing = {
+        'A': 14, 'B': 14, 'C': 13, 'D': 14, 'E': 12,
+        'F': 12, 'G': 14, 'H': 14, 'I': 8, 'J': 9,
+        'K': 13, 'L': 11, 'M': 17, 'N': 14, 'O': 14,
+        'P': 13, 'Q': 14, 'R': 13, 'S': 13, 'T': 12,
+        'U': 14.5, 'V': 14, 'W': 16.5, 'X': 13, 'Y': 13,
+        'Z': 13,
+        'a': 11, 'b': 11, 'c': 10, 'd': 11, 'e': 10.5,
+        'f': 7, 'g': 11.5, 'h': 11, 'i': 7, 'j': 7,
+        'k': 11, 'l': 6, 'm': 16, 'n': 11, 'o': 11,
+        'p': 11, 'q': 11, 'r': 8, 's': 11, 't': 8,
+        'u': 11.5, 'v': 11, 'w': 15, 'x': 11, 'y': 10.5,
+        'z': 11, ' ': 6  # Space width
+    }
+    # Default spacing for letters not in the dictionary
+    default_spacing = 11
+    
+    current_x = start_x
     for i, letter in enumerate(letters):
-        letter_position = (start_x + i * letter_spacing, start_y, 0)
+        # Get the specific spacing for the letter or use the default spacing
+        spacing = letter_spacing.get(letter, default_spacing)
+        
+        letter_position = (current_x, start_y, 0)
+        current_x += spacing
 
         letter_node = bs.newnode(
             'text',
@@ -43,7 +65,7 @@ def create_animated_text(letters, start_x, start_y, color_keys):
                 'text': letter,
                 'position': letter_position,
                 'h_attach': 'right',
-                'h_align': 'center',
+                'h_align': 'left',
                 'v_attach': 'top',
                 'shadow': 1.0,
                 'flatness': 1.0,
@@ -72,7 +94,6 @@ def create_animated_text(letters, start_x, start_y, color_keys):
             },
             loop=True
         )
-
 # Define color keys for gold, silver, and bronze animations
 gold_keys = [
     (1.0, 0.84, 0.0, 1.0),  # Gold
@@ -453,19 +474,18 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 },
                 callback=babase.WeakCall(self._on_tournament_query_response),
             )
-        statsSys.insert_stats()
+        
         t1, t2, t3 = statsSys.get_top3()
-        print(f"Top 3: {t1}, {t2}, {t3}")
         letters_t1 = list(t1)
-        create_animated_text(letters_t1, start_x=-120, start_y=-125, color_keys=gold_keys)
+        create_animated_text(letters_t1, start_x=-130, start_y=-125, color_keys=gold_keys)
 
         # Create animated text for top2 with silver animation
         letters_t2 = list(t2)
-        create_animated_text(letters_t2, start_x=-120, start_y=-155, color_keys=silver_keys)
+        create_animated_text(letters_t2, start_x=-130, start_y=-155, color_keys=silver_keys)
 
         # Create animated text for top3 with bronze animation
         letters_t3 = list(t3)
-        create_animated_text(letters_t3, start_x=-120, start_y=-185, color_keys=bronze_keys)
+        create_animated_text(letters_t3, start_x=-130, start_y=-185, color_keys=bronze_keys)
         text.on_game_begin(self)
         #rank = statsSys.get_rank()
 
@@ -789,11 +809,12 @@ class GameActivity(Activity[PlayerT, TeamT]):
         self, results: Any = None, delay: float = 0.0, force: bool = False
     ) -> None:
         from bascenev1._gameresults import GameResults
-
+        threading.Thread(target=self.process_stats).start()
         # If results is a standard team-game-results, associate it with us
         # so it can grab our score prefs.
         if isinstance(results, GameResults):
             results.set_game(self)
+        
 
         # If we had a standard time-limit that had not expired, stop it so
         # it doesnt tick annoyingly.
@@ -813,16 +834,20 @@ class GameActivity(Activity[PlayerT, TeamT]):
             self._tournament_time_limit_text = None
             self._tournament_time_limit_title_text = None
 
+        
         super().end(results, delay, force)
+        
+    
+    def process_stats(self) -> None:
+        bs.pushcall(self._insert_stats, from_other_thread=True)
+   
+    def _insert_stats(self) -> None:
         statsSys.insert_stats()
-        # all_player_stats = statsSys.read_stats()
-        # if all_player_stats:
-        #     for player_stats in all_player_stats:
-        #         v2_id, rank, kills, deaths, games_played = player_stats
-        #         print(f"v2_id: {v2_id}, rank: {rank}, kills: {kills}, deaths: {deaths}, games_played: {games_played}")
-        t1, t2, t3 = statsSys.get_top3()
-        print(f"Top 3: {t1}, {t2}, {t3}")
+
+    
+
     def end_game(self) -> None:
+
         """Tell the game to wrap up and call bascenev1.Activity.end().
 
         This method should be overridden by subclasses. A game should always
