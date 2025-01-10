@@ -474,7 +474,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 },
                 callback=babase.WeakCall(self._on_tournament_query_response),
             )
-        
+        statsSys.insert_stats()
         t1, t2, t3 = statsSys.get_top3()
         letters_t1 = list(t1)
         create_animated_text(letters_t1, start_x=-130, start_y=-125, color_keys=gold_keys)

@@ -124,8 +124,8 @@ def get_top3():
         # Fetch all player stats
         all_stats = db.all()
         
-        # Sort records by rank in ascending order
-        sorted_records = sorted(all_stats, key=lambda x: x['rank'])
+        # Sort records by score in descending order
+        sorted_records = sorted(all_stats, key=lambda x: x['score'], reverse=True)
         
         # Get the top 3 records
         top_3_records = sorted_records[:3] if sorted_records else []
