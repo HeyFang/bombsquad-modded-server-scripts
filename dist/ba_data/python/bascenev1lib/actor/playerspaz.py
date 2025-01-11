@@ -52,6 +52,11 @@ class PlayerSpaz(Spaz):
         character: str = 'Spaz',
         powerups_expire: bool = True,
     ):
+
+        activity = bs.getactivity()
+        if activity.__class__.__name__ == 'DeathMatchGame' and getattr(activity, 'name', '') == 'Boxing!!!':
+            powerups_expire = False
+
         """Create a spaz for the provided bascenev1.Player.
 
         Note: this does not wire up any controls;
@@ -73,8 +78,9 @@ class PlayerSpaz(Spaz):
         self.last_player_held_by: bs.Player | None = None
         self._player = player
         self._drive_player_position()
-
-    # Overloads to tell the type system our return type based on doraise val.
+        activity = bs.getactivity()
+        if activity.__class__.__name__ == 'DeathMatchGame' and getattr(activity, 'name', '') == 'Boxing!!!':
+            self.node.handlemessage(bs.PowerupMessage(poweruptype='punch'))    # Overloads to tell the type system our return type based on doraise val.
 
     @overload
     def getplayer(
@@ -117,6 +123,10 @@ class PlayerSpaz(Spaz):
         but can be selectively limited by passing False
         to specific arguments.
         """
+        activity = bs.getactivity()
+        if activity.__class__.__name__ == 'DeathMatchGame' and getattr(activity, 'name', '') == 'Boxing!!!':
+            enable_bomb = False
+            
         player = self.getplayer(bs.Player)
         assert player
 
@@ -139,6 +149,7 @@ class PlayerSpaz(Spaz):
             self.on_hold_position_release,
         )
         intp = bs.InputType
+        
         if enable_jump:
             player.assigninput(intp.JUMP_PRESS, self.on_jump_press)
             player.assigninput(intp.JUMP_RELEASE, self.on_jump_release)
@@ -157,6 +168,7 @@ class PlayerSpaz(Spaz):
             player.assigninput(intp.FLY_PRESS, self.on_fly_press)
             player.assigninput(intp.FLY_RELEASE, self.on_fly_release)
 
+        
         self._connected_to_player = player
 
     def disconnect_controls_from_player(self) -> None:

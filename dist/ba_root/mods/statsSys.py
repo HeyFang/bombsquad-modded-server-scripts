@@ -8,6 +8,7 @@ db_path = os.path.join(os.getcwd(), 'ba_root/mods/db.json')
 db = TinyDB(db_path)
 
 def insert_stats():
+    combined_stats = []
     try:
         # Fetching stats
         ros = bs.get_game_roster()
@@ -58,17 +59,18 @@ def insert_stats():
         if combined_stats:
             db.insert_multiple(combined_stats)
 
-        # Calculate ranks based on scores
+        # Calculate ranks based on scores for all players
         all_records = db.all()
         sorted_records = sorted(all_records, key=lambda x: x['score'], reverse=True)
-        top_100_records = sorted_records[:100]
-        for rank, record in enumerate(top_100_records, start=1):
-            record['rank'] = rank
-            db.update({'rank': rank}, Query().pb_id == record['pb_id'])
 
-        # Keep only top 100 records in the database
-        db.truncate()  # Clear the database, try db.purge() if truncate() doesn't work
-        db.insert_multiple(top_100_records)  # Insert top 100 records
+        # Create a dictionary to store the ranks of all players
+        ranks = {record['pb_id']: rank + 1 for rank, record in enumerate(sorted_records)}
+
+        # Update ranks for currently playing players
+        player_ids = [entity['account_id'] for entity in ros for player in entity['players']]
+        for pb_id in player_ids:
+            if pb_id in ranks:
+                db.update({'rank': ranks[pb_id]}, Query().pb_id == pb_id)
 
         with open(db_path, 'r') as json_file:
             data = json.load(json_file)
@@ -122,8 +124,8 @@ def get_top3():
         # Fetch all player stats
         all_stats = db.all()
         
-        # Sort records by rank in ascending order
-        sorted_records = sorted(all_stats, key=lambda x: x['rank'])
+        # Sort records by score in descending order
+        sorted_records = sorted(all_stats, key=lambda x: x['score'], reverse=True)
         
         # Get the top 3 records
         top_3_records = sorted_records[:3] if sorted_records else []
@@ -147,6 +149,8 @@ def get_rank(pb_id):
         if player_stats:
             player_stats = player_stats[0]
             rank = player_stats.get('rank')
+            if rank > 100:
+                return None
             return rank
         else:
             print(f"No stats found for player with pb_id: {pb_id}")
