@@ -5,7 +5,7 @@
 # Uncomment any of these values to override defaults.
 
 # Name of our server in the public parties list.
-party_name = "🌀CYCLONES EPIC FFA🌀"
+party_name = "🌀Cyclones🌀"
 
 # If true, your party will show up in the global public party list
 # Otherwise it will still be joinable via LAN or connecting by IP
@@ -72,7 +72,8 @@ session_type = "ffa"
 # playlist editor in the regular version of the game. This will give
 # you a numeric code you can enter here to host that playlist.
 
-playlist_code = 492758
+playlist_code = 492768
+
 
 # Alternately, you can embed playlist data here instead of using
 # codes. Make sure to set session_type to the correct type for the

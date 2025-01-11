@@ -34,10 +34,10 @@ def stats(msg, client_id):
             pb_id = urself['account_id']
             specific_player_stats = statsSys.read_stats(pb_id)
             if specific_player_stats:
-                v2_id, rank, score, kills, deaths, games_played = specific_player_stats
+                v2_id, rank, score, kills, deaths = specific_player_stats
                 #print(f"v2_id: {v2_id}, rank: {rank}, kills: {kills}, deaths: {deaths}, games_played: {games_played}")
                 kd = kills / deaths if deaths > 0 else kills
-                bs.broadcastmessage(f"{v2_id} | Rank: {rank} | Score: {score} | Kills: {kills} | Deaths: {deaths} | K/D: {kd:.2f} | Games Played: {games_played}", transient=True, color=(1,1,1), clients=None)
+                bs.broadcastmessage(f"{v2_id} | Rank: {rank} | Score: {score} | Kills: {kills} | Deaths: {deaths} | K/D: {kd:.2f}", transient=True, color=(1,1,1), clients=None)
 
         else:
             print("Player not found")
