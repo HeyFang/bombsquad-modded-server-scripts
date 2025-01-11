@@ -78,7 +78,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                         func(msg, client_id)
                     except AttributeError as e:
                         print(f"Error: {e}")
-                    return msg
+                    return None
 
                 elif pbid in admins:
                     try:
