@@ -50,8 +50,13 @@ class PlayerSpaz(Spaz):
         color: Sequence[float] = (1.0, 1.0, 1.0),
         highlight: Sequence[float] = (0.5, 0.5, 0.5),
         character: str = 'Spaz',
-        powerups_expire: bool = False,
+        powerups_expire: bool = True,
     ):
+
+        activity = bs.getactivity()
+        if activity.__class__.__name__ == 'DeathMatchGame' and getattr(activity, 'name', '') == 'Boxing!!!':
+            powerups_expire = False
+
         """Create a spaz for the provided bascenev1.Player.
 
         Note: this does not wire up any controls;
