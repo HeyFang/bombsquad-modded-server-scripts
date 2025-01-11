@@ -24,4 +24,5 @@
 - [ ] team-lives balancer
 - [x] screen texts
 ## Mini Games
-- [x] Death Overhead.
+- [x] Death Overhead
+- [x] Boxing!!!
