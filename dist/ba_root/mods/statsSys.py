@@ -47,6 +47,7 @@ def insert_stats():
                         combined_stats.append({
                             'pb_id': pb_id,
                             'v2_id': v2_id,
+                            'games_played': 1,
                             'kills': kills,
                             'deaths': deaths,
                             'score': score
@@ -96,7 +97,8 @@ def read_stats(pb_id=None):
                 score = player_stats.get('score')
                 kills = player_stats.get('kills')
                 deaths = player_stats.get('deaths')
-                return v2_id, rank, score, kills, deaths
+                games_played = player_stats.get('games_played')
+                return v2_id, rank, score, kills, deaths, games_played
             else:
                 print(f"No stats found for player with pb_id: {pb_id}")
                 return " "
@@ -110,7 +112,8 @@ def read_stats(pb_id=None):
                 score = player_stats.get('score')
                 kills = player_stats.get('kills')
                 deaths = player_stats.get('deaths')
-                filtered_stats.append((v2_id, rank, score, kills, deaths))
+                games_played = player_stats.get('games_played')
+                filtered_stats.append((v2_id, rank, score, kills, deaths, games_played))
             return filtered_stats
     except Exception as e:
         print(e)

@@ -1732,6 +1732,7 @@ class Rampage(bs.Map):
                 'bumper': True,
             },
         )
+        
         gnode = bs.getactivity().globalsnode
         gnode.tint = (1.2, 1.1, 0.97)
         gnode.ambient_color = (1.3, 1.2, 1.03)
