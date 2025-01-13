@@ -1,5 +1,5 @@
 ## Issues
-- [ ] Incorrect Games Played Count: The function insert_stats() is being called twice in _gameactivity.py, resulting in '2' games being logged for each game played.
+- [x] Incorrect Games Played Count: The function insert_stats() is being called twice in _gameactivity.py, resulting in '2' games being logged for each game played.
 
 
 ## Features
@@ -11,6 +11,7 @@
 - [ ] AFK Remover: Auto remove players from game for being AFK
 - [ ] Character Chooser: Lets player select any character
 - [ ] Balance Team Lives: Auto balances team lives after player leaves from ongoing game
+- [ ] Create a template: All features should be controlled by a `settings.toml` file, allowing them to be enabled or disabled using a bool
 
 
 ## Commands
