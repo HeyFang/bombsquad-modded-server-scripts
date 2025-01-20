@@ -24,6 +24,7 @@
 - [x] Boxing!!!: Default gloves, no powerups and bombs.
 - [x] Death Overhead: Elimination game with mines spawing above players' head.
 - [ ] Football
+- [ ] Meteor Shower: With Random Bombs
 
 
 ## Maps
