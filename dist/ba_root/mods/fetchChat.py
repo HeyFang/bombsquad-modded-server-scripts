@@ -23,7 +23,8 @@ admin_commands = {
     "party": ac.party_toggle, "partymode": ac.party_toggle,
     "bans": ac.bans, "banlist": ac.bans,
     "mute": ac.mute,
-    "unmute": ac.unmute
+    "unmute": ac.unmute,
+    "info": ac.info, "gp": ac.info
 }
 
 user_commands = {

@@ -5,7 +5,7 @@
 # Uncomment any of these values to override defaults.
 
 # Name of our server in the public parties list.
-party_name = "🌀CYCLONES EPIC FFA🌀"
+party_name = "🌀test🌀"
 
 # If true, your party will show up in the global public party list
 # Otherwise it will still be joinable via LAN or connecting by IP
