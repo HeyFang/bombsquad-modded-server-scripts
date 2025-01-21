@@ -52,9 +52,83 @@ class PlayerTag:
         except Exception as e:
             print(f"Error creating PlayerTag for player {player}: {e}")
 
+class Tag:
+    # Convert this to a simple text node instead of array
+    def __init__(self, player: bs._player, text: str, color=(1, 1, 1)):
+        self.player = player
+        self.text_nodes = []
+
+        try:
+            letter_spacing = 0.125
+            start_offset = -(len(text) - 1) * letter_spacing / 2
+            animation_duration = 0.3  # Duration of the animation loop
+
+            # Define color keys for the animation
+            color_keys = [
+                (color[0], color[1], color[2], 1),  # Start color
+                (min(color[0] + 0.2, 1), min(color[1] + 0.2, 1), min(color[2] + 0.2, 1), 1),  # Slightly brighter
+                (min(color[0] + 0.4, 1), min(color[1] + 0.4, 1), min(color[2] + 0.4, 1), 1),  # Even brighter
+                (min(color[0] + 0.6, 1), min(color[1] + 0.6, 1), min(color[2] + 0.6, 1), 1),  # Shine
+                (min(color[0] + 0.4, 1), min(color[1] + 0.4, 1), min(color[2] + 0.4, 1), 1),  # Dim slightly
+                (min(color[0] + 0.2, 1), min(color[1] + 0.2, 1), min(color[2] + 0.2, 1), 1),  # More dim
+                (color[0], color[1], color[2], 1),  # Back to start color
+            ]
+
+            for i, letter in enumerate(text):
+                letter_position = (start_offset + i * letter_spacing, 1.6, 0)
+
+                math = bs.newnode(
+                    'math',
+                    owner=self.player.node,
+                    attrs={
+                        'input1': letter_position,
+                        'operation': 'add'
+                    }
+                )
+                self.player.node.connectattr('position', math, 'input2')
+
+                letter_node = bs.newnode(
+                    'text',
+                    owner=self.player.node,
+                    attrs={
+                        'text': letter,
+                        'in_world': True,
+                        'shadow': 0.3,
+                        'flatness': 1.0,
+                        'color': color,
+                        'scale': 0.01,
+                        'h_align': 'center',
+                    }
+                )
+                self.text_nodes.append(letter_node)
+                math.connectattr('output', letter_node, 'position')
+
+                # Animate the color of the letter node
+                delay_offset = i * 0.05  # Increased delay offset for each letter
+                bs.animate_array(
+                    node=letter_node,
+                    attr='color',
+                    size=4,
+                    keys={
+                        0.0 + delay_offset: color_keys[0],      # Start color
+                        0.2 + delay_offset: color_keys[1],     # Slightly brighter
+                        0.4 + delay_offset: color_keys[2],      # Even brighter
+                        0.6 + delay_offset: color_keys[3],     # Shine
+                        0.8 + delay_offset: color_keys[4],      # Dim slightly
+                        1.0 + delay_offset: color_keys[5],     # More dim
+                        1.2 + delay_offset: color_keys[0],      # Back to start color
+                        animation_duration + delay_offset: color_keys[0], # End color (for looping)
+                    },
+                    loop=True
+                )
+
+        except Exception as e:
+            print(f"Error creating Tag for player {player}: {e}")
+
 
 def ranks(self):
     player_rank_texts = {}
+    tag = {}
     try:
         ros = bs.get_game_roster()
         for team in self.teams:
@@ -68,22 +142,45 @@ def ranks(self):
                             break
                     
                     if pb_id:
-                        rank =  st.get_rank(pb_id)
+                        rank = st.get_rank(pb_id)
+
+                        if rank < 6 and player not in tag:
+                            # Assign a tag based on the profile
+                            profiles = player.sessionplayer.inputdevice.get_player_profiles()
+                            tag_assigned = False
+                            for profile_name, profile_data in profiles.items():
+                                if profile_name.startswith("! "):
+                                    crown = ba.charstr(ba.SpecialChar.CROWN)
+                                    dragon = ba.charstr(ba.SpecialChar.DRAGON)
+                                    helmet = ba.charstr(ba.SpecialChar.HELMET)
+                                    fireball = ba.charstr(ba.SpecialChar.FIREBALL)
+                                    ninja_star = ba.charstr(ba.SpecialChar.NINJA_STAR)
+                                    
+                                    tag_text = profile_name[2:].replace("/c", f"{crown}").replace("/d", f"{dragon}").replace("/h", f"{helmet}").replace("/f", f"{fireball}").replace("/n", f"{ninja_star}")
+                                    # Get the player's profile color for the specific profile
+                                    profile_color = profile_data['color']
+                                    print(f"Profile: {profile_name}, Color: {profile_color}")
+                                    tag[player] = Tag(player, tag_text, profile_color)
+                                    tag_assigned = True
+                                    break
+                            if not tag_assigned:
+                                tag[player] = Tag(player, "! <tag>", (1, 1, 1))
                         
                         match rank:
                             case None:
                                 rank = " "
                                 player_rank_texts[player] = PlayerTag(player, f'{rank}')
                             case 1:
-                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.CROWN)} {rank}', (1, 1, 0.0))
+                                player_rank_texts[player] = PlayerTag(player, f'{crown} {rank}', (1, 1, 0.0))
                             case 2:
-                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.DRAGON)} {rank}', (0.75, 0.75, 0.75))
+                                player_rank_texts[player] = PlayerTag(player, f'{dragon} {rank}', (0.75, 0.75, 0.75))
+                                #tag[player] = Tag(player, f"heyfang")
                             case 3:
-                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.HELMET)} {rank}', (0.9, 0.4, 0.2))
+                                player_rank_texts[player] = PlayerTag(player, f'{helmet} {rank}', (0.9, 0.4, 0.2))
                             case 4:
-                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.FIREBALL)} {rank}', (0.8, 0.8, 0.8))
+                                player_rank_texts[player] = PlayerTag(player, f'{fireball} {rank}', (0.8, 0.8, 0.8))
                             case 5:
-                                player_rank_texts[player] = PlayerTag(player, f'{ba.charstr(ba.SpecialChar.VIKING_HELMET)} {rank}', (0.8, 0.8, 0.8))
+                                player_rank_texts[player] = PlayerTag(player, f'{ninja_star} {rank}', (0.8, 0.8, 0.8))
                             
                             case _:
                                 player_rank_texts[player] = PlayerTag(player, f'#{rank}')
