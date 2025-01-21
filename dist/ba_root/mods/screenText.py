@@ -111,12 +111,12 @@ class Tag:
                     size=4,
                     keys={
                         0.0 + delay_offset: color_keys[0],      # Start color
-                        0.2 + delay_offset: color_keys[1],     # Slightly brighter
-                        0.4 + delay_offset: color_keys[2],      # Even brighter
-                        0.6 + delay_offset: color_keys[3],     # Shine
-                        0.8 + delay_offset: color_keys[4],      # Dim slightly
-                        1.0 + delay_offset: color_keys[5],     # More dim
-                        1.2 + delay_offset: color_keys[0],      # Back to start color
+                        0.1 + delay_offset: color_keys[1],     # Slightly brighter
+                        0.25 + delay_offset: color_keys[2],      # Even brighter
+                        0.4 + delay_offset: color_keys[3],     # Shine
+                        0.55 + delay_offset: color_keys[4],      # Dim slightly
+                        0.7 + delay_offset: color_keys[5],     # More dim
+                        0.85 + delay_offset: color_keys[0],      # Back to start color
                         animation_duration + delay_offset: color_keys[0], # End color (for looping)
                     },
                     loop=True
