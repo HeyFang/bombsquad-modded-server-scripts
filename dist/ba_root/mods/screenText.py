@@ -71,7 +71,7 @@ class Tag:
                 'k': 0.13, 'l': 0.09, 'm': 0.19, 'n': 0.14, 'o': 0.14,
                 'p': 0.14, 'q': 0.14, 'r': 0.11, 's': 0.13, 't': 0.11,
                 'u': 0.14, 'v': 0.13, 'w': 0.19, 'x': 0.13, 'y': 0.13,
-                'z': 0.13, ' ': 0.16  # Space width
+                'z': 0.13, ' ': 0.10  # Space width
             }
             start_offset = -(sum(letter_spacing.get(letter, 0.125) for letter in text) - letter_spacing.get(text[-1], 0.125)) / 2
             animation_duration = 0.8  # Duration of the animation loop
@@ -117,8 +117,8 @@ class Tag:
                 self.text_nodes.append(letter_node)
                 math.connectattr('output', letter_node, 'position')
 
-                # Animate the color of the letter node
-                delay_offset = i * 0.05  # Increased delay offset for each letter
+                # Animate the color of the letter node: Thanks to Knight for the idea...
+                delay_offset = i * 0.05 
                 bs.animate_array(
                     node=letter_node,
                     attr='color',
