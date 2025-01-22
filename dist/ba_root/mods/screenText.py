@@ -59,23 +59,37 @@ class Tag:
         self.text_nodes = []
 
         try:
-            letter_spacing = 0.125
-            start_offset = -(len(text) - 1) * letter_spacing / 2
-            animation_duration = 0.3  # Duration of the animation loop
+            letter_spacing = {
+                'A': 0.16, 'B': 0.15, 'C': 0.15, 'D': 0.16, 'E': 0.15,
+                'F': 0.14, 'G': 0.16, 'H': 0.16, 'I': 0.09, 'J': 0.13,
+                'K': 0.15, 'L': 0.14, 'M': 0.2, 'N': 0.16, 'O': 0.16,
+                'P': 0.15, 'Q': 0.16, 'R': 0.15, 'S': 0.15, 'T': 0.14,
+                'U': 0.16, 'V': 0.15, 'W': 0.2, 'X': 0.15, 'Y': 0.15,
+                'Z': 0.15,
+                'a': 0.14, 'b': 0.14, 'c': 0.13, 'd': 0.14, 'e': 0.14,
+                'f': 0.10, 'g': 0.14, 'h': 0.14, 'i': 0.09, 'j': 0.10,
+                'k': 0.13, 'l': 0.09, 'm': 0.19, 'n': 0.14, 'o': 0.14,
+                'p': 0.14, 'q': 0.14, 'r': 0.11, 's': 0.13, 't': 0.11,
+                'u': 0.14, 'v': 0.13, 'w': 0.19, 'x': 0.13, 'y': 0.13,
+                'z': 0.13, ' ': 0.16  # Space width
+            }
+            start_offset = -(sum(letter_spacing.get(letter, 0.125) for letter in text) - letter_spacing.get(text[-1], 0.125)) / 2
+            animation_duration = 0.8  # Duration of the animation loop
 
             # Define color keys for the animation
             color_keys = [
                 (color[0], color[1], color[2], 1),  # Start color
-                (min(color[0] + 0.2, 1), min(color[1] + 0.2, 1), min(color[2] + 0.2, 1), 1),  # Slightly brighter
-                (min(color[0] + 0.4, 1), min(color[1] + 0.4, 1), min(color[2] + 0.4, 1), 1),  # Even brighter
-                (min(color[0] + 0.6, 1), min(color[1] + 0.6, 1), min(color[2] + 0.6, 1), 1),  # Shine
-                (min(color[0] + 0.4, 1), min(color[1] + 0.4, 1), min(color[2] + 0.4, 1), 1),  # Dim slightly
-                (min(color[0] + 0.2, 1), min(color[1] + 0.2, 1), min(color[2] + 0.2, 1), 1),  # More dim
+                (min(color[0] + 0.05, 1), min(color[1] + 0.05, 1), min(color[2] + 0.1, 1), 1),  # Slightly brighter
+                (min(color[0] + 0.1, 1), min(color[1] + 0.1, 1), min(color[2] + 0.2, 1), 1),  # Even brighter
+                (1.0, 1.0, 1.0, 1.0),  # Shine white
+                (min(color[0] + 0.1, 1), min(color[1] + 0.1, 1), min(color[2] + 0.2, 1), 1),  # Dim slightly
+                (min(color[0] + 0.05, 1), min(color[1] + 0.05, 1), min(color[2] + 0.1, 1), 1),  # More dim
                 (color[0], color[1], color[2], 1),  # Back to start color
             ]
 
             for i, letter in enumerate(text):
-                letter_position = (start_offset + i * letter_spacing, 1.6, 0)
+                spacing = letter_spacing.get(letter, 0.125)
+                letter_position = (start_offset + sum(letter_spacing.get(text[j], 0.125) for j in range(i)), 1.6, 0)
 
                 math = bs.newnode(
                     'math',
@@ -97,7 +111,7 @@ class Tag:
                         'flatness': 1.0,
                         'color': color,
                         'scale': 0.01,
-                        'h_align': 'center',
+                        'h_align': 'left',
                     }
                 )
                 self.text_nodes.append(letter_node)
@@ -112,11 +126,11 @@ class Tag:
                     keys={
                         0.0 + delay_offset: color_keys[0],      # Start color
                         0.1 + delay_offset: color_keys[1],     # Slightly brighter
-                        0.25 + delay_offset: color_keys[2],      # Even brighter
-                        0.4 + delay_offset: color_keys[3],     # Shine
-                        0.55 + delay_offset: color_keys[4],      # Dim slightly
-                        0.7 + delay_offset: color_keys[5],     # More dim
-                        0.85 + delay_offset: color_keys[0],      # Back to start color
+                        0.2 + delay_offset: color_keys[2],      # Even brighter
+                        0.3 + delay_offset: color_keys[3],     # Shine
+                        0.4 + delay_offset: color_keys[4],      # Dim slightly
+                        0.5 + delay_offset: color_keys[5],     # More dim
+                        0.6 + delay_offset: color_keys[0],      # Back to start color
                         animation_duration + delay_offset: color_keys[0], # End color (for looping)
                     },
                     loop=True
@@ -144,27 +158,40 @@ def ranks(self):
                     if pb_id:
                         rank = st.get_rank(pb_id)
 
-                        if rank < 6 and player not in tag:
+                        if rank is not None and rank < 6 and player not in tag:
                             # Assign a tag based on the profile
                             profiles = player.sessionplayer.inputdevice.get_player_profiles()
                             tag_assigned = False
+                            crown = ba.charstr(ba.SpecialChar.CROWN)
+                            skull = ba.charstr(ba.SpecialChar.SKULL)
+                            dragon = ba.charstr(ba.SpecialChar.DRAGON)
+                            helmet = ba.charstr(ba.SpecialChar.HELMET)
+                            fireball = ba.charstr(ba.SpecialChar.FIREBALL)
+                            ninja_star = ba.charstr(ba.SpecialChar.NINJA_STAR)
                             for profile_name, profile_data in profiles.items():
                                 if profile_name.startswith("! "):
-                                    crown = ba.charstr(ba.SpecialChar.CROWN)
-                                    dragon = ba.charstr(ba.SpecialChar.DRAGON)
-                                    helmet = ba.charstr(ba.SpecialChar.HELMET)
-                                    fireball = ba.charstr(ba.SpecialChar.FIREBALL)
-                                    ninja_star = ba.charstr(ba.SpecialChar.NINJA_STAR)
+                                    tag_text = profile_name[2:]
+                                    if "\\c" in tag_text:
+                                        tag_text = tag_text.replace("\\c", f" {crown} ")
+                                    if "\\d" in tag_text:
+                                        tag_text = tag_text.replace("\\d", f"{dragon} ")
+                                    if "\\h" in tag_text:
+                                        tag_text = tag_text.replace("\\h", f"{helmet} ")
+                                    if "\\f" in tag_text:
+                                        tag_text = tag_text.replace("\\f", f"{fireball} ")
+                                    if "\\n" in tag_text:
+                                        tag_text = tag_text.replace("\\n", f"{ninja_star} ")
+                                    if "\\s" in tag_text:
+                                        tag_text = tag_text.replace("\\s", f"{skull} ")
                                     
-                                    tag_text = profile_name[2:].replace("/c", f"{crown}").replace("/d", f"{dragon}").replace("/h", f"{helmet}").replace("/f", f"{fireball}").replace("/n", f"{ninja_star}")
                                     # Get the player's profile color for the specific profile
                                     profile_color = profile_data['color']
-                                    print(f"Profile: {profile_name}, Color: {profile_color}")
+                                    #print(f"Profile: {profile_name}, Color: {profile_color}")
                                     tag[player] = Tag(player, tag_text, profile_color)
                                     tag_assigned = True
                                     break
                             if not tag_assigned:
-                                tag[player] = Tag(player, "! <tag>", (1, 1, 1))
+                                tag[player] = Tag(player, "<tag>", (0, 1, 1))
                         
                         match rank:
                             case None:
@@ -347,6 +374,7 @@ def on_game_begin(self):
         # List of messages to display
         messages = [
             "Join our Discord by clicking on stats button",
+            "Top 5 players can set up custom tags: join discord for more info",
             "For ban related appeals contact the admins in Discord",
             "For complaints be sure to get ss and id of player using /pb <id>",
             "Eoni Discord Server: discord.gg/zcT3UnA",
