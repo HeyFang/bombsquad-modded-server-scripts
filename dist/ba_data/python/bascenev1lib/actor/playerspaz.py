@@ -125,7 +125,7 @@ class PlayerSpaz(Spaz):
         """
         activity = bs.getactivity()
         if activity.__class__.__name__ == 'DeathMatchGame' and getattr(activity, 'name', '') == 'Boxing!!!':
-            enable_bomb = False
+            enable_bomb = True #False to disable bombs in boxing
             
         player = self.getplayer(bs.Player)
         assert player

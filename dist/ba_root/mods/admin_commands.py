@@ -317,3 +317,36 @@ def unmute(msg, client_id):
         print(e)
     return None
 
+def info(msg, client_id):
+    if len(msg.split()) < 2:
+        bs.broadcastmessage("/info <client_id>", transient=True, color=(1, 0, 0), clients=[client_id])
+        return None
+    args = msg.split()
+    target = int(args[1])
+
+    try:
+        session_players = bs.get_foreground_host_session().sessionplayers
+        target_player = None
+
+        for player in session_players:
+            if player.inputdevice.client_id == target:
+                target_player = player
+                break
+
+        if target_player is None:
+            bs.broadcastmessage("Invalid client_id", transient=True, color=(1, 0, 0), clients=[client_id])
+            return None
+
+        message = f"{'Sr.no':<9} |    {'Name':<12}\n" + "_" * 25 + "\n"
+        i = 1
+        for profile in target_player.inputdevice.get_player_profiles():
+            try:
+                message += f"{i:<9} {profile:<12}\n"
+                i += 1
+                #print(f"{profile}")
+            except Exception as e:
+                print(e)
+        bs.broadcastmessage(message, transient=True, color=(1, 1, 1), clients=[client_id])
+    except Exception as e:
+        print(e)
+    return None
