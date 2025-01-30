@@ -5,6 +5,7 @@ from tinydb import TinyDB, Query
 import os
 import random
 import statsSys as st
+import time
 
 
 # initialize the TinyDB database
@@ -59,6 +60,7 @@ class Tag:
         self.text_nodes = []
 
         try:
+            tag_time = time.time()
             letter_spacing = {
                 'A': 0.16, 'B': 0.15, 'C': 0.15, 'D': 0.16, 'E': 0.15,
                 'F': 0.14, 'G': 0.16, 'H': 0.16, 'I': 0.09, 'J': 0.13,
@@ -135,6 +137,7 @@ class Tag:
                     },
                     loop=True
                 )
+            print(f"tags update took {time.time() - tag_time:.3f}s")
 
         except Exception as e:
             print(f"Error creating Tag for player {player}: {e}")
@@ -144,6 +147,7 @@ def ranks(self):
     player_rank_texts = {}
     tag = {}
     try:
+        rank_time = time.time()
         ros = bs.get_game_roster()
         for team in self.teams:
             for player in team.players:
@@ -172,7 +176,7 @@ def ranks(self):
                                 if profile_name.startswith("! "):
                                     tag_text = profile_name[2:]
                                     if "\\c" in tag_text:
-                                        tag_text = tag_text.replace("\\c", f" {crown} ")
+                                        tag_text = tag_text.replace("\\c", f"{crown} ")
                                     if "\\d" in tag_text:
                                         tag_text = tag_text.replace("\\d", f"{dragon} ")
                                     if "\\h" in tag_text:
@@ -211,7 +215,7 @@ def ranks(self):
                             
                             case _:
                                 player_rank_texts[player] = PlayerTag(player, f'#{rank}')
-    
+        print(f"ranks update took {time.time() - rank_time:.3f}s")
     except Exception as e:
         print(f"Error updating ranks: {e}")
 current_message_index = 0
@@ -232,7 +236,7 @@ def on_game_begin(self):
                 # 'vr_depth': 390,
                 'scale': 1.6,
                 'color': (0.0, 1.0, 1.0),
-                'text': f"{ba.charstr(ba.SpecialChar.CROWN)} || EONI vs CYCLONES || {ba.charstr(ba.SpecialChar.CROWN)}",
+                'text': f"{ba.charstr(ba.SpecialChar.CROWN)} || CYCLONES EPIC FFA || {ba.charstr(ba.SpecialChar.CROWN)}",
                 # 'transition': 'fade_in'
             },
         )
