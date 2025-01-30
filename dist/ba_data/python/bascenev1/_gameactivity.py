@@ -456,7 +456,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
             PlayerInfo(name=p.getname(full=True), character=p.character)
             for p in self.players
         ]
-        text.ranks(self)
+        
 
         # Sort this by name so high score lists/etc will be consistent
         # regardless of player join order.
@@ -487,6 +487,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
         create_animated_text(letters_t3, start_x=-130, start_y=-185, color_keys=bronze_keys)
         text.on_game_begin(self)
         #rank = statsSys.get_rank()
+        text.ranks(self)
 
     def _on_tournament_query_response(
         self, data: dict[str, Any] | None
@@ -507,7 +508,6 @@ class GameActivity(Activity[PlayerT, TeamT]):
 
         # By default, just spawn a dude.
         self.spawn_player(player)
-        text.ranks(self)
 
     @override
     def handlemessage(self, msg: Any) -> Any:
