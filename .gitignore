@@ -1,0 +1,10 @@
+**/__pycache__/
+*.pyc
+*.pyo
+*.bsac2
+.vscode/sftp.json
+dist/ba_root/mods/db.json
+dist/ba_root/.bsac2
+dist/ba_root/config.json
+dist/ba_root/config.json.prev
+config.toml
