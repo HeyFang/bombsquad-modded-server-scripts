@@ -31,3 +31,4 @@
 ## Maps
 
 - [x] Friction: Changed friction values for frozed maps
+- [ ] Add Tower-D with better spawn points
