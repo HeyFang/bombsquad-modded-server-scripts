@@ -72,7 +72,8 @@ session_type = "ffa"
 # playlist editor in the regular version of the game. This will give
 # you a numeric code you can enter here to host that playlist.
 
-playlist_code = 498109
+playlist_code = 495418
+
 
 # Alternately, you can embed playlist data here instead of using
 # codes. Make sure to set session_type to the correct type for the
