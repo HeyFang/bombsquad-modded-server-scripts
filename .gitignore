@@ -1,0 +1,4 @@
+__pycache__/
+config.toml
+.vscode/
+dist/ba_root/mods/db.json
