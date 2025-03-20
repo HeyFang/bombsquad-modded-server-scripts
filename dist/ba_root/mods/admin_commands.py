@@ -2,6 +2,8 @@ import bascenev1 as bs
 import babase as ba
 from roles import banlist, muted, save_banlist, save_muted
 import threading
+import json
+import os
 
 #don't define activity variable at top to reduce redundancy; few cmds like 'end' wont work since Activity won't die
 #use both msg and client_id as arguments in chat commands even if you dont need them, (i did it so to avoid if-else conditions)
@@ -42,10 +44,19 @@ def kick(msg, client_id):
     rat = int(args[1])
     reason = " ".join(args[2:])
 
+    admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
+    with open(admin_path, "r") as file:
+        admins = json.load(file)["admins"]
+    
     try:
         rat_entity = get_entity(rat)
         admin_entity = get_entity(client_id)
         if rat_entity and admin_entity:
+            # immune admins from being kicked
+            ratPb = rat_entity["account_id"]
+            if ratPb in admins:
+                bs.broadcastmessage("You can't kick an admin", transient=True, color=(1, 0, 0), clients=[client_id])
+                return None
             nameRat = rat_entity["display_string"]
             name = admin_entity["players"][0]["name"]
             bs.broadcastmessage(f"{name} Kicked {nameRat}, reason: {reason}", transient=True, color=(0, 0.5, 1), clients=None)
@@ -220,6 +231,10 @@ def ban(msg, client_id):
     rat = int(args[1])
     reason = " ".join(args[2:])
 
+    admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
+    with open(admin_path, "r") as file:
+        admins = json.load(file)["admins"]
+
     if not reason:
         bs.broadcastmessage("A reason is required to ban a client.", transient=True, color=(1, 0, 0), clients=[client_id])
         bs.broadcastmessage("/ban <client_id> <reason>", transient=True, color=(0, 0.5, 1), clients=[client_id])
@@ -232,7 +247,10 @@ def ban(msg, client_id):
             nameRat = rat_entity["display_string"]
             nameAdmin = admin_entity["players"][0]["name"]
             pbid = rat_entity["account_id"]
-            print(pbid)
+            #print(pbid)
+            if pbid in admins:
+                bs.broadcastmessage("You can't ban an admin", transient=True, color=(1, 0, 0), clients=[client_id])
+                return None
             if pbid not in banlist:
                 banlist.append(pbid)
                 save_banlist()  # Save the updated banlist to the file
