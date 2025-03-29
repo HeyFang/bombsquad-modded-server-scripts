@@ -1,6 +1,7 @@
 ## Issues
 
 - [x] Incorrect Games Played Count: The function insert_stats() is being called twice in \_gameactivity.py, resulting in '2' games being logged for each game played.
+- [ ] Tags don't vanish after player iz eliminated in just 'Elimination' game.
 
 ## Features
 
@@ -14,6 +15,7 @@
 - [ ] Balance Team Lives: Auto balances team lives after player leaves from ongoing game
 - [ ] Create a template: All features should be controlled by a `settings.toml` file, allowing them to be enabled or disabled using a bool
 - [ ] Show the name of person who starts kickvote
+- [x] Colorful explosions
 
 ## Commands
 

@@ -11,7 +11,6 @@ import random
 from typing import TYPE_CHECKING, TypeVar, override
 
 import bascenev1 as bs
-
 from bascenev1lib.gameutils import SharedObjects
 
 if TYPE_CHECKING:
@@ -578,7 +577,21 @@ class Blast(bs.Actor):
             # It looks better if we delay a bit.
             bs.timer(0.05, emit)
 
-        lcolor = (0.6, 0.6, 1.0) if self.blast_type == 'ice' else (1, 0.3, 0.1)
+        kewl_colors = [
+            (1.0, 0.0, 0.0),  # Red
+            (0.0, 1.0, 0.0),  # Green
+            (0.0, 0.0, 1.0),  # Blue
+            (1.0, 1.0, 0.0),  # Yellow
+            (1.0, 0.0, 1.0),  # Magenta
+            (0.0, 1.0, 1.0),  # Cyan
+            (1.0, 0.5, 0.0),  # Orange
+            (0.5, 0.0, 1.0),  # Purple
+            (0.0, 0.5, 1.0),  # Sky Blue
+            (1.0, 0.5, 0.5),  # Pink
+        ]
+
+        # Replace the lcolor assignment with this:
+        lcolor = random.choice(kewl_colors) if self.blast_type != 'ice' else (0.6, 0.6, 1.0)
         light = bs.newnode(
             'light',
             attrs={
@@ -633,8 +646,7 @@ class Blast(bs.Actor):
                 'big': (self.blast_type == 'tnt'),
             },
         )
-        if self.blast_type == 'ice':
-            scorch.color = (1, 1, 1.5)
+        scorch.color = lcolor
 
         bs.animate(scorch, 'presence', {3.000: 1, 13.000: 0})
         bs.timer(13.0, scorch.delete)
