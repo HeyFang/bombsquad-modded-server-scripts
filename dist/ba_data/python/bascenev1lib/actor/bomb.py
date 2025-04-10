@@ -576,22 +576,24 @@ class Blast(bs.Actor):
 
             # It looks better if we delay a bit.
             bs.timer(0.05, emit)
-
-        kewl_colors = [
-            (1.0, 0.0, 0.0),  # Red
-            (0.0, 1.0, 0.0),  # Green
-            (0.0, 0.0, 1.0),  # Blue
-            (1.0, 1.0, 0.0),  # Yellow
-            (1.0, 0.0, 1.0),  # Magenta
-            (0.0, 1.0, 1.0),  # Cyan
-            (1.0, 0.5, 0.0),  # Orange
-            (0.5, 0.0, 1.0),  # Purple
-            (0.0, 0.5, 1.0),  # Sky Blue
-            (1.0, 0.5, 0.5),  # Pink
-        ]
+        
+        # remove comments for colorful explosions...
+        # kewl_colors = [
+        #     (1.0, 0.0, 0.0),  # Red
+        #     (0.0, 1.0, 0.0),  # Green
+        #     (0.0, 0.0, 1.0),  # Blue
+        #     (1.0, 1.0, 0.0),  # Yellow
+        #     (1.0, 0.0, 1.0),  # Magenta
+        #     (0.0, 1.0, 1.0),  # Cyan
+        #     (1.0, 0.5, 0.0),  # Orange
+        #     (0.5, 0.0, 1.0),  # Purple
+        #     (0.0, 0.5, 1.0),  # Sky Blue
+        #     (1.0, 0.5, 0.5),  # Pink
+        # ]
 
         # Replace the lcolor assignment with this:
-        lcolor = random.choice(kewl_colors) if self.blast_type != 'ice' else (0.6, 0.6, 1.0)
+        #lcolor = random.choice(kewl_colors) if self.blast_type != 'ice' else (0.6, 0.6, 1.0)
+        lcolor = (0.6, 0.6, 1.0) if self.blast_type == 'ice' else (1, 0.3, 0.1)
         light = bs.newnode(
             'light',
             attrs={

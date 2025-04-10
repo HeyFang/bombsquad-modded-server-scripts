@@ -16,6 +16,7 @@
 - [ ] Create a template: All features should be controlled by a `settings.toml` file, allowing them to be enabled or disabled using a bool
 - [ ] Show the name of person who starts kickvote
 - [x] Colorful explosions
+- [ ] Implement device-id based ban.
 
 ## Commands
 
@@ -27,7 +28,7 @@
 
 - [x] Boxing!!!: Default gloves, no powerups and bombs.
 - [x] Death Overhead: Elimination game with mines spawing above players' head.
-- [ ] Football
+- [x] Football
 - [x] Meteor Shower: With Random Bombs
 
 ## Maps
