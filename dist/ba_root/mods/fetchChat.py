@@ -28,13 +28,14 @@ admin_commands = {
 }
 
 user_commands = {
-    "list": uc.list,
+    "list": uc.clients,
     "me": uc.stats, "stats": uc.stats, "rank": uc.stats,
-    "pb": uc.pb
+    "pb": uc.pb,
+    "help": uc.help, "commands": uc.help, "cmds": uc.help
 }
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
-    print(msg, client_id)
+    #print(msg, client_id)
 
     # Block messages from banned and muted players
     ros = bs.get_game_roster()

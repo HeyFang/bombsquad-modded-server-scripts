@@ -175,6 +175,8 @@ def ranks(self):
                             for profile_name, profile_data in profiles.items():
                                 if profile_name.startswith("! "):
                                     tag_text = profile_name[2:]
+                                    if len(tag_text) > 10:
+                                        tag_text = tag_text[:7] + "..."
                                     if "\\c" in tag_text:
                                         tag_text = tag_text.replace("\\c", f"{crown} ")
                                     if "\\d" in tag_text:

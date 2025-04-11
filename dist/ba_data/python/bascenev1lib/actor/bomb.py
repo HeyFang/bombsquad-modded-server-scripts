@@ -648,7 +648,9 @@ class Blast(bs.Actor):
                 'big': (self.blast_type == 'tnt'),
             },
         )
-        scorch.color = lcolor
+        #scorch.color = lcolor # uncomment it for colorful scorch
+        if self.blast_type == 'ice': # comment it for colorful scorch
+            scorch.color = (1, 1, 1.5)
 
         bs.animate(scorch, 'presence', {3.000: 1, 13.000: 0})
         bs.timer(13.0, scorch.delete)
