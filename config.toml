@@ -65,14 +65,14 @@ max_party_size = 8
 # Options here are 'ffa' (free-for-all), 'teams' and 'coop'
 # (cooperative) This value is ignored if you supply a playlist_code
 # (see below).
-session_type = "ffa"
+session_type = "teams"
 
 # Playlist-code for teams or free-for-all mode sessions. To host
 # your own custom playlists, use the 'share' functionality in the
 # playlist editor in the regular version of the game. This will give
 # you a numeric code you can enter here to host that playlist.
 
-playlist_code = 495418
+playlist_code = 518488
 
 
 # Alternately, you can embed playlist data here instead of using

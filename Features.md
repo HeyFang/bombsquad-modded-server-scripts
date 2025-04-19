@@ -10,7 +10,7 @@
 - [x] list
 - [x] remove
 - [x] quit
-- [ ] playerinfo
+- [x] playerinfo
 - [x] mute/unmute
 - [x] past messages
 - [ ] afk remover

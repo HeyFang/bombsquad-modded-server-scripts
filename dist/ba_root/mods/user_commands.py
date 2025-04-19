@@ -2,6 +2,7 @@ import bascenev1 as bs
 from tinydb import TinyDB, Query
 import os
 import statsSys
+import fetchChat
 
 # initialize the TinyDB database
 db_path = os.path.join(os.getcwd(), 'ba_root/mods/db.json')
@@ -15,7 +16,7 @@ def get_entity(client_id):
             return entity
     return None
 
-def list(msg, client_id):
+def clients(msg, client_id):
     try:
         roster = bs.get_game_roster()
         message = f"{'ID':<9} |    {'Name':<12}\n" + "_" * 25 + "\n"
@@ -79,3 +80,19 @@ def pb(msg, client_id):
             bs.broadcastmessage(f"Player not found", transient=True, color=(1,0,0), clients=[client_id])
         return msg
         
+def help(msg, client_id):
+    message = ""
+    try:
+        # Split admin commands into chunks of 5 per line
+        admin_commands = list(fetchChat.admin_commands.keys())
+        admin_chunks = [admin_commands[i:i + 10] for i in range(0, len(admin_commands), 10)]
+        message += "Admin Commands: " + "\n".join(", ".join(chunk) for chunk in admin_chunks) + "\n" + "\n"
+
+        user_commands = list(fetchChat.user_commands.keys())
+        user_chunks = [user_commands[i:i + 10] for i in range(0, len(user_commands), 10)]
+        message += "User Commands: " + "\n".join(", ".join(chunk) for chunk in user_chunks) + "\n"
+    except Exception as e:
+        print(e)
+    else:
+        bs.broadcastmessage(message, transient=True, color=(1, 1, 1), clients=[client_id])
+        return msg
