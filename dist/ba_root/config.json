@@ -341,15 +341,16 @@
   "Eoni"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "__account__"
+  "Client Input Device #1": "Athena",
+  "Client Input Device #2": "__account__"
  },
  "FFA Series Length": 24,
- "Fleet Zone Ping Last Flush Time": 1742465487,
+ "Fleet Zone Ping Last Flush Time": 1746029120,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 36.916562971404446,
-   "hyderabad.v4": 32.38460253563555,
-   "mumbai.v4": 11.329943486791805
+   "delhi.v4": 30.57752921567351,
+   "hyderabad.v4": 21.39007970320294,
+   "mumbai.v4": 6.956933590100017
   }
  },
  "Free-for-All Playlist Randomize": false,
@@ -609,6 +610,8 @@
  "Port": 43210,
  "Show Tutorial": false,
  "Signed In Last Session": false,
+ "Team Tournament Playlist Randomize": false,
+ "Team Tournament Playlist Selection": "test ",
  "Team Tournament Playlists": {
   "New Games": [
    {
@@ -1068,13 +1071,57 @@
   "eoni vs cyclones": [
    {
     "settings": {
+     "Balance Total Lives": true,
+     "Epic Mode": true,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Rampage"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
      "Epic Mode": true,
      "Kills to Win Per Player": 4,
      "Respawn Times": 0.25,
      "Time Limit": 0,
-     "map": "Rampage"
+     "map": "Monkey Face"
     },
     "type": "bascenev1lib.game.boxing.DeathMatchGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": true,
+     "Epic Mode": true,
+     "Lives Per Player": 2,
+     "Respawn Times": 0.25,
+     "Solo Mode": true,
+     "Time Limit": 0,
+     "map": "Rampage"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Respawn Times": 0.25,
+     "Score to Win": 3,
+     "Time Limit": 0,
+     "map": "Bridgit"
+    },
+    "type": "bascenev1lib.game.assault.AssaultGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Respawn Times": 0.25,
+     "Score to Win": 3,
+     "Time Limit": 0,
+     "map": "Hockey Stadium"
+    },
+    "type": "bascenev1lib.game.handball.HockeyGame"
    },
    {
     "settings": {
@@ -1090,81 +1137,13 @@
    },
    {
     "settings": {
-     "Balance Total Lives": true,
-     "Epic Mode": true,
-     "Lives Per Player": 2,
-     "Respawn Times": 0.25,
-     "Solo Mode": true,
-     "Time Limit": 0,
-     "map": "Monkey Face"
-    },
-    "type": "bascenev1lib.game.deathOverhead.EliminationGame"
-   },
-   {
-    "settings": {
-     "Balance Total Lives": true,
-     "Epic Mode": true,
-     "Lives Per Player": 4,
-     "Respawn Times": 0.25,
-     "Solo Mode": false,
-     "Time Limit": 0,
-     "map": "Roundabout"
-    },
-    "type": "bascenev1lib.game.elimination.EliminationGame"
-   },
-   {
-    "settings": {
-     "Epic Mode": true,
-     "Kills to Win Per Player": 4,
-     "Respawn Times": 0.25,
-     "Time Limit": 0,
-     "map": "Happy Thoughts"
-    },
-    "type": "bascenev1lib.game.deathmatch.DeathMatchGame"
-   },
-   {
-    "settings": {
-     "Epic Mode": true,
-     "Kills to Win Per Player": 4,
-     "Respawn Times": 0.25,
-     "Time Limit": 0,
-     "map": "Monkey Face"
-    },
-    "type": "bascenev1lib.game.boxing.DeathMatchGame"
-   },
-   {
-    "settings": {
-     "Balance Total Lives": true,
-     "Epic Mode": true,
-     "Lives Per Player": 4,
-     "Respawn Times": 0.25,
-     "Solo Mode": false,
-     "Time Limit": 0,
-     "map": "The Pad"
-    },
-    "type": "bascenev1lib.game.elimination.EliminationGame"
-   },
-   {
-    "settings": {
-     "Chosen One Gets Gloves": false,
-     "Chosen One Gets Shield": false,
-     "Chosen One Time": 20,
      "Epic Mode": true,
      "Respawn Times": 0.25,
-     "Time Limit": 0,
-     "map": "Lake Frigid"
+     "Score to Win": 2,
+     "Time Limit": 300,
+     "map": "Step Right Up"
     },
-    "type": "bascenev1lib.game.chosenone.ChosenOneGame"
-   },
-   {
-    "settings": {
-     "Epic Mode": true,
-     "Kills to Win Per Player": 4,
-     "Respawn Times": 0.25,
-     "Time Limit": 0,
-     "map": "Football Stadium"
-    },
-    "type": "bascenev1lib.game.deathmatch.DeathMatchGame"
+    "type": "bascenev1lib.game.assault.AssaultGame"
    },
    {
     "settings": {
@@ -1184,9 +1163,96 @@
      "Kills to Win Per Player": 4,
      "Respawn Times": 0.25,
      "Time Limit": 0,
-     "map": "Hockey Stadium"
+     "map": "Rampage"
     },
     "type": "bascenev1lib.game.boxing.DeathMatchGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Hold Time": 20,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Happy Thoughts"
+    },
+    "type": "bascenev1lib.game.keepaway.KeepAwayGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": true,
+     "Epic Mode": true,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "Roundabout"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Respawn Times": 0.5,
+     "Time Limit": 300,
+     "map": "Zigzag"
+    },
+    "type": "bascenev1lib.game.conquest.ConquestGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Kills to Win Per Player": 4,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Football Stadium"
+    },
+    "type": "bascenev1lib.game.boxing.DeathMatchGame"
+   },
+   {
+    "settings": {
+     "Bomb Spawning": 1000,
+     "Entire Team Must Finish": false,
+     "Epic Mode": true,
+     "Laps": 2,
+     "Mine Spawning": 2000,
+     "Time Limit": 0,
+     "map": "Big G"
+    },
+    "type": "bascenev1lib.game.race.RaceGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": true,
+     "Epic Mode": true,
+     "Lives Per Player": 4,
+     "Respawn Times": 0.25,
+     "Solo Mode": false,
+     "Time Limit": 0,
+     "map": "The Pad"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Hold Time": 20,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Zigzag"
+    },
+    "type": "bascenev1lib.game.kingofthehill.KingOfTheHillGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Flag Idle Return Time": 15,
+     "Flag Touch Return Time": 2,
+     "Respawn Times": 0.5,
+     "Score to Win": 3,
+     "Time Limit": 0,
+     "map": "Roundabout"
+    },
+    "type": "bascenev1lib.game.capturetheflag.CaptureTheFlagGame"
    },
    {
     "settings": {
@@ -1203,32 +1269,10 @@
    {
     "settings": {
      "Epic Mode": true,
-     "Kills to Win Per Player": 4,
+     "Kills to Win Per Player": 5,
      "Respawn Times": 0.25,
      "Time Limit": 0,
-     "map": "Step Right Up"
-    },
-    "type": "bascenev1lib.game.deathmatch.DeathMatchGame"
-   },
-   {
-    "settings": {
-     "Balance Total Lives": true,
-     "Epic Mode": true,
-     "Lives Per Player": 4,
-     "Respawn Times": 0.25,
-     "Solo Mode": false,
-     "Time Limit": 0,
-     "map": "Rampage"
-    },
-    "type": "bascenev1lib.game.elimination.EliminationGame"
-   },
-   {
-    "settings": {
-     "Epic Mode": true,
-     "Kills to Win Per Player": 4,
-     "Respawn Times": 0.25,
-     "Time Limit": 0,
-     "map": "Lake Frigid"
+     "map": "Hockey Stadium"
     },
     "type": "bascenev1lib.game.boxing.DeathMatchGame"
    },
@@ -1238,6 +1282,16 @@
      "map": "Rampage"
     },
     "type": "bascenev1lib.game.meteorshower.MeteorShowerGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Hold Time": 20,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Lake Frigid"
+    },
+    "type": "bascenev1lib.game.keepaway.KeepAwayGame"
    }
   ],
   "new one": [
@@ -1268,17 +1322,17 @@
    {
     "settings": {
      "Epic Mode": false,
-     "Kills to Win Per Player": 5,
      "Respawn Times": 1.0,
+     "Score to Win": 1,
      "Time Limit": 0,
      "map": "Hockey Stadium"
     },
-    "type": "bascenev1lib.game.boxing.DeathMatchGame"
+    "type": "bascenev1lib.game.hockey.HockeyGame"
    }
   ]
  },
  "Teams Series Length": 7,
- "launchCount": 2,
+ "launchCount": 34,
  "lc14173": 1,
  "lc14292": 1
 }
