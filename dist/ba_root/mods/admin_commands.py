@@ -259,11 +259,13 @@ def ban(msg, client_id):
             nameAdmin = admin_entity["players"][0]["name"]
             pbid = rat_entity["account_id"]
             #print(pbid)
+
             if pbid in admins:
                 bs.broadcastmessage("You can't ban an admin", transient=True, color=(1, 0, 0), clients=[client_id])
                 return None
+            
             if pbid not in banlist:
-                banlist.append(pbid)
+                banlist[pbid] = nameAdmin # add banned players pb n admins username
                 save_banlist()  # Save the updated banlist to the file
                 bs.broadcastmessage(f"{nameAdmin} banned {nameRat}, reason: {reason}", transient=True, color=(0, 0.5, 1), clients=None)
                 bs.disconnect_client(rat, ban_time=60*60)  # seconds
@@ -283,25 +285,29 @@ def unban(msg, client_id):
     pbid = args[1]
     try:
         if pbid in banlist:
-            ros = bs.get_game_roster()
-            for entity in ros:
-                if entity["client_id"] == client_id:
-                    adminName = entity["players"][0]["name"]
-                if entity["account_id"] == pbid:
-                    ratName = entity["display_string"]
-            banlist.remove(pbid)
+            admin_entity = get_entity(client_id)
+            if admin_entity:
+                adminName = admin_entity["players"][0]["name"]
+            banned_by = banlist[pbid]  # Get the admin who banned the player
+            del banlist[pbid]  # Remove from banlist
             save_banlist()  # Save the updated banlist to the file
-            bs.broadcastmessage(f"{adminName} Unbanned {ratName}", transient=True, color=(0, 0.5, 1), clients=None)
+            bs.broadcastmessage(f"{adminName} unbanned {pbid} (banned by {banned_by})", transient=True, color=(0, 0.5, 1), clients=None)
         else:
-            bs.broadcastmessage(f"User {pbid} is not in the banned.", transient=True, color=(1, 0, 0), clients=[client_id])
+            bs.broadcastmessage(f"User {pbid} is not in the banlist.", transient=True, color=(1, 0, 0), clients=[client_id])
     except Exception as e:
-        
         print(e)
     return None
 
 def bans(msg, client_id):
     try:
-        bs.broadcastmessage(f"Banlist: {banlist}", transient=True, color=(0, 0.5, 1), clients=None)
+        if not banlist:
+            bs.broadcastmessage("Banlist is empty.", transient=True, color=(0, 0.5, 1), clients=[client_id])
+            return None
+
+        message = "Banlist:\n"
+        for pbid, admin in banlist.items():
+            message += f"{pbid} (banned by {admin})\n"
+        bs.broadcastmessage(message, transient=True, color=(0, 0.5, 1), clients=None)
     except Exception as e:
         print(e)
     return None
@@ -379,3 +385,173 @@ def info(msg, client_id):
     except Exception as e:
         print(e)
     return None
+
+
+
+
+
+
+# Actor specific commands
+
+def get_player(entity):
+    session_id = entity["players"][0]["id"]
+    
+    for splayer in bs.get_foreground_host_session().sessionplayers:
+        if session_id == splayer.id:
+            spaz = splayer.activityplayer
+    return spaz
+
+
+
+
+def kill(msg, client_id):
+    activity = bs.get_foreground_host_activity()
+
+    try:
+        target = msg.split(" ")[1]
+
+        if target == "all":
+            for player in activity.players:
+                with activity.context:
+                    player.actor.shatter()
+        else:
+            target_id = int(target)
+            entity = get_entity(target_id)
+            spaz = get_player(entity)
+            
+            try:
+                with activity.context:
+                    spaz.actor.shatter()
+            except Exception as e:
+                print(e)
+    except Exception as e:
+        bs.broadcastmessage("Syntax: /kill [client_id | all]", transient=True, color=(1, 1, 1), clients=[client_id])
+        print(e)
+
+
+
+def curse(msg, client_id):
+    activity = bs.get_foreground_host_activity()
+
+    try:
+        target = msg.split(" ")[1]
+
+        if target == "all":
+            for player in activity.players:
+                with activity.context:
+                    player.actor.curse()
+        else:
+            target_id = int(target)
+            entity = get_entity(target_id)
+            spaz = get_player(entity)
+            
+            try:
+                with activity.context:
+                    spaz.actor.curse()
+            except Exception as e:
+                print(e)
+    except Exception as e:
+        bs.broadcastmessage("Syntax: /curse [client_id | all]", transient=True, color=(1, 1, 1), clients=[client_id])
+        print(e)
+
+
+
+def gloves(msg, client_id):
+    activity = bs.get_foreground_host_activity()
+
+    try:
+        target = msg.split(" ")[1]
+
+        if target == "all":
+            for player in activity.players:
+                with activity.context:
+                    player.actor.equip_boxing_gloves()
+        else:
+            target_id = int(target)
+            entity = get_entity(target_id)
+            spaz = get_player(entity)
+            
+            try:
+                with activity.context:
+                    spaz.actor.equip_boxing_gloves()
+            except Exception as e:
+                print(e)
+    except Exception as e:
+        bs.broadcastmessage("Syntax: /gloves [client_id | all]", transient=True, color=(1, 1, 1), clients=[client_id])
+        print(e)
+
+
+
+def freeze(msg, client_id):
+    activity = bs.get_foreground_host_activity()
+
+    try:
+        target = msg.split(" ")[1]
+
+        if target == "all":
+            for player in activity.players:
+                with activity.context:
+                    player.actor.node.handlemessage(bs.FreezeMessage())
+        else:
+            target_id = int(target)
+            entity = get_entity(target_id)
+            spaz = get_player(entity)
+            
+            try:
+                with activity.context:
+                    spaz.actor.node.handlemessage(bs.FreezeMessage())
+            except Exception as e:
+                print(e)
+    except Exception as e:
+        bs.broadcastmessage("Syntax: /freeze [client_id | all]", transient=True, color=(1, 1, 1), clients=[client_id])
+        print(e)
+
+
+def thaw(msg, client_id):
+    activity = bs.get_foreground_host_activity()
+
+    try:
+        target = msg.split(" ")[1]
+
+        if target == "all":
+            for player in activity.players:
+                with activity.context:
+                    player.actor.node.handlemessage(bs.ThawMessage())
+        else:
+            target_id = int(target)
+            entity = get_entity(target_id)
+            spaz = get_player(entity)
+            
+            try:
+                with activity.context:
+                    spaz.actor.node.handlemessage(bs.ThawMessage())
+            except Exception as e:
+                print(e)
+    except Exception as e:
+        bs.broadcastmessage("Syntax: /thaw [client_id | all]", transient=True, color=(1, 1, 1), clients=[client_id])
+        print(e)
+
+
+def heal(msg, client_id):
+    activity = bs.get_foreground_host_activity()
+
+    try:
+        target = msg.split(" ")[1]
+
+        if target == "all":
+            for player in activity.players:
+                with activity.context:
+                    player.actor.node.handlemessage(bs.PowerupMessage(poweruptype="health"))
+        else:
+            target_id = int(target)
+            entity = get_entity(target_id)
+            spaz = get_player(entity)
+            
+            try:
+                with activity.context:
+                    spaz.actor.node.handlemessage(bs.PowerupMessage(poweruptype="health"))
+            except Exception as e:
+                print(e)
+    except Exception as e:
+        bs.broadcastmessage("Syntax: /heal [client_id | all]", transient=True, color=(1, 1, 1), clients=[client_id])
+        print(e)
