@@ -3,6 +3,7 @@ import json
 import os
 import admin_commands as ac
 import user_commands as uc
+import roles as rl
 
 admin_commands = {
     "kick": ac.kick,
@@ -34,6 +35,19 @@ user_commands = {
     "help": uc.help, "commands": uc.help, "cmds": uc.help
 }
 
+def get_role(pbid: str) -> str:
+    admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
+    with open(admin_path, "r") as file:
+        data = json.load(file)
+        if pbid in data.get("owners", {}):
+            return "owner"
+        elif pbid in data.get("admins", {}):
+            return "admin"
+        elif pbid in data.get("vips", {}):
+            return "vip"
+    return "user"
+
+
 def filter_chat_message(msg: str, client_id: int) -> str | None:
     #print(msg, client_id)
 
@@ -42,14 +56,20 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     for entity in ros:
         if entity["client_id"] == client_id:
             pbid = entity["account_id"]
+            role = get_role(pbid)
+            
+            # Block banned or muted players
             admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
-
             with open(admin_path, "r") as file:
                 data = json.load(file)
                 banlist = data.get("banlist", [])
                 muted = data.get("muted", [])
             if pbid in muted or pbid in banlist:
                 return None
+            
+            # Get allowed commands for the role
+            allowed_commands = rl.get_commands_for_role(role)
+
     
     # Normal messages
     if not msg.startswith("/"):
@@ -60,35 +80,24 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
         args = msg.split()
         command = args[0].lstrip("/").lower()
 
-        
+        # Check if the command is valid
+        if command not in user_commands and command not in admin_commands:
+            bs.broadcastmessage("Invalid command.", transient=True, clients=[client_id], color=(1, 0, 0))
+            return None
 
-        if command not in admin_commands and command not in user_commands:
-            bs.broadcastmessage("No such command", transient=True, clients=[client_id], color=(1, 0, 0))
-            return msg
+        # Check if the command is allowed for the user's role
+        if command not in allowed_commands:
+            bs.broadcastmessage("You do not have permission to use this command.", transient=True, clients=[client_id], color=(1, 0, 0))
+            return None
 
-        ros = bs.get_game_roster()
-        for entity in ros:
-            if entity["client_id"] == client_id:
-                pbid = entity["account_id"]
-                admin_path = os.path.join(os.getcwd(), "ba_root/mods/admin.json")
-                with open(admin_path, "r") as file:
-                    admins = json.load(file)["admins"]
-
-                if command in user_commands:
-                    try:
-                        func = user_commands[command]    
-                        func(msg, client_id)
-                    except AttributeError as e:
-                        print(f"Error: {e}")
-                    return None
-
-                elif pbid in admins:
-                    try:
-                        func = admin_commands[command]
-                        func(msg, client_id)
-                    except AttributeError as e:
-                        print(f"Error: {e}")
-                else:
-                    print(f"{entity['players'][0]['name']} is not an admin")
+        # Execute the command
+        try:
+            if command in user_commands:
+                func = user_commands[command]
+            elif command in admin_commands:
+                func = admin_commands[command]
+            func(msg, client_id)
+        except AttributeError as e:
+            print(f"Error: {e}")
         return None
     return msg

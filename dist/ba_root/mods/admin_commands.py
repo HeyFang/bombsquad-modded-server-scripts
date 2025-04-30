@@ -248,11 +248,13 @@ def ban(msg, client_id):
             nameAdmin = admin_entity["players"][0]["name"]
             pbid = rat_entity["account_id"]
             #print(pbid)
+
             if pbid in admins:
                 bs.broadcastmessage("You can't ban an admin", transient=True, color=(1, 0, 0), clients=[client_id])
                 return None
+            
             if pbid not in banlist:
-                banlist.append(pbid)
+                banlist[pbid] = nameAdmin # add banned players pb n admins username
                 save_banlist()  # Save the updated banlist to the file
                 bs.broadcastmessage(f"{nameAdmin} banned {nameRat}, reason: {reason}", transient=True, color=(0, 0.5, 1), clients=None)
                 bs.disconnect_client(rat, ban_time=60*60)  # seconds
@@ -272,25 +274,29 @@ def unban(msg, client_id):
     pbid = args[1]
     try:
         if pbid in banlist:
-            ros = bs.get_game_roster()
-            for entity in ros:
-                if entity["client_id"] == client_id:
-                    adminName = entity["players"][0]["name"]
-                if entity["account_id"] == pbid:
-                    ratName = entity["display_string"]
-            banlist.remove(pbid)
+            admin_entity = get_entity(client_id)
+            if admin_entity:
+                adminName = admin_entity["players"][0]["name"]
+            banned_by = banlist[pbid]  # Get the admin who banned the player
+            del banlist[pbid]  # Remove from banlist
             save_banlist()  # Save the updated banlist to the file
-            bs.broadcastmessage(f"{adminName} Unbanned {ratName}", transient=True, color=(0, 0.5, 1), clients=None)
+            bs.broadcastmessage(f"{adminName} unbanned {pbid} (banned by {banned_by})", transient=True, color=(0, 0.5, 1), clients=None)
         else:
-            bs.broadcastmessage(f"User {pbid} is not in the banned.", transient=True, color=(1, 0, 0), clients=[client_id])
+            bs.broadcastmessage(f"User {pbid} is not in the banlist.", transient=True, color=(1, 0, 0), clients=[client_id])
     except Exception as e:
-        
         print(e)
     return None
 
 def bans(msg, client_id):
     try:
-        bs.broadcastmessage(f"Banlist: {banlist}", transient=True, color=(0, 0.5, 1), clients=None)
+        if not banlist:
+            bs.broadcastmessage("Banlist is empty.", transient=True, color=(0, 0.5, 1), clients=[client_id])
+            return None
+
+        message = "Banlist:\n"
+        for pbid, admin in banlist.items():
+            message += f"{pbid} (banned by {admin})\n"
+        bs.broadcastmessage(message, transient=True, color=(0, 0.5, 1), clients=None)
     except Exception as e:
         print(e)
     return None
