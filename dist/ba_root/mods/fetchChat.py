@@ -25,7 +25,13 @@ admin_commands = {
     "bans": ac.bans, "banlist": ac.bans,
     "mute": ac.mute,
     "unmute": ac.unmute,
-    "info": ac.info, "gp": ac.info
+    "info": ac.info, "gp": ac.info,
+    "kill": ac.kill,
+    "curse": ac.curse,
+    "gloves": ac.gloves,
+    "freeze": ac.freeze,
+    "thaw": ac.thaw,
+    "heal": ac.heal
 }
 
 user_commands = {
