@@ -487,7 +487,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
         create_animated_text(letters_t3, start_x=-130, start_y=-185, color_keys=bronze_keys)
         text.on_game_begin(self)
         #rank = statsSys.get_rank()
-        text.ranks(self)
+        #text.ranks(self)
 
     def _on_tournament_query_response(
         self, data: dict[str, Any] | None
@@ -502,20 +502,28 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 max(5, data_t[0]['timeRemaining'])
             )
 
+
     @override
     def on_player_join(self, player: PlayerT) -> None:
         super().on_player_join(player)
 
         # By default, just spawn a dude.
         self.spawn_player(player)
-
+        text.assign_tag(player)
+        
+    
     @override
     def handlemessage(self, msg: Any) -> Any:
         if isinstance(msg, PlayerDiedMessage):
+            # Handle player death
+            player = msg.getplayer(self.playertype)
+
+
+
             # pylint: disable=cyclic-import
             from bascenev1lib.actor.spaz import Spaz
 
-            player = msg.getplayer(self.playertype)
+            
             killer = msg.getkillerplayer(self.playertype)
 
             # Inform our stats of the demise.

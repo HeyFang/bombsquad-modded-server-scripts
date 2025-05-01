@@ -136,10 +136,27 @@ class MeteorShowerGame(bs.TeamGameActivity[Player, Team]):
             super().handlemessage(msg)
 
             curtime = bs.time()
+            
+            
 
             # Record the player's moment of death.
             # assert isinstance(msg.spaz.player
             msg.getplayer(Player).death_time = curtime
+
+            player = msg.getplayer(Player)
+            try:
+                # Cleanup tag_node and rank_node if they exist
+                if player.tag_node is not None:
+                    #print(f"Cleaning up tag_node for player {player.getname()}")
+                    player.tag_node.cleanup()
+                    player.tag_node = None
+                if player.rank_node is not None:
+                    #print(f"Cleaning up rank_node for player {player.getname()}")
+                    player.rank_node.cleanup()
+                    player.rank_node = None
+            except Exception as e:
+                print(f"Error while removing tag_node or rank_node for player {player.getname()}: {e}")
+
 
             # In co-op mode, end the game the instant everyone dies
             # (more accurate looking).

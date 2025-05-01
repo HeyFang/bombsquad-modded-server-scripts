@@ -53,6 +53,12 @@ class PlayerTag:
         except Exception as e:
             print(f"Error creating PlayerTag for player {player}: {e}")
 
+    def cleanup(self):
+        """Delete all text nodes."""
+        for node in self.text_nodes:
+            if node:
+                node.delete()
+        self.text_nodes.clear()
 
 class Tag:
     # Convert this to a simple text node instead of array
@@ -142,6 +148,63 @@ class Tag:
 
         except Exception as e:
             print(f"Error creating Tag for player {player}: {e}")
+    def cleanup(self):
+        """Delete all text nodes."""
+        for node in self.text_nodes:
+            if node:
+                node.delete()
+        self.text_nodes.clear()
+
+def assign_tag(player):
+    """Assign rank and tag to a player."""
+    try:
+        account_id = player.sessionplayer.get_v1_account_id()
+
+        if not account_id:
+            print(f"Player {player.getname()} has no account ID.")
+            return
+
+        # Get the player's rank
+        rank = st.get_rank(account_id)
+
+        if rank is None:
+            rank_text = " "
+            rank_color = (1, 1, 1)
+
+        elif rank < 6:
+            # Assign a tag based on the player's profile
+            profiles = player.sessionplayer.inputdevice.get_player_profiles()
+            tag_assigned = False
+            for profile_name, profile_data in profiles.items():
+                if profile_name.startswith("! "):
+                    tag_text = profile_name[2:]
+                    tag_text = _process_tag_text(tag_text, special_chars)
+                    profile_color = profile_data.get('color', (1, 1, 1))
+                    player.tag_node = Tag(player, tag_text, profile_color)
+                    tag_assigned = True
+                    break
+
+            if not tag_assigned:
+                player.tag_node = Tag(player, "<tag>", (0, 1, 1))
+
+            rank_text, rank_color = _get_rank_text_and_color(rank, special_chars)
+
+        elif rank < 100:
+            rank_text = f"#{rank}"
+            rank_color = (1, 1, 1)
+        else:
+            rank_text = " "
+            rank_color = (1, 1, 1)
+
+        # Assign the rank tag to the player
+        player.rank_node = PlayerTag(player, rank_text, rank_color)
+
+        print(f"Assigned tag_node and rank_node for player {player.getname()}")
+
+    except Exception as e:
+        print(f"Error assigning rank and tag to player {player.getname()}: {e}")
+
+
 
 special_chars = {
             "crown": ba.charstr(ba.SpecialChar.CROWN),
@@ -152,62 +215,6 @@ special_chars = {
             "ninja_star": ba.charstr(ba.SpecialChar.NINJA_STAR),
         }
 
-def ranks(self):
-    """Optimized ranks function to assign tags and ranks to players."""
-    try:
-        start_time = time.time()
-        ros = {entity['client_id']: entity['account_id'] for entity in bs.get_game_roster()}
-
-        # Iterate through all players in all teams
-        for team in self.teams:
-            for player in team.players:
-                if not player.is_alive():
-                    continue
-
-                # Get the player's account ID
-                client_id = player.sessionplayer.inputdevice.client_id
-                pb_id = ros.get(client_id)
-                if not pb_id:
-                    continue
-
-                # Get the player's rank
-                rank = st.get_rank(pb_id)
-
-                if rank is None:
-                    rank_text = " "
-                    rank_color = (1, 1, 1)
-
-                elif rank < 6:
-                    # Assign a tag based on the player's profile
-                    profiles = player.sessionplayer.inputdevice.get_player_profiles()
-                    tag_assigned = False
-                    for profile_name, profile_data in profiles.items():
-                        if profile_name.startswith("! "):
-                            tag_text = profile_name[2:]
-                            tag_text = _process_tag_text(tag_text, special_chars)
-                            profile_color = profile_data.get('color', (1, 1, 1))
-                            Tag(player, tag_text, profile_color)
-                            tag_assigned = True
-                            break
-
-                    if not tag_assigned:
-                        Tag(player, "<tag>", (0, 1, 1))
-
-                    rank_text, rank_color = _get_rank_text_and_color(rank, special_chars)
-                # Assign rank-based tags
-                    
-                elif rank < 100:
-                    rank_text = f"#{rank}"
-                    rank_color = (1, 1, 1)
-                else:
-                    rank_text = " "
-                    rank_color = (1, 1, 1)
-
-                PlayerTag(player, rank_text, rank_color)
-
-        print(f"Ranks update took {time.time() - start_time:.3f}s")
-    except Exception as e:
-        print(f"Error updating ranks: {e}")
 
 def _process_tag_text(tag_text, special_chars):
     """Process the tag text to replace placeholders with special characters."""
