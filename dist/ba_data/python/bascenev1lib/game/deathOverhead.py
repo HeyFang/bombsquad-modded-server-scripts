@@ -11,6 +11,7 @@ import logging
 from typing import TYPE_CHECKING, override
 
 import bascenev1 as bs
+import screenText as text
 
 from bascenev1lib.actor.spazfactory import SpazFactory
 from bascenev1lib.actor.scoreboard import Scoreboard
@@ -304,6 +305,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
             player.icons = [Icon(player, position=(0, 50), scale=0.8)]
             if player.lives > 0:
                 self.spawn_player(player)
+                text.assign_tag(player)
 
         # Don't waste time doing this until begin.
         if self.has_begun():
@@ -568,6 +570,20 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
 
             # If we hit zero lives, we're dead (and our team might be too).
             if player.lives == 0:
+                #remove tags
+                try:
+                    # Cleanup tag_node and rank_node if they exist
+                    if player.tag_node is not None:
+                        #print(f"Cleaning up tag_node for player {player.getname()}")
+                        player.tag_node.cleanup()
+                        player.tag_node = None
+                    if player.rank_node is not None:
+                        #print(f"Cleaning up rank_node for player {player.getname()}")
+                        player.rank_node.cleanup()
+                        player.rank_node = None
+                except Exception as e:
+                    print(f"Error while removing tag_node or rank_node for player {player.getname()}: {e}")
+
                 # If the whole team is now dead, mark their survival time.
                 if self._get_total_team_lives(player.team) == 0:
                     assert self._start_time is not None

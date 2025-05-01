@@ -406,6 +406,9 @@ def get_player(entity):
 
 def kill(msg, client_id):
     activity = bs.get_foreground_host_activity()
+    admin_entity = get_entity(client_id)
+    if admin_entity:
+        adminName = admin_entity["players"][0]["name"]
 
     try:
         target = msg.split(" ")[1]
@@ -414,14 +417,20 @@ def kill(msg, client_id):
             for player in activity.players:
                 with activity.context:
                     player.actor.shatter()
+            bs.broadcastmessage(f"{adminName} killed all players", transient=True, color=(0, 0.5, 1), clients=None)
+
         else:
             target_id = int(target)
             entity = get_entity(target_id)
             spaz = get_player(entity)
-            
+
+            if entity:
+                name = entity["players"][0]["name"]
+                
             try:
                 with activity.context:
                     spaz.actor.shatter()
+                bs.broadcastmessage(f"{adminName} killed {name}", transient=True, color=(0, 0.5, 1), clients=None)
             except Exception as e:
                 print(e)
     except Exception as e:
