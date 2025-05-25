@@ -13,7 +13,7 @@ To set up a cloud server, <a href="https://github.com/HeyFang/bombsquad-modded-s
 ```
 sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt update && sudo apt upgrade -y
-sudo apt install software-properties-common python3-pip python3.12-dev python3.12-venv python3-tinydb git -y
+sudo apt install software-properties-common python3-pip python3.13-dev python3.13-venv python3-tinydb git -y
 git clone https://github.com/HeyFang/bombsquad-modded-server-scripts.git
 cd bombsquad-modded-server-scripts
 chmod +x ballisticakit_server dist/ballisticakit_headless
