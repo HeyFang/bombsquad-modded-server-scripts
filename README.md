@@ -1,6 +1,6 @@
 # About
 - Game Party Server for <a href="https://www.froemling.net/apps/bombsquad">Bomb Squad</a> Game
-- This is a Modded Version of BombSquad linux_x86_64_server, build 1.7.37 API v9
+- This is a Modded Version of BombSquad linux_x86_64_server, build 1.7.41 API v9
 - You can find Vanilla Version (Basic Original) <a href="https://ballistica.net/downloads">here</a>
 
 ## <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/Features.md#Features">Features (click here)</a>
