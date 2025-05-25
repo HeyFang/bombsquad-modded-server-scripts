@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import random
 import logging
-from typing import TYPE_CHECKING, TypeVar, override
+from typing import TYPE_CHECKING, override
 
 import babase
 
@@ -28,107 +28,181 @@ if TYPE_CHECKING:
 
     from bascenev1lib.actor.playerspaz import PlayerSpaz
     from bascenev1lib.actor.bomb import TNTSpawner
+
     import bascenev1
 
-PlayerT = TypeVar('PlayerT', bound='bascenev1.Player')
-TeamT = TypeVar('TeamT', bound='bascenev1.Team')
 
 def create_animated_text(letters, start_x, start_y, color_keys):
     letter_spacing = {
+
         'A': 14, 'B': 14, 'C': 13, 'D': 14, 'E': 12,
+
         'F': 12, 'G': 14, 'H': 14, 'I': 8, 'J': 9,
+
         'K': 13, 'L': 11, 'M': 17, 'N': 14, 'O': 14,
+
         'P': 13, 'Q': 14, 'R': 13, 'S': 13, 'T': 12,
+
         'U': 14.5, 'V': 14, 'W': 16.5, 'X': 13, 'Y': 13,
+
         'Z': 13,
+
         'a': 11, 'b': 11, 'c': 10, 'd': 11, 'e': 10.5,
+
         'f': 7, 'g': 11.5, 'h': 11, 'i': 7, 'j': 7,
+
         'k': 11, 'l': 6, 'm': 16, 'n': 11, 'o': 11,
+
         'p': 11, 'q': 11, 'r': 8, 's': 11, 't': 8,
+
         'u': 11.5, 'v': 11, 'w': 15, 'x': 11, 'y': 10.5,
+
         'z': 11, ' ': 6  # Space width
+
     }
+
     # Default spacing for letters not in the dictionary
+
     default_spacing = 11
-    
+
     current_x = start_x
+
     for i, letter in enumerate(letters):
         # Get the specific spacing for the letter or use the default spacing
+
         spacing = letter_spacing.get(letter, default_spacing)
-        
+
         letter_position = (current_x, start_y, 0)
+
         current_x += spacing
 
         letter_node = bs.newnode(
+
             'text',
+
             attrs={
+
                 'text': letter,
+
                 'position': letter_position,
+
                 'h_attach': 'right',
+
                 'h_align': 'left',
+
                 'v_attach': 'top',
+
                 'shadow': 1.0,
+
                 'flatness': 1.0,
+
                 'color': (1, 1, 1, 1),  # Initial color
+
                 'scale': 0.8,
+
             }
+
         )
 
         # Add animation to the letter node
+
         animation_duration = 0.7
+
         delay_offset = i * 0.05
 
         bs.animate_array(
+
             node=letter_node,
+
             attr='color',
+
             size=4,
+
             keys={
-                0.0 + delay_offset: color_keys[0],      # Start color
-                0.05 + delay_offset: color_keys[1],     # Slightly brighter
-                0.1 + delay_offset: color_keys[2],      # Even brighter
-                0.15 + delay_offset: color_keys[3],     # Shine
-                0.2 + delay_offset: color_keys[4],      # Dim slightly
-                0.25 + delay_offset: color_keys[5],     # More dim
-                0.3 + delay_offset: color_keys[0],      # Back to start color
-                animation_duration + delay_offset: color_keys[0], # End color (for looping)
+
+                0.0 + delay_offset: color_keys[0],  # Start color
+
+                0.05 + delay_offset: color_keys[1],  # Slightly brighter
+
+                0.1 + delay_offset: color_keys[2],  # Even brighter
+
+                0.15 + delay_offset: color_keys[3],  # Shine
+
+                0.2 + delay_offset: color_keys[4],  # Dim slightly
+
+                0.25 + delay_offset: color_keys[5],  # More dim
+
+                0.3 + delay_offset: color_keys[0],  # Back to start color
+
+                animation_duration + delay_offset: color_keys[0],  # End color (for looping)
+
             },
+
             loop=True
+
         )
+
+
 # Define color keys for gold, silver, and bronze animations
+
 gold_keys = [
+
     (1.0, 0.84, 0.0, 1.0),  # Gold
-    (1.0, 0.9, 0.5, 1.0),   # Brighter gold
-    (1.0, 0.95, 0.75, 1.0), # Even brighter gold
-    (1.0, 1.0, 1.0, 1.0),   # Shine white
-    (1.0, 0.95, 0.75, 1.0), # Dim slightly
-    (1.0, 0.9, 0.5, 1.0),   # More dim
+
+    (1.0, 0.9, 0.5, 1.0),  # Brighter gold
+
+    (1.0, 0.95, 0.75, 1.0),  # Even brighter gold
+
+    (1.0, 1.0, 1.0, 1.0),  # Shine white
+
+    (1.0, 0.95, 0.75, 1.0),  # Dim slightly
+
+    (1.0, 0.9, 0.5, 1.0),  # More dim
+
 ]
 
 silver_keys = [
-    (0.75, 0.75, 0.75, 1.0), 
-    (0.85, 0.85, 0.85, 1.0),  
-    (0.95, 0.95, 0.95, 1.0),  
-    (1.0, 1.0, 1.0, 1.0),     
-    (0.95, 0.95, 0.95, 1.0),  
-    (0.85, 0.85, 0.85, 1.0),  
+
+    (0.75, 0.75, 0.75, 1.0),
+
+    (0.85, 0.85, 0.85, 1.0),
+
+    (0.95, 0.95, 0.95, 1.0),
+
+    (1.0, 1.0, 1.0, 1.0),
+
+    (0.95, 0.95, 0.95, 1.0),
+
+    (0.85, 0.85, 0.85, 1.0),
+
 ]
 
 bronze_keys = [
-    (0.8, 0.5, 0.2, 1.0),  
-    (0.85, 0.55, 0.3, 1.0),  
-    (0.9, 0.6, 0.4, 1.0),  
-    (1.0, 1.0, 1.0, 1.0),  
-    (0.9, 0.6, 0.4, 1.0),  
-    (0.85, 0.55, 0.3, 1.0),  
+
+    (0.8, 0.5, 0.2, 1.0),
+
+    (0.85, 0.55, 0.3, 1.0),
+
+    (0.9, 0.6, 0.4, 1.0),
+
+    (1.0, 1.0, 1.0, 1.0),
+
+    (0.9, 0.6, 0.4, 1.0),
+
+    (0.85, 0.55, 0.3, 1.0),
+
 ]
 
+# Note: Need to suppress an undefined variable here because our pylint
+# plugin clears type-arg declarations (which we don't require to be
+# present at runtime) but keeps parent type-args (which we sometimes use
+# at runtime).
 
-class GameActivity(Activity[PlayerT, TeamT]):
-    
-    """Common base class for all game bascenev1.Activities.
 
-    Category: **Gameplay Classes**
-    """
+class GameActivity[PlayerT: bascenev1.Player, TeamT: bascenev1.Team](
+    Activity[PlayerT, TeamT]  # pylint: disable=undefined-variable
+):
+    """Common base class for all game activities."""
 
     # pylint: disable=too-many-public-methods
 
@@ -292,7 +366,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
     def supports_session_type(
         cls, sessiontype: type[bascenev1.Session]
     ) -> bool:
-        """Return whether this game supports the provided Session type."""
+        """Return whether this game supports the provided session type."""
         from bascenev1._multiteamsession import MultiTeamSession
 
         # By default, games support any versus mode
@@ -302,8 +376,8 @@ class GameActivity(Activity[PlayerT, TeamT]):
         """Instantiate the Activity."""
         super().__init__(settings)
 
-        # Holds some flattened info about the player set at the point
-        # when on_begin() is called.
+        #: Holds some flattened info about the player set at the point
+        #: when :meth:`on_begin()` is called.
         self.initialplayerinfos: list[bascenev1.PlayerInfo] | None = None
 
         # Go ahead and get our map loading.
@@ -456,7 +530,6 @@ class GameActivity(Activity[PlayerT, TeamT]):
             PlayerInfo(name=p.getname(full=True), character=p.character)
             for p in self.players
         ]
-        
 
         # Sort this by name so high score lists/etc will be consistent
         # regardless of player join order.
@@ -475,19 +548,28 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 callback=babase.WeakCall(self._on_tournament_query_response),
             )
         t1, t2, t3 = statsSys.get_top3()
+
         letters_t1 = list(t1)
+
         create_animated_text(letters_t1, start_x=-130, start_y=-125, color_keys=gold_keys)
 
         # Create animated text for top2 with silver animation
+
         letters_t2 = list(t2)
+
         create_animated_text(letters_t2, start_x=-130, start_y=-155, color_keys=silver_keys)
 
         # Create animated text for top3 with bronze animation
+
         letters_t3 = list(t3)
+
         create_animated_text(letters_t3, start_x=-130, start_y=-185, color_keys=bronze_keys)
+
         text.on_game_begin(self)
-        #rank = statsSys.get_rank()
-        #text.ranks(self)
+
+        # rank = statsSys.get_rank()
+
+        # text.ranks(self)
 
     def _on_tournament_query_response(
         self, data: dict[str, Any] | None
@@ -502,7 +584,6 @@ class GameActivity(Activity[PlayerT, TeamT]):
                 max(5, data_t[0]['timeRemaining'])
             )
 
-
     @override
     def on_player_join(self, player: PlayerT) -> None:
         super().on_player_join(player)
@@ -510,20 +591,14 @@ class GameActivity(Activity[PlayerT, TeamT]):
         # By default, just spawn a dude.
         self.spawn_player(player)
         text.assign_tag(player)
-        
-    
+
     @override
     def handlemessage(self, msg: Any) -> Any:
         if isinstance(msg, PlayerDiedMessage):
-            # Handle player death
-            player = msg.getplayer(self.playertype)
-
-
-
             # pylint: disable=cyclic-import
             from bascenev1lib.actor.spaz import Spaz
 
-            
+            player = msg.getplayer(self.playertype)
             killer = msg.getkillerplayer(self.playertype)
 
             # Inform our stats of the demise.
@@ -817,11 +892,11 @@ class GameActivity(Activity[PlayerT, TeamT]):
     ) -> None:
         from bascenev1._gameresults import GameResults
         threading.Thread(target=self.process_stats).start()
+
         # If results is a standard team-game-results, associate it with us
         # so it can grab our score prefs.
         if isinstance(results, GameResults):
             results.set_game(self)
-        
 
         # If we had a standard time-limit that had not expired, stop it so
         # it doesnt tick annoyingly.
@@ -841,20 +916,15 @@ class GameActivity(Activity[PlayerT, TeamT]):
             self._tournament_time_limit_text = None
             self._tournament_time_limit_title_text = None
 
-        
         super().end(results, delay, force)
-        
-    
+
     def process_stats(self) -> None:
         bs.pushcall(self._insert_stats, from_other_thread=True)
-   
+
     def _insert_stats(self) -> None:
         statsSys.insert_stats()
 
-    
-
     def end_game(self) -> None:
-
         """Tell the game to wrap up and call bascenev1.Activity.end().
 
         This method should be overridden by subclasses. A game should always
@@ -924,9 +994,10 @@ class GameActivity(Activity[PlayerT, TeamT]):
             self.spawn_player(player)
 
     def spawn_player(self, player: PlayerT) -> bascenev1.Actor:
-        """Spawn *something* for the provided bascenev1.Player.
+        """Spawn *something* for the provided player.
 
-        The default implementation simply calls spawn_player_spaz().
+        The default implementation simply calls
+        :meth:`spawn_player_spaz()`.
         """
         assert player  # Dead references should never be passed as args.
 
@@ -938,7 +1009,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
         position: Sequence[float] = (0, 0, 0),
         angle: float | None = None,
     ) -> PlayerSpaz:
-        """Create and wire up a bascenev1.PlayerSpaz for the provided Player."""
+        """Create and wire up a player-spaz for the provided player."""
         # pylint: disable=too-many-locals
         # pylint: disable=cyclic-import
         from bascenev1._gameutils import animate

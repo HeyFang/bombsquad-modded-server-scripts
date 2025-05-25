@@ -16,14 +16,17 @@ import logging
 # other modules; the goal is to let most simple mods rely solely on this
 # module to keep things simple.
 
-from efro.util import set_canonical_module_names
+# from efro.util import set_canonical_module_names
 from babase import (
+    ActivityNotFoundError,
     add_clean_frame_callback,
     app,
+    App,
     AppIntent,
     AppIntentDefault,
     AppIntentExec,
     AppMode,
+    AppState,
     apptime,
     AppTime,
     apptimer,
@@ -52,6 +55,8 @@ from babase import (
     safecolor,
     screenmessage,
     set_analytics_screen,
+    SessionNotFoundError,
+    SessionTeamNotFoundError,
     storagename,
     timestring,
     UIScale,
@@ -164,7 +169,7 @@ from bascenev1._dependency import (
 from bascenev1._dualteamsession import DualTeamSession
 from bascenev1._freeforallsession import FreeForAllSession
 from bascenev1._gameactivity import GameActivity
-from bascenev1._gameresults import GameResults
+from bascenev1._gameresults import GameResults, WinnerGroup
 from bascenev1._gameutils import (
     animate,
     animate_array,
@@ -176,7 +181,7 @@ from bascenev1._gameutils import (
     Time,
 )
 from bascenev1._level import Level
-from bascenev1._lobby import Lobby, Chooser
+from bascenev1._lobby import Lobby, Chooser, JoinInfo
 from bascenev1._map import (
     get_filtered_map_name,
     get_map_class,
@@ -246,15 +251,18 @@ from bascenev1._teamgame import TeamGameActivity
 __all__ = [
     'Activity',
     'ActivityData',
+    'ActivityNotFoundError',
     'Actor',
     'animate',
     'animate_array',
     'add_clean_frame_callback',
     'app',
+    'App',
     'AppIntent',
     'AppIntentDefault',
     'AppIntentExec',
     'AppMode',
+    'AppState',
     'AppTime',
     'apptime',
     'apptimer',
@@ -365,6 +373,7 @@ __all__ = [
     'is_point_in_box',
     'is_replay_paused',
     'JoinActivity',
+    'JoinInfo',
     'Level',
     'Lobby',
     'lock_all_input',
@@ -414,6 +423,8 @@ __all__ = [
     'ScoreConfig',
     'ScoreScreenActivity',
     'ScoreType',
+    'SessionNotFoundError',
+    'SessionTeamNotFoundError',
     'broadcastmessage',
     'Session',
     'SessionData',
@@ -462,11 +473,14 @@ __all__ = [
     'unlock_all_input',
     'Vec3',
     'WeakCall',
+    'WinnerGroup',
 ]
 
 # We want stuff here to show up as bascenev1.Foo instead of
 # bascenev1._submodule.Foo.
-set_canonical_module_names(globals())
+# UPDATE: Trying without this for now. Seems like this might cause more
+# harm than good. Can flip it back on if it is missed.
+# set_canonical_module_names(globals())
 
 # Sanity check: we want to keep ballistica's dependencies and
 # bootstrapping order clearly defined; let's check a few particular

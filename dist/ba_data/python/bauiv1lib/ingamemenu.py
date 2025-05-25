@@ -48,12 +48,7 @@ class InGameMenuWindow(bui.MainWindow):
 
     @override
     def get_main_window_state(self) -> bui.MainWindowState:
-        # Support recreating our window for back/refresh purposes.
-        return self.do_get_main_window_state()
-
-    @classmethod
-    def do_get_main_window_state(cls) -> bui.MainWindowState:
-        """Classmethod to gen a windowstate for the main menu."""
+        cls = type(self)
         return bui.BasicMainWindowState(
             create_call=lambda transition, origin_widget: cls(
                 transition=transition, origin_widget=origin_widget
@@ -346,13 +341,12 @@ class InGameMenuWindow(bui.MainWindow):
         h_offset = 0
         d_h_offset = 0
         v_offset = -50
+
         for _i in range(6 + len(custom_menu_entries)):
             positions.append((h, v, 1.0))
             v += v_offset
             h += h_offset
             h_offset += d_h_offset
-        # self._play_button = None
-        bui.app.classic.pause()
 
         # Player name if applicable.
         if self._input_player:

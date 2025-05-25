@@ -19,7 +19,7 @@ P = ParamSpec('P')
 logger = logging.getLogger(__name__)
 
 
-class ThreadPoolExecutorPlus(ThreadPoolExecutor):
+class ThreadPoolExecutorEx(ThreadPoolExecutor):
     """A ThreadPoolExecutor with additional functionality added."""
 
     def __init__(
@@ -39,7 +39,7 @@ class ThreadPoolExecutorPlus(ThreadPoolExecutor):
         self._max_no_wait_count = (
             max_no_wait_count
             if max_no_wait_count is not None
-            else 50 if max_workers is None else max_workers * 4
+            else 50 if max_workers is None else max_workers * 2
         )
         self._last_no_wait_warn_time: float | None = None
         self._no_wait_count_lock = threading.Lock()
@@ -65,7 +65,7 @@ class ThreadPoolExecutorPlus(ThreadPoolExecutor):
                 or now - self._last_no_wait_warn_time > 10.0
             ):
                 logger.warning(
-                    'ThreadPoolExecutorPlus hit max no-wait limit of %s;'
+                    'ThreadPoolExecutorEx hit max no-wait limit of %s;'
                     ' blocking.',
                     self._max_no_wait_count,
                 )

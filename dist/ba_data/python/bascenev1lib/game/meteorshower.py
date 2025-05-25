@@ -107,6 +107,8 @@ class MeteorShowerGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def on_player_leave(self, player: Player) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         # Augment default behavior.
         super().on_player_leave(player)
 
@@ -116,6 +118,8 @@ class MeteorShowerGame(bs.TeamGameActivity[Player, Team]):
     # overriding the default character spawning..
     @override
     def spawn_player(self, player: Player) -> bs.Actor:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         spaz = self.spawn_player_spaz(player)
 
         # Let's reconnect this player's controls to this
@@ -131,13 +135,12 @@ class MeteorShowerGame(bs.TeamGameActivity[Player, Team]):
     # Various high-level game events come through this method.
     @override
     def handlemessage(self, msg: Any) -> Any:
+        """Handle a message."""
         if isinstance(msg, bs.PlayerDiedMessage):
             # Augment standard behavior.
             super().handlemessage(msg)
 
             curtime = bs.time()
-            
-            
 
             # Record the player's moment of death.
             # assert isinstance(msg.spaz.player
@@ -146,17 +149,15 @@ class MeteorShowerGame(bs.TeamGameActivity[Player, Team]):
             player = msg.getplayer(Player)
             try:
                 # Cleanup tag_node and rank_node if they exist
-                if player.tag_node is not None:
-                    #print(f"Cleaning up tag_node for player {player.getname()}")
+                if player.rank_node is not None:
+                    # print(f"Cleaning up tag_node for player {player.getname()}")
+                    player.rank_node.cleanup()
                     player.tag_node.cleanup()
                     player.tag_node = None
-                if player.rank_node is not None:
-                    #print(f"Cleaning up rank_node for player {player.getname()}")
-                    player.rank_node.cleanup()
                     player.rank_node = None
+
             except Exception as e:
                 print(f"Error while removing tag_node or rank_node for player {player.getname()}: {e}")
-
 
             # In co-op mode, end the game the instant everyone dies
             # (more accurate looking).
@@ -238,16 +239,16 @@ class MeteorShowerGame(bs.TeamGameActivity[Player, Team]):
         bomb_types = ["land_mine", "normal", "sticky", "ice", "impact"]
         random_bomb_type = random.choice(bomb_types)
         bomb = Bomb(position=position, bomb_type=random_bomb_type, velocity=velocity).autoretain()
-        
+
         # Only arm land_mine or impact bombs
         if random_bomb_type in ["land_mine", "impact"]:
             bomb.arm()
-
     def _decrement_meteor_time(self) -> None:
         self._meteor_time = max(0.01, self._meteor_time * 0.9)
 
     @override
     def end_game(self) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
         cur_time = bs.time()
         assert self._timer is not None
         start_time = self._timer.getstarttime()

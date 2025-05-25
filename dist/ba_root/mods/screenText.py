@@ -7,7 +7,7 @@ import random
 import statsSys as st
 import time
 
-
+print("✅ Screentext loaded")
 # initialize the TinyDB database
 db_path = os.path.join(os.getcwd(), 'ba_root/mods/db.json')
 db = TinyDB(db_path)
@@ -228,7 +228,7 @@ def _process_tag_text(tag_text, special_chars):
     }
     for placeholder, replacement in replacements.items():
         tag_text = tag_text.replace(placeholder, replacement)
-    return tag_text[:8] + "..." if len(tag_text) > 10 else tag_text
+    return tag_text[:10] if len(tag_text) > 11 else tag_text
 
 def _get_rank_text_and_color(rank, special_chars):
     """Get the rank text and color based on the player's rank."""

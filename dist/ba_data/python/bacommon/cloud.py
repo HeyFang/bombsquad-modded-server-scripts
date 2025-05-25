@@ -3,12 +3,14 @@
 """Functionality related to cloud functionality."""
 
 from __future__ import annotations
+
+from enum import Enum
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Annotated, override
-from enum import Enum
 
 from efro.message import Message, Response
 from efro.dataclassio import ioprepped, IOAttrs
+from bacommon.securedata import SecureDataChecker
 from bacommon.transfer import DirectoryManifest
 from bacommon.login import LoginType
 
@@ -303,55 +305,41 @@ class StoreQueryResponse(Response):
 
 @ioprepped
 @dataclass
-class BSPrivatePartyMessage(Message):
-    """Message asking about info we need for private-party UI."""
+class SecureDataCheckMessage(Message):
+    """Was this data signed by the master-server?."""
 
-    need_datacode: Annotated[bool, IOAttrs('d')]
+    data: Annotated[bytes, IOAttrs('d')]
+    signature: Annotated[bytes, IOAttrs('s')]
 
     @override
     @classmethod
     def get_response_types(cls) -> list[type[Response] | None]:
-        return [BSPrivatePartyResponse]
+        return [SecureDataCheckResponse]
 
 
 @ioprepped
 @dataclass
-class BSPrivatePartyResponse(Response):
-    """Here's that private party UI info you asked for, boss."""
+class SecureDataCheckResponse(Response):
+    """Here's the result of that data check, boss."""
 
-    success: Annotated[bool, IOAttrs('s')]
-    tokens: Annotated[int, IOAttrs('t')]
-    gold_pass: Annotated[bool, IOAttrs('g')]
-    datacode: Annotated[str | None, IOAttrs('d')]
+    # Whether the data signature was valid.
+    result: Annotated[bool, IOAttrs('v')]
 
 
 @ioprepped
 @dataclass
-class ClassicAccountLiveData:
-    """Account related data kept up to date live for classic app mode."""
+class SecureDataCheckerRequest(Message):
+    """Can I get a checker over here?."""
 
-    class LeagueType(Enum):
-        """Type of league we are in."""
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [SecureDataCheckerResponse]
 
-        BRONZE = 'b'
-        SILVER = 's'
-        GOLD = 'g'
-        DIAMOND = 'd'
 
-    tickets: Annotated[int, IOAttrs('ti')]
+@ioprepped
+@dataclass
+class SecureDataCheckerResponse(Response):
+    """Here's that checker ya asked for, boss."""
 
-    tokens: Annotated[int, IOAttrs('to')]
-    gold_pass: Annotated[bool, IOAttrs('g')]
-
-    achievements: Annotated[int, IOAttrs('a')]
-    achievements_total: Annotated[int, IOAttrs('at')]
-
-    league_type: Annotated[LeagueType | None, IOAttrs('lt')]
-    league_num: Annotated[int | None, IOAttrs('ln')]
-    league_rank: Annotated[int | None, IOAttrs('lr')]
-
-    level: Annotated[int, IOAttrs('lv')]
-    xp: Annotated[int, IOAttrs('xp')]
-    xpmax: Annotated[int, IOAttrs('xpm')]
-
-    inbox_count: Annotated[int, IOAttrs('ibc')]
+    checker: Annotated[SecureDataChecker, IOAttrs('c')]

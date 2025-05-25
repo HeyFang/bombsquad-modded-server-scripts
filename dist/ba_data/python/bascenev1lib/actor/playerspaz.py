@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, overload, override
+from typing import TYPE_CHECKING, overload, override
 
 import bascenev1 as bs
 
@@ -13,14 +13,9 @@ from bascenev1lib.actor.spaz import Spaz
 if TYPE_CHECKING:
     from typing import Any, Sequence, Literal
 
-PlayerT = TypeVar('PlayerT', bound=bs.Player)
-
 
 class PlayerSpazHurtMessage:
-    """A message saying a PlayerSpaz was hurt.
-
-    Category: **Message Classes**
-    """
+    """A message saying a PlayerSpaz was hurt."""
 
     spaz: PlayerSpaz
     """The PlayerSpaz that was hurt"""
@@ -32,8 +27,6 @@ class PlayerSpazHurtMessage:
 
 class PlayerSpaz(Spaz):
     """A Spaz subclass meant to be controlled by a bascenev1.Player.
-
-    Category: **Gameplay Classes**
 
     When a PlayerSpaz dies, it delivers a bascenev1.PlayerDiedMessage
     to the current bascenev1.Activity. (unless the death was the result
@@ -80,19 +73,22 @@ class PlayerSpaz(Spaz):
         self._drive_player_position()
         activity = bs.getactivity()
         if activity.__class__.__name__ == 'DeathMatchGame' and getattr(activity, 'name', '') == 'Boxing!!!':
-            self.node.handlemessage(bs.PowerupMessage(poweruptype='punch'))    # Overloads to tell the type system our return type based on doraise val.
+            self.node.handlemessage(bs.PowerupMessage(
+                poweruptype='punch'))  # Overloads to tell the type system our return type based on doraise val.
+
+    # Overloads to tell the type system our return type based on doraise val.
 
     @overload
-    def getplayer(
+    def getplayer[PlayerT: bs.Player](
         self, playertype: type[PlayerT], doraise: Literal[False] = False
     ) -> PlayerT | None: ...
 
     @overload
-    def getplayer(
+    def getplayer[PlayerT: bs.Player](
         self, playertype: type[PlayerT], doraise: Literal[True]
     ) -> PlayerT: ...
 
-    def getplayer(
+    def getplayer[PlayerT: bs.Player](
         self, playertype: type[PlayerT], doraise: bool = False
     ) -> PlayerT | None:
         """Get the bascenev1.Player associated with this Spaz.
@@ -125,8 +121,8 @@ class PlayerSpaz(Spaz):
         """
         activity = bs.getactivity()
         if activity.__class__.__name__ == 'DeathMatchGame' and getattr(activity, 'name', '') == 'Boxing!!!':
-            enable_bomb = True #False to disable bombs in boxing
-            
+            enable_bomb = True  # False to disable bombs in boxing
+
         player = self.getplayer(bs.Player)
         assert player
 
@@ -149,7 +145,6 @@ class PlayerSpaz(Spaz):
             self.on_hold_position_release,
         )
         intp = bs.InputType
-        
         if enable_jump:
             player.assigninput(intp.JUMP_PRESS, self.on_jump_press)
             player.assigninput(intp.JUMP_RELEASE, self.on_jump_release)
@@ -168,7 +163,6 @@ class PlayerSpaz(Spaz):
             player.assigninput(intp.FLY_PRESS, self.on_fly_press)
             player.assigninput(intp.FLY_RELEASE, self.on_fly_release)
 
-        
         self._connected_to_player = player
 
     def disconnect_controls_from_player(self) -> None:

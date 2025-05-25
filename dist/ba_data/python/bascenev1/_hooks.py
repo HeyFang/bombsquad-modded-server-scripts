@@ -41,15 +41,15 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     Should filter and return the string to be displayed, or return None
     to ignore the message.
     """
-
     try:
-        from fetchChat import filter_chat_message as fc
+        import fetchChat as fc
     except ImportError:
         print("Module fetchChat.filter_chat_message not found")
         return None
 
     # Use the imported function
-    return fc(msg, client_id)
+    return fc.filter_chat_message(msg, client_id)
+
 
 def local_chat_message(msg: str) -> None:
     classic = babase.app.classic

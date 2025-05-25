@@ -13,7 +13,12 @@ if TYPE_CHECKING:
 @dataclass
 class HostInfo:
     """Info about a host."""
-    build_number: int = 1232  # Non-default argument comes first
-    name: str = "fangfingfong"  # Default argument comes after
-    address: str | None = None  # Default argument
-    port: int | None = None  # Default argument
+
+    name: str
+    build_number: int
+
+    # Note this can be None for non-ip hosts such as bluetooth.
+    address: str | None
+
+    # Note this can be None for non-ip hosts such as bluetooth.
+    port: int | None

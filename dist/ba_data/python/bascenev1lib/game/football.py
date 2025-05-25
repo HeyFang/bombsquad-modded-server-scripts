@@ -2,6 +2,8 @@
 #
 """Implements football games (both co-op and teams varieties)."""
 
+# pylint: disable=too-many-lines
+
 # ba_meta require api 9
 # (see https://ballistica.net/wiki/meta-tag-system)
 
@@ -138,6 +140,8 @@ class FootballTeamGame(bs.TeamGameActivity[Player, Team]):
     @override
     @classmethod
     def get_supported_maps(cls, sessiontype: type[bs.Session]) -> list[str]:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         assert bs.app.classic is not None
         return bs.app.classic.getmaps('football')
 
@@ -175,6 +179,8 @@ class FootballTeamGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def get_instance_description(self) -> str | Sequence:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         touchdowns = self._score_to_win / 7
 
         # NOTE: if use just touchdowns = self._score_to_win // 7
@@ -187,6 +193,8 @@ class FootballTeamGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def get_instance_description_short(self) -> str | Sequence:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         touchdowns = self._score_to_win / 7
         touchdowns = math.ceil(touchdowns)
         if touchdowns > 1:
@@ -232,6 +240,8 @@ class FootballTeamGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def on_team_join(self, team: Team) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         self._update_scoreboard()
 
     def _kill_flag(self) -> None:
@@ -294,6 +304,8 @@ class FootballTeamGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def end_game(self) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         results = bs.GameResults()
         for team in self.teams:
             results.set_team_score(team, team.score)
@@ -308,6 +320,8 @@ class FootballTeamGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def handlemessage(self, msg: Any) -> Any:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         if isinstance(msg, FlagPickedUpMessage):
             assert isinstance(msg.flag, FootballFlag)
             try:
@@ -331,7 +345,10 @@ class FootballTeamGame(bs.TeamGameActivity[Player, Team]):
         # Respawn dead flags.
         elif isinstance(msg, FlagDiedMessage):
             if not self.has_ended():
-                self._flag_respawn_timer = bs.Timer(3.0, self._spawn_flag)
+                if msg.self_kill:
+                    self._spawn_flag()
+                else:
+                    self._flag_respawn_timer = bs.Timer(3.0, self._spawn_flag)
                 self._flag_respawn_light = bs.NodeActor(
                     bs.newnode(
                         'light',
@@ -394,6 +411,8 @@ class FootballCoopGame(bs.CoopGameActivity[Player, Team]):
 
     @override
     def get_instance_description(self) -> str | Sequence:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         touchdowns = self._score_to_win / 7
         touchdowns = math.ceil(touchdowns)
         if touchdowns > 1:
@@ -402,6 +421,8 @@ class FootballCoopGame(bs.CoopGameActivity[Player, Team]):
 
     @override
     def get_instance_description_short(self) -> str | Sequence:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         touchdowns = self._score_to_win / 7
         touchdowns = math.ceil(touchdowns)
         if touchdowns > 1:
@@ -458,6 +479,8 @@ class FootballCoopGame(bs.CoopGameActivity[Player, Team]):
 
     @override
     def on_transition_in(self) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         super().on_transition_in()
         self._scoreboard = Scoreboard()
         self._flag_spawn_pos = self.map.get_flag_position(None)
@@ -806,6 +829,8 @@ class FootballCoopGame(bs.CoopGameActivity[Player, Team]):
 
     @override
     def end_game(self) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         bs.setmusic(None)
         self._bots.final_celebrate()
         bs.timer(0.001, bs.Call(self.do_end, 'defeat'))
@@ -879,8 +904,7 @@ class FootballCoopGame(bs.CoopGameActivity[Player, Team]):
                         )
                         self._time_text_input.node.timemax = self._final_time_ms
 
-                        # FIXME: Does this still need to be deferred?
-                        bs.pushcall(bs.Call(self.do_end, 'victory'))
+                        self.do_end('victory')
 
     def do_end(self, outcome: str) -> None:
         """End the game with the specified outcome."""
@@ -931,7 +955,10 @@ class FootballCoopGame(bs.CoopGameActivity[Player, Team]):
         # Respawn dead flags.
         elif isinstance(msg, FlagDiedMessage):
             assert isinstance(msg.flag, FootballFlag)
-            msg.flag.respawn_timer = bs.Timer(3.0, self._spawn_flag)
+            if msg.self_kill:
+                self._spawn_flag()
+            else:
+                msg.flag.respawn_timer = bs.Timer(3.0, self._spawn_flag)
             self._flag_respawn_light = bs.NodeActor(
                 bs.newnode(
                     'light',
@@ -948,7 +975,7 @@ class FootballCoopGame(bs.CoopGameActivity[Player, Team]):
                 self._flag_respawn_light.node,
                 'intensity',
                 {0: 0, 0.25: 0.15, 0.5: 0},
-                loop=True,
+                loop=(not msg.self_kill),
             )
             bs.timer(3.0, self._flag_respawn_light.node.delete)
         else:
@@ -965,6 +992,8 @@ class FootballCoopGame(bs.CoopGameActivity[Player, Team]):
 
     @override
     def spawn_player(self, player: Player) -> bs.Actor:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         spaz = self.spawn_player_spaz(
             player, position=self.map.get_start_position(player.team.id)
         )

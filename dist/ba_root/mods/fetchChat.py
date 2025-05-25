@@ -4,7 +4,7 @@ import os
 import admin_commands as ac
 import user_commands as uc
 import roles as rl
-
+print("✅ fetchchat loaded")
 admin_commands = {
     "kick": ac.kick,
     "hi": ac.hello,
@@ -55,7 +55,7 @@ def get_role(pbid: str) -> str:
 
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
-    #print(msg, client_id)
+    print(msg, client_id)
 
     # Block messages from banned and muted players
     ros = bs.get_game_roster()

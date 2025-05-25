@@ -1,29 +1,21 @@
 # Released under the MIT License. See LICENSE for details.
 #
+# pylint: disable=too-many-lines
 """Small handy bits of functionality."""
 
 from __future__ import annotations
 
 import os
 import time
+import random
 import weakref
 import functools
 import datetime
-from enum import Enum
-from typing import TYPE_CHECKING, cast, TypeVar, Generic, overload, ParamSpec
+from typing import TYPE_CHECKING, cast, overload
 
 if TYPE_CHECKING:
     import asyncio
-    from typing import Any, Callable, Literal
-
-T = TypeVar('T')
-ValT = TypeVar('ValT')
-ArgT = TypeVar('ArgT')
-SelfT = TypeVar('SelfT')
-RetT = TypeVar('RetT')
-EnumT = TypeVar('EnumT', bound=Enum)
-
-P = ParamSpec('P')
+    from typing import Any, Callable, Literal, Sequence
 
 
 class _EmptyObj:
@@ -43,7 +35,7 @@ assert _g_empty_weak_ref() is None
 # efficient than wrapping partial anyway (should test this).
 if TYPE_CHECKING:
 
-    def strict_partial(
+    def strict_partial[T, **P](
         func: Callable[P, T], *args: P.args, **kwargs: P.kwargs
     ) -> Callable[[], T]:
         """A version of functools.partial requiring all args to be passed.
@@ -60,7 +52,9 @@ if TYPE_CHECKING:
         Nov 2024 it seems that Mypy does not support this; it in fact
         allows partials to be passed for any callable signature(!).
         """
-        ...
+        del func  # Unused.
+        del args  # Unused.
+        del kwargs  # Unused.
 
 else:
     strict_partial = functools.partial
@@ -75,8 +69,6 @@ def explicit_bool(val: bool) -> bool:
     # pylint: disable=no-else-return
     if TYPE_CHECKING:
         # infer this! <boom>
-        import random
-
         return random.random() < 0.5
     else:
         return val
@@ -106,9 +98,9 @@ def check_utc(value: datetime.datetime) -> None:
 def utc_now() -> datetime.datetime:
     """Get timezone-aware current utc time.
 
-    Just a shortcut for datetime.datetime.now(datetime.UTC).
-    Avoid datetime.datetime.utcnow() which is deprecated and gives naive
-    times.
+    Simply a shortcut for ``datetime.datetime.now(datetime.UTC)``. One
+    should avoid :meth:`datetime.datetime.utcnow()` which is deprecated
+    and gives naive times.
     """
     return datetime.datetime.now(datetime.UTC)
 
@@ -116,11 +108,25 @@ def utc_now() -> datetime.datetime:
 def utc_now_naive() -> datetime.datetime:
     """Get naive utc time.
 
-    This can be used to replace datetime.utcnow(), which is now deprecated.
-    Most all code should migrate to use timezone-aware times instead of
-    this.
+    This can be used to replace :meth:`datetime.datetime.utcnow()`,
+    which is now deprecated. Most all code should migrate to use
+    timezone-aware times instead of relying on this.
     """
     return datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+
+
+def utc_from_timestamp_naive(timestamp: float) -> datetime.datetime:
+    """Get a naive utc time from a timestamp.
+
+    This can be used to replace
+    :meth:`datetime.datetime.utcfromtimestamp()`, which is now
+    deprecated. Most all code should migrate to use timezone-aware times
+    instead of relying on this.
+    """
+
+    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC).replace(
+        tzinfo=None
+    )
 
 
 def utc_today() -> datetime.datetime:
@@ -156,7 +162,7 @@ def utc_this_minute() -> datetime.datetime:
     )
 
 
-def empty_weakref(objtype: type[T]) -> weakref.ref[T]:
+def empty_weakref[T](objtype: type[T]) -> weakref.ref[T]:
     """Return an invalidated weak-reference for the specified type."""
     # At runtime, all weakrefs are the same; our type arg is just
     # for the static type checker.
@@ -315,7 +321,7 @@ class DirtyBit:
         return False
 
 
-class DispatchMethodWrapper(Generic[ArgT, RetT]):
+class DispatchMethodWrapper[ArgT, RetT]():
     """Type-aware standin for the dispatch func returned by dispatchmethod."""
 
     def __call__(self, arg: ArgT) -> RetT:
@@ -323,7 +329,7 @@ class DispatchMethodWrapper(Generic[ArgT, RetT]):
 
     @staticmethod
     def register(
-        func: Callable[[Any, Any], RetT]
+        func: Callable[[Any, Any], RetT],
     ) -> Callable[[Any, Any], RetT]:
         """Register a new dispatch handler for this dispatch-method."""
         raise RuntimeError('Should not get here')
@@ -332,8 +338,8 @@ class DispatchMethodWrapper(Generic[ArgT, RetT]):
 
 
 # noinspection PyProtectedMember,PyTypeHints
-def dispatchmethod(
-    func: Callable[[Any, ArgT], RetT]
+def dispatchmethod[ArgT, RetT](
+    func: Callable[[Any, ArgT], RetT],
 ) -> DispatchMethodWrapper[ArgT, RetT]:
     """A variation of functools.singledispatch for methods.
 
@@ -375,7 +381,9 @@ def dispatchmethod(
     return cast(DispatchMethodWrapper, wrapper)
 
 
-def valuedispatch(call: Callable[[ValT], RetT]) -> ValueDispatcher[ValT, RetT]:
+def valuedispatch[ValT, RetT](
+    call: Callable[[ValT], RetT],
+) -> ValueDispatcher[ValT, RetT]:
     """Decorator for functions to allow dispatching based on a value.
 
     This differs from functools.singledispatch in that it dispatches based
@@ -386,7 +394,7 @@ def valuedispatch(call: Callable[[ValT], RetT]) -> ValueDispatcher[ValT, RetT]:
     return ValueDispatcher(call)
 
 
-class ValueDispatcher(Generic[ValT, RetT]):
+class ValueDispatcher[ValT, RetT]:
     """Used by the valuedispatch decorator"""
 
     def __init__(self, call: Callable[[ValT], RetT]) -> None:
@@ -416,14 +424,14 @@ class ValueDispatcher(Generic[ValT, RetT]):
         return partial(self._add_handler, value)
 
 
-def valuedispatch1arg(
-    call: Callable[[ValT, ArgT], RetT]
+def valuedispatch1arg[ValT, ArgT, RetT](
+    call: Callable[[ValT, ArgT], RetT],
 ) -> ValueDispatcher1Arg[ValT, ArgT, RetT]:
     """Like valuedispatch but for functions taking an extra argument."""
     return ValueDispatcher1Arg(call)
 
 
-class ValueDispatcher1Arg(Generic[ValT, ArgT, RetT]):
+class ValueDispatcher1Arg[ValT, ArgT, RetT]:
     """Used by the valuedispatch1arg decorator"""
 
     def __init__(self, call: Callable[[ValT, ArgT], RetT]) -> None:
@@ -455,7 +463,7 @@ class ValueDispatcher1Arg(Generic[ValT, ArgT, RetT]):
 
 if TYPE_CHECKING:
 
-    class ValueDispatcherMethod(Generic[ValT, RetT]):
+    class ValueDispatcherMethod[SelfT, ValT, RetT]:
         """Used by the valuedispatchmethod decorator."""
 
         def __call__(self, value: ValT) -> RetT: ...
@@ -464,12 +472,12 @@ if TYPE_CHECKING:
             self, value: ValT
         ) -> Callable[[Callable[[SelfT], RetT]], Callable[[SelfT], RetT]]:
             """Add a handler to the dispatcher."""
-            ...
+            del value  # Unused.
 
 
-def valuedispatchmethod(
-    call: Callable[[SelfT, ValT], RetT]
-) -> ValueDispatcherMethod[ValT, RetT]:
+def valuedispatchmethod[SelfT, ValT, RetT](
+    call: Callable[[SelfT, ValT], RetT],
+) -> ValueDispatcherMethod[SelfT, ValT, RetT]:
     """Like valuedispatch but works with methods instead of functions."""
 
     # NOTE: It seems that to wrap a method with a decorator and have self
@@ -503,9 +511,11 @@ def valuedispatchmethod(
     # To the type checker's eyes we return a ValueDispatchMethod instance;
     # this lets it know about our register func and type-check its usage.
     # In reality we just return a raw function call (for reasons listed above).
-    # pylint: disable=undefined-variable, no-else-return
+    # pylint: disable=no-else-return
     if TYPE_CHECKING:
-        return ValueDispatcherMethod[ValT, RetT]()
+        # pylint: disable=undefined-variable
+        return ValueDispatcherMethod[SelfT, ValT, RetT]()
+        # pylint: enable=undefined-variable
     else:
         return _call_wrapper
 
@@ -552,7 +562,7 @@ def float_hash_from_string(s: str) -> float:
     return ival / ((1 << 64) - 1)
 
 
-def asserttype(obj: Any, typ: type[T]) -> T:
+def asserttype[T](obj: Any, typ: type[T]) -> T:
     """Return an object typed as a given type.
 
     Assert is used to check its actual type, so only use this when
@@ -563,7 +573,7 @@ def asserttype(obj: Any, typ: type[T]) -> T:
     return obj
 
 
-def asserttype_o(obj: Any, typ: type[T]) -> T | None:
+def asserttype_o[T](obj: Any, typ: type[T]) -> T | None:
     """Return an object typed as a given optional type.
 
     Assert is used to check its actual type, so only use this when
@@ -574,7 +584,7 @@ def asserttype_o(obj: Any, typ: type[T]) -> T | None:
     return obj
 
 
-def checktype(obj: Any, typ: type[T]) -> T:
+def checktype[T](obj: Any, typ: type[T]) -> T:
     """Return an object typed as a given type.
 
     Always checks the type at runtime with isinstance and throws a TypeError
@@ -586,7 +596,7 @@ def checktype(obj: Any, typ: type[T]) -> T:
     return obj
 
 
-def checktype_o(obj: Any, typ: type[T]) -> T | None:
+def checktype_o[T](obj: Any, typ: type[T]) -> T | None:
     """Return an object typed as a given optional type.
 
     Always checks the type at runtime with isinstance and throws a TypeError
@@ -598,7 +608,7 @@ def checktype_o(obj: Any, typ: type[T]) -> T | None:
     return obj
 
 
-def warntype(obj: Any, typ: type[T]) -> T:
+def warntype[T](obj: Any, typ: type[T]) -> T:
     """Return an object typed as a given type.
 
     Always checks the type at runtime and simply logs a warning if it is
@@ -612,7 +622,7 @@ def warntype(obj: Any, typ: type[T]) -> T:
     return obj  # type: ignore
 
 
-def warntype_o(obj: Any, typ: type[T]) -> T | None:
+def warntype_o[T](obj: Any, typ: type[T]) -> T | None:
     """Return an object typed as a given type.
 
     Always checks the type at runtime and simply logs a warning if it is
@@ -628,7 +638,7 @@ def warntype_o(obj: Any, typ: type[T]) -> T | None:
     return obj  # type: ignore
 
 
-def assert_non_optional(obj: T | None) -> T:
+def assert_non_optional[T](obj: T | None) -> T:
     """Return an object with Optional typing removed.
 
     Assert is used to check its actual type, so only use this when
@@ -638,7 +648,7 @@ def assert_non_optional(obj: T | None) -> T:
     return obj
 
 
-def check_non_optional(obj: T | None) -> T:
+def check_non_optional[T](obj: T | None) -> T:
     """Return an object with Optional typing removed.
 
     Always checks the actual type and throws a TypeError on failure.
@@ -687,25 +697,26 @@ def _compact_id(num: int, chars: str) -> str:
 def human_readable_compact_id(num: int) -> str:
     """Given a positive int, return a compact string representation for it.
 
-    Handy for visualizing unique numeric ids using as few as possible chars.
-    This representation uses only lowercase letters and numbers (minus the
-    following letters for readability):
-     's' is excluded due to similarity to '5'.
-     'l' is excluded due to similarity to '1'.
-     'i' is excluded due to similarity to '1'.
-     'o' is excluded due to similarity to '0'.
-     'z' is excluded due to similarity to '2'.
+    Handy for visualizing unique numeric ids using as few as possible
+    chars. This representation uses only lowercase letters and numbers
+    (minus the following letters for readability):
+
+    - 's' is excluded due to similarity to '5'.
+    - 'l' is excluded due to similarity to '1'.
+    - 'i' is excluded due to similarity to '1'.
+    - 'o' is excluded due to similarity to '0'.
+    - 'z' is excluded due to similarity to '2'.
 
     Therefore for n chars this can store values of 21^n.
 
-    When reading human input consisting of these IDs, it may be desirable
-    to map the disallowed chars to their corresponding allowed ones
-    ('o' -> '0', etc).
+    When reading human input consisting of these IDs, it may be
+    desirable to map the disallowed chars to their corresponding allowed
+    ones ('o' -> '0', etc).
 
     Sort order for these ids is the same as the original numbers.
 
-    If more compactness is desired at the expense of readability,
-    use compact_id() instead.
+    If more compactness is desired at the expense of readability, use
+    compact_id() instead.
     """
     return _compact_id(num, '0123456789abcdefghjkmnpqrtuvwxy')
 
@@ -818,10 +829,12 @@ def timedelta_str(
     """Return a simple human readable time string for a length of time.
 
     Time can be given as a timedelta or a float representing seconds.
+
     Example output:
-      "23d 1h 2m 32s" (with maxparts == 4)
-      "23d 1h" (with maxparts == 2)
-      "23d 1.08h" (with maxparts == 2 and decimals == 2)
+
+    - ``"23d 1h 2m 32s"`` (with maxparts == 4)
+    - ``"23d 1h"`` (with maxparts == 2)
+    - ``"23d 1.08h"`` (with maxparts == 2 and decimals == 2)
 
     Note that this is hard-coded in English and probably not especially
     performant.
@@ -908,7 +921,7 @@ def ago_str(
     )
 
 
-def split_list(input_list: list[T], max_length: int) -> list[list[T]]:
+def split_list[T](input_list: list[T], max_length: int) -> list[list[T]]:
     """Split a single list into smaller lists."""
     return [
         input_list[i : i + max_length]
@@ -948,7 +961,7 @@ def extract_arg(
     """Given a list of args and an arg name, returns a value.
 
     The arg flag and value are removed from the arg list.
-    raises CleanErrors on any problems.
+    raises a :class:`~efro.error.CleanError` on any problems.
     """
     from efro.error import CleanError
 
@@ -969,3 +982,30 @@ def extract_arg(
     del args[argindex : argindex + 2]
 
     return val
+
+
+def pairs_to_flat[T](pairs: Sequence[tuple[T, T]]) -> list[T]:
+    """Given a sequence of same-typed pairs, flattens to a list."""
+    return [item for pair in pairs for item in pair]
+
+
+def pairs_from_flat[T](flat: Sequence[T]) -> list[tuple[T, T]]:
+    """Given a flat even numbered sequence, returns pairs."""
+    if len(flat) % 2 != 0:
+        raise ValueError('Provided sequence has an odd number of elements.')
+    out: list[tuple[T, T]] = []
+    for i in range(0, len(flat) - 1, 2):
+        out.append((flat[i], flat[i + 1]))
+    return out
+
+
+def weighted_choice[T](*args: tuple[T, float]) -> T:
+    """Given object/weight pairs as args, returns a random object.
+
+    Intended as a shorthand way to call random.choices on a few explicit
+    options.
+    """
+    items: tuple[T]
+    weights: tuple[float]
+    items, weights = zip(*args)
+    return random.choices(items, weights=weights)[0]

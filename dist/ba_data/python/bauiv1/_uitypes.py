@@ -27,16 +27,30 @@ DEBUG_UI_CLEANUP_CHECKS = os.environ.get('BA_DEBUG_UI_CLEANUP_CHECKS') == '1'
 class Window:
     """A basic window.
 
-    Category: User Interface Classes
-
     Essentially wraps a ContainerWidget with some higher level
     functionality.
     """
 
-    def __init__(self, root_widget: bauiv1.Widget, cleanupcheck: bool = True):
+    def __init__(
+        self,
+        root_widget: bauiv1.Widget,
+        cleanupcheck: bool = True,
+        prevent_main_window_auto_recreate: bool = True,
+    ):
         self._root_widget = root_widget
 
-        # Complain if we outlive our root widget.
+        # By default, the presence of any generic windows prevents the
+        # app from running its fancy main-window-auto-recreate mechanism
+        # on screen-resizes and whatnot. This avoids things like
+        # temporary popup windows getting stuck under auto-re-created
+        # main-windows.
+        self._window_main_window_auto_recreate_suppress = (
+            MainWindowAutoRecreateSuppress()
+            if prevent_main_window_auto_recreate
+            else None
+        )
+
+        # Generally we complain if we outlive our root widget.
         if cleanupcheck:
             uicleanupcheck(self, root_widget)
 
@@ -46,24 +60,39 @@ class Window:
 
 
 class MainWindow(Window):
-    """A special window that can be used as a main window."""
+    """A special type of window that can be set as 'main'.
+
+    The UI system has at most one main window at any given time.
+    MainWindows support high level functionality such as saving and
+    restoring states, allowing them to be automatically recreated when
+    navigating back from other locations or when something like ui-scale
+    changes.
+    """
 
     def __init__(
         self,
         root_widget: bauiv1.Widget,
+        *,
         transition: str | None,
         origin_widget: bauiv1.Widget | None,
         cleanupcheck: bool = True,
+        refresh_on_screen_size_changes: bool = False,
     ):
         """Create a MainWindow given a root widget and transition info.
 
-        Automatically handles in and out transitions on the provided widget,
-        so there is no need to set transitions when creating it.
+        Automatically handles in and out transitions on the provided
+        widget, so there is no need to set transitions when creating it.
         """
         # A back-state supplied by the ui system.
         self.main_window_back_state: MainWindowState | None = None
 
         self.main_window_is_top_level: bool = False
+
+        # Windows that size tailor themselves to exact screen dimensions
+        # can pass True for this. Generally this only applies to small
+        # ui scale and at larger scales windows simply fit in the
+        # virtual safe area.
+        self.refreshes_on_screen_size_changes = refresh_on_screen_size_changes
 
         # Windows can be flagged as auxiliary when not related to the
         # main UI task at hand. UI code may choose to handle auxiliary
@@ -74,7 +103,11 @@ class MainWindow(Window):
 
         self._main_window_transition = transition
         self._main_window_origin_widget = origin_widget
-        super().__init__(root_widget, cleanupcheck)
+        super().__init__(
+            root_widget,
+            cleanupcheck=cleanupcheck,
+            prevent_main_window_auto_recreate=False,
+        )
 
         scale_origin: tuple[float, float] | None
         if origin_widget is not None:
@@ -105,7 +138,7 @@ class MainWindow(Window):
 
         # Note: normally transition of None means instant, but we use
         # that to mean 'do the default' so we support a special
-        # 'instant' string..
+        # 'instant' string.
         if transition == 'instant':
             self._root_widget.delete()
         else:
@@ -146,11 +179,33 @@ class MainWindow(Window):
         if not self.main_window_has_control():
             return
 
+        uiv1 = babase.app.ui_v1
+
+        # Get the 'back' window coming in.
         if not self.main_window_is_top_level:
 
-            # Get the 'back' window coming in.
-            babase.app.ui_v1.auto_set_back_window(self)
+            back_state = self.main_window_back_state
+            if back_state is None:
+                raise RuntimeError(
+                    f'Main window {self} provides no back-state.'
+                )
 
+            # Valid states should have values here.
+            assert back_state.is_top_level is not None
+            assert back_state.is_auxiliary is not None
+            assert back_state.window_type is not None
+
+            backwin = back_state.create_window(transition='in_left')
+
+            uiv1.set_main_window(
+                backwin,
+                from_window=self,
+                is_back=True,
+                back_state=back_state,
+                suppress_warning=True,
+            )
+
+        # Transition ourself out.
         self.main_window_close()
 
     def main_window_replace(
@@ -203,7 +258,7 @@ class MainWindow(Window):
 
 
 class MainWindowState:
-    """Persistent state for a specific main-window and its ancestors.
+    """Persistent state for a specific MainWindow.
 
     This allows MainWindows to be automatically recreated for back-button
     purposes, when switching app-modes, etc.
@@ -215,6 +270,7 @@ class MainWindowState:
         self.is_top_level: bool | None = None
         self.is_auxiliary: bool | None = None
         self.window_type: type[MainWindow] | None = None
+        self.selection: str | None = None
 
     def create_window(
         self,
@@ -254,6 +310,23 @@ class BasicMainWindowState(MainWindowState):
         return self.create_call(transition, origin_widget)
 
 
+class MainWindowAutoRecreateSuppress:
+    """Suppresses main-window auto-recreate while in existence.
+
+    Can be instantiated and held by windows or processes within windows
+    for the purpose of preventing the main-window auto-recreate
+    mechanism from firing. This mechanism normally fires when the screen
+    is resized or the ui-scale is changed, allowing windows to be
+    recreated to adapt to the new configuration.
+    """
+
+    def __init__(self) -> None:
+        babase.app.ui_v1.window_auto_recreate_suppress_count += 1
+
+    def __del__(self) -> None:
+        babase.app.ui_v1.window_auto_recreate_suppress_count -= 1
+
+
 @dataclass
 class UICleanupCheck:
     """Holds info about a uicleanupcheck target."""
@@ -265,8 +338,6 @@ class UICleanupCheck:
 
 def uicleanupcheck(obj: Any, widget: bauiv1.Widget) -> None:
     """Checks to ensure a widget-owning object gets cleaned up properly.
-
-    Category: User Interface Functions
 
     This adds a check which will print an error message if the provided
     object still exists ~5 seconds after the provided bauiv1.Widget dies.
@@ -369,3 +440,13 @@ class TextWidgetStringEditAdapter(babase.StringEditAdapter):
     def _do_cancel(self) -> None:
         if self.widget:
             _bauiv1.textwidget(edit=self.widget, adapter_finished=True)
+
+
+class RootUIUpdatePause:
+    """Pauses updates to the root-ui while in existence."""
+
+    def __init__(self) -> None:
+        _bauiv1.root_ui_pause_updates()
+
+    def __del__(self) -> None:
+        _bauiv1.root_ui_resume_updates()

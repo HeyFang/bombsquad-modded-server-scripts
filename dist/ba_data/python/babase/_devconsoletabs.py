@@ -7,7 +7,7 @@ import math
 import random
 import logging
 from functools import partial
-from typing import TYPE_CHECKING, override, TypeVar, Generic
+from typing import TYPE_CHECKING, override
 
 import _babase
 
@@ -18,8 +18,6 @@ if TYPE_CHECKING:
 
     from bacommon.loggercontrol import LoggerControlConfig
     from babase import AppMode
-
-T = TypeVar('T')
 
 
 class DevConsoleTabPython(DevConsoleTab):
@@ -56,7 +54,7 @@ class DevConsoleTabAppModes(DevConsoleTab):
         # Kick off a load if applicable.
         if self._app_modes is None and not self._app_modes_loading:
             _babase.app.meta.load_exported_classes(
-                AppMode, self._on_app_modes_loaded
+                'babase.AppMode', AppMode, self._on_app_modes_loaded
             )
 
         # Just say 'loading' if we don't have app-modes yet.
@@ -66,7 +64,7 @@ class DevConsoleTabAppModes(DevConsoleTab):
             )
             return
 
-        bwidth = 260
+        bwidth = 300
         bpadding = 5
 
         xoffs = -0.5 * bwidth * len(self._app_modes)
@@ -123,24 +121,19 @@ class DevConsoleTabUI(DevConsoleTab):
         xoffs = -375
 
         self.text(
-            'Make sure all interactive UI fits in the'
-            ' virtual bounds at all UI-scales (not counting things'
-            ' that follow screen edges).\n'
-            'Note that some elements may not reflect UI-scale changes'
-            ' until recreated.',
+            'Make sure all UIs either fit in the virtual safe area'
+            ' or dynamically respond to screen size changes.',
             scale=0.6,
             pos=(xoffs + 15, 70),
-            # h_anchor='left',
             h_align='left',
             v_align='center',
         )
 
-        ui_overlay = _babase.get_draw_ui_bounds()
+        ui_overlay = _babase.get_draw_virtual_safe_area_bounds()
         self.button(
-            'Virtual Bounds ON' if ui_overlay else 'Virtual Bounds OFF',
+            'Virtual Safe Area ON' if ui_overlay else 'Virtual Safe Area OFF',
             pos=(xoffs + 10, 10),
             size=(200, 30),
-            # h_anchor='left',
             label_scale=0.6,
             call=self.toggle_ui_overlay,
             style='bright' if ui_overlay else 'normal',
@@ -149,7 +142,6 @@ class DevConsoleTabUI(DevConsoleTab):
         self.text(
             'UI-Scale',
             pos=(xoffs + x - 5, 15),
-            # h_anchor='left',
             h_align='right',
             v_align='none',
             scale=0.6,
@@ -161,7 +153,6 @@ class DevConsoleTabUI(DevConsoleTab):
                 scale.name.capitalize(),
                 pos=(xoffs + x, 10),
                 size=(bwidth, 30),
-                # h_anchor='left',
                 label_scale=0.6,
                 call=partial(_babase.app.set_ui_scale, scale),
                 style=(
@@ -174,11 +165,13 @@ class DevConsoleTabUI(DevConsoleTab):
 
     def toggle_ui_overlay(self) -> None:
         """Toggle UI overlay drawing."""
-        _babase.set_draw_ui_bounds(not _babase.get_draw_ui_bounds())
+        _babase.set_draw_virtual_safe_area_bounds(
+            not _babase.get_draw_virtual_safe_area_bounds()
+        )
         self.request_refresh()
 
 
-class Table(Generic[T]):
+class Table[T]:
     """Used to show controls for arbitrarily large data in a grid form."""
 
     def __init__(

@@ -2,10 +2,10 @@
 #
 """Common shared Ballistica components.
 
-For modding purposes, this package should generally not be used directly.
-Instead one should use purpose-built packages such as bascenev1 or bauiv1
-which themselves import various functionality from here and reexpose it in
-a more focused way.
+For modding purposes, this package should generally not be used
+directly. Instead one should use purpose-built packages such as
+:mod:`bascenev1` or :mod:`bauiv1` which themselves import various
+functionality from here and reexpose it in a more focused way.
 """
 # pylint: disable=redefined-builtin
 
@@ -17,7 +17,7 @@ a more focused way.
 # dependency loops. The exception is TYPE_CHECKING blocks and
 # annotations since those aren't evaluated at runtime.
 
-from efro.util import set_canonical_module_names
+# from efro.util import set_canonical_module_names
 
 import _babase
 from _babase import (
@@ -35,6 +35,7 @@ from _babase import (
     fullscreen_control_get,
     fullscreen_control_key_shortcut,
     fullscreen_control_set,
+    can_display_chars,
     charstr,
     clipboard_get_text,
     clipboard_has_text,
@@ -60,9 +61,10 @@ from _babase import (
     get_string_width,
     get_ui_scale,
     get_v1_cloud_log_file_path,
+    get_virtual_safe_area_size,
+    get_virtual_screen_size,
     getsimplesound,
     has_user_run_commands,
-    have_chars,
     have_permission,
     in_logic_thread,
     in_main_menu,
@@ -111,6 +113,7 @@ from _babase import (
     SimpleSound,
     supports_max_fps,
     supports_vsync,
+    supports_unicode_display,
     unlock_all_input,
     update_internal_logger_levels,
     user_agent_string,
@@ -120,7 +123,8 @@ from _babase import (
 )
 
 from babase._accountv2 import AccountV2Handle, AccountV2Subsystem
-from babase._app import App
+from babase._app import App, AppState
+from babase._appcomponent import AppComponentSubsystem
 from babase._appconfig import commit_app_config
 from babase._appintent import AppIntent, AppIntentDefault, AppIntentExec
 from babase._appmode import AppMode
@@ -132,7 +136,8 @@ from babase._apputils import (
     is_browser_likely_available,
     garbage_collect,
     get_remote_app_name,
-    AppHealthMonitor,
+    AppHealthSubsystem,
+    utc_now_cloud,
 )
 from babase._cloud import CloudSubscription
 from babase._devconsole import (
@@ -142,8 +147,6 @@ from babase._devconsole import (
 )
 from babase._emptyappmode import EmptyAppMode
 from babase._error import (
-    print_exception,
-    print_error,
     ContextError,
     NotFoundError,
     PlayerNotFoundError,
@@ -160,7 +163,6 @@ from babase._error import (
     DelegateNotFoundError,
 )
 from babase._general import (
-    utf8_all,
     DisplayTime,
     AppTime,
     WeakCall,
@@ -173,7 +175,8 @@ from babase._general import (
     get_type_name,
 )
 from babase._language import Lstr, LanguageSubsystem
-from babase._logging import balog, lifecyclelog
+from babase._locale import LocaleSubsystem
+from babase._logging import balog, applog, lifecyclelog
 from babase._login import LoginAdapter, LoginInfo
 
 from babase._mgen.enums import (
@@ -185,14 +188,17 @@ from babase._mgen.enums import (
 )
 from babase._math import normalized_color, is_point_in_box, vec3validate
 from babase._meta import MetadataSubsystem
-from babase._net import get_ip_address_type, DEFAULT_REQUEST_TIMEOUT_SECONDS
+from babase._net import (
+    get_ip_address_type,
+    DEFAULT_REQUEST_TIMEOUT_SECONDS,
+    NetworkSubsystem,
+)
 from babase._plugin import PluginSpec, Plugin, PluginSubsystem
 from babase._stringedit import StringEditAdapter, StringEditSubsystem
 from babase._text import timestring
-
+from babase._workspace import WorkspaceSubsystem
 
 _babase.app = app = App()
-app.postinit()
 
 __all__ = [
     'AccountV2Handle',
@@ -203,15 +209,17 @@ __all__ = [
     'add_clean_frame_callback',
     'android_get_external_files_dir',
     'app',
-    'app',
     'App',
+    'AppComponentSubsystem',
     'AppConfig',
-    'AppHealthMonitor',
+    'AppHealthSubsystem',
     'AppIntent',
     'AppIntentDefault',
     'AppIntentExec',
     'AppMode',
+    'AppState',
     'app_instance_uuid',
+    'applog',
     'appname',
     'appnameupper',
     'AppModeSelector',
@@ -228,6 +236,7 @@ __all__ = [
     'fullscreen_control_get',
     'fullscreen_control_key_shortcut',
     'fullscreen_control_set',
+    'can_display_chars',
     'charstr',
     'clipboard_get_text',
     'clipboard_has_text',
@@ -267,12 +276,13 @@ __all__ = [
     'get_string_width',
     'get_type_name',
     'get_ui_scale',
+    'get_virtual_safe_area_size',
+    'get_virtual_screen_size',
     'get_v1_cloud_log_file_path',
     'getclass',
     'getsimplesound',
     'handle_leftover_v1_cloud_log_file',
     'has_user_run_commands',
-    'have_chars',
     'have_permission',
     'in_logic_thread',
     'in_main_menu',
@@ -286,6 +296,7 @@ __all__ = [
     'is_point_in_box',
     'is_xcode_build',
     'LanguageSubsystem',
+    'LocaleSubsystem',
     'lifecyclelog',
     'lock_all_input',
     'LoginAdapter',
@@ -306,6 +317,7 @@ __all__ = [
     'native_review_request',
     'native_review_request_supported',
     'native_stack_trace',
+    'NetworkSubsystem',
     'NodeNotFoundError',
     'normalized_color',
     'NotFoundError',
@@ -320,8 +332,6 @@ __all__ = [
     'Plugin',
     'PluginSubsystem',
     'PluginSpec',
-    'print_error',
-    'print_exception',
     'print_load_info',
     'push_back_press',
     'pushcall',
@@ -351,6 +361,7 @@ __all__ = [
     'StringEditSubsystem',
     'supports_max_fps',
     'supports_vsync',
+    'supports_unicode_display',
     'TeamNotFoundError',
     'timestring',
     'UIScale',
@@ -358,18 +369,21 @@ __all__ = [
     'update_internal_logger_levels',
     'user_agent_string',
     'user_ran_commands',
-    'utf8_all',
+    'utc_now_cloud',
     'Vec3',
     'vec3validate',
     'verify_object_death',
     'WeakCall',
     'WidgetNotFoundError',
     'workspaces_in_use',
+    'WorkspaceSubsystem',
     'DEFAULT_REQUEST_TIMEOUT_SECONDS',
 ]
 
 # We want stuff to show up as babase.Foo instead of babase._sub.Foo.
-set_canonical_module_names(globals())
+# UPDATE: Trying without this for now. Seems like this might cause more
+# harm than good. Can flip it back on if it is missed.
+# set_canonical_module_names(globals())
 
 # Allow the native layer to wrap a few things up.
 _babase.reached_end_of_babase()

@@ -1,7 +1,7 @@
 import bascenev1 as bs
 from roles import banlist
 
-
+print("✅ onjoin loaded")
 
 def add_chooser(self, sessionplayer: bs.SessionPlayer) -> None:
     print("onJoin.py is called")

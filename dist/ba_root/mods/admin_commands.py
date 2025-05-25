@@ -29,6 +29,10 @@ def hello(msg, client_id):
     # Provide both client_id and unique_id as arguments
     #unique_id = "95185faf28fb91ec8e62329ae9aa93d0cb26b7e9"  # Replace with the actual unique_id
     #print("input device", _bascenev1.getinputdevice(unique_id, client_id))
+    stats = bs.get_foreground_host_session().stats
+    #print(dir(stats))
+    #print(stats.get_records())
+    print(dir(bs.get_foreground_host_session()))
     
     
     bs.broadcastmessage(f"konnichiwa chibi!", clients=None, transient=True, color=(0, 0.5, 1))

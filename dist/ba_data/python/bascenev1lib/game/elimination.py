@@ -15,7 +15,6 @@ import bascenev1 as bs
 from bascenev1lib.actor.spazfactory import SpazFactory
 from bascenev1lib.actor.scoreboard import Scoreboard
 import screenText as text
-
 if TYPE_CHECKING:
     from typing import Any, Sequence
 
@@ -253,6 +252,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
     @override
     @classmethod
     def get_supported_maps(cls, sessiontype: type[bs.Session]) -> list[str]:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
         assert bs.app.classic is not None
         return bs.app.classic.getmaps('melee')
 
@@ -278,6 +278,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def get_instance_description(self) -> str | Sequence:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
         return (
             'Last team standing wins.'
             if isinstance(self.session, bs.DualTeamSession)
@@ -286,6 +287,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def get_instance_description_short(self) -> str | Sequence:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
         return (
             'last team standing wins'
             if isinstance(self.session, bs.DualTeamSession)
@@ -294,8 +296,9 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def on_player_join(self, player: Player) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
         player.lives = self._lives_per_player
-
+        
         if self._solo_mode:
             player.team.spawn_order.append(player)
             self._update_solo_mode()
@@ -305,6 +308,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
             if player.lives > 0:
                 self.spawn_player(player)
                 text.assign_tag(player)
+                
 
         # Don't waste time doing this until begin.
         if self.has_begun():
@@ -334,9 +338,6 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
                     },
                 )
             )
-        # if not self._solo_mode:
-        #     for player in self.players:
-        #         text.assign_tag(player)
 
         # If balance-team-lives is on, add lives to the smaller team until
         # total lives match.
@@ -486,6 +487,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def spawn_player(self, player: Player) -> bs.Actor:
+        """Spawn a player (override)."""
         actor = self.spawn_player_spaz(player, self._get_spawn_point(player))
         if not self._solo_mode:
             bs.timer(0.3, bs.Call(self._print_lives, player))
@@ -513,6 +515,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def on_player_leave(self, player: Player) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
         super().on_player_leave(player)
         player.icons = []
 
@@ -537,9 +540,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def handlemessage(self, msg: Any) -> Any:
-        
         if isinstance(msg, bs.PlayerDiedMessage):
-            #print(f"PlayerDiedMessage received for player: {msg.getplayer(Player).getname()}")
             # Augment standard behavior.
             super().handlemessage(msg)
             player: Player = msg.getplayer(Player)
@@ -551,9 +552,6 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
                     self._solo_mode,
                 )
                 player.lives = 0
-                
-                
-                
 
             # If we have any icons, update their state.
             for icon in player.icons:
@@ -566,20 +564,19 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
 
             # If we hit zero lives, we're dead (and our team might be too).
             if player.lives == 0:
-                #remove tags
+                # remove tags
                 try:
                     # Cleanup tag_node and rank_node if they exist
-                    if player.tag_node is not None:
-                        #print(f"Cleaning up tag_node for player {player.getname()}")
-                        player.tag_node.cleanup()
-                        player.tag_node = None
                     if player.rank_node is not None:
-                        #print(f"Cleaning up rank_node for player {player.getname()}")
+                        # print(f"Cleaning up rank_node for player {player.getname()}")
                         player.rank_node.cleanup()
                         player.rank_node = None
+                        player.tag_node.cleanup()
+                        player.tag_node = None
+
                 except Exception as e:
                     print(f"Error while removing tag_node or rank_node for player {player.getname()}: {e}")
-                
+
                 # If the whole team is now dead, mark their survival time.
                 if self._get_total_team_lives(player.team) == 0:
                     assert self._start_time is not None
@@ -627,6 +624,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
 
     @override
     def end_game(self) -> None:
+        """End the game."""
         if self.has_ended():
             return
         results = bs.GameResults()

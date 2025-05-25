@@ -15,6 +15,30 @@ if TYPE_CHECKING:
     from typing import Any
 
 
+def register_all_maps() -> None:
+    """Registering all maps."""
+    for maptype in [
+        HockeyStadium,
+        FootballStadium,
+        Bridgit,
+        BigG,
+        Roundabout,
+        MonkeyFace,
+        ZigZag,
+        ThePad,
+        DoomShroom,
+        LakeFrigid,
+        TipTop,
+        CragCastle,
+        TowerD,
+        HappyThoughts,
+        StepRightUp,
+        Courtyard,
+        Rampage,
+    ]:
+        bs.register_map(maptype)
+
+
 class HockeyStadium(bs.Map):
     """Stadium map used for ice hockey games."""
 
@@ -954,7 +978,7 @@ class LakeFrigid(bs.Map):
             'vr_fill_mesh': bs.getmesh('lakeFrigidVRFill'),
         }
         mat = bs.Material()
-        mat.add_actions(actions=('modify_part_collision', 'friction', 2.0))
+        mat.add_actions(actions=('modify_part_collision', 'friction', 0.01))
         data['ice_material'] = mat
         return data
 
@@ -1732,7 +1756,6 @@ class Rampage(bs.Map):
                 'bumper': True,
             },
         )
-        
         gnode = bs.getactivity().globalsnode
         gnode.tint = (1.2, 1.1, 0.97)
         gnode.ambient_color = (1.3, 1.2, 1.03)
