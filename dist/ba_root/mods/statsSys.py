@@ -25,27 +25,15 @@ def insert_stats():
                     pb_id = entity['account_id']
                     v2_id = entity['display_string']
 
-                    # Access actual attributes
                     kills = record.kill_count
                     deaths = record.killed_count
                     score = record.score
 
-                    combined_stats.append({
-                        'name': name,
-                        'pb_id': pb_id,
-                        'v2_id': v2_id,
-                        'kills': kills,
-                        'deaths': deaths,
-                        'score': score
-                    })
-
-
-                    # Check if the pb_id already exists in the database
                     Player = Query()
                     existing_record = db.search(Player.pb_id == pb_id)
 
                     if existing_record:
-                        # Update the existing record
+                        # Update existing record
                         db.update({
                             'games_played': existing_record[0]['games_played'] + 1,
                             'kills': existing_record[0]['kills'] + kills,
@@ -53,7 +41,7 @@ def insert_stats():
                             'score': existing_record[0]['score'] + score
                         }, Player.pb_id == pb_id)
                     else:
-                        # Insert a new record
+                        # Append new record only for insertion
                         combined_stats.append({
                             'pb_id': pb_id,
                             'v2_id': v2_id,
