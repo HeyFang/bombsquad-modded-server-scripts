@@ -75,7 +75,7 @@ class EditProfileWindow(
         yoffs = -42 if uiscale is bui.UIScale.SMALL else 0
         spacing = 40
         self._base_scale = (
-            1.6
+            2.0
             if uiscale is bui.UIScale.SMALL
             else 1.35 if uiscale is bui.UIScale.MEDIUM else 1.0
         )
@@ -84,12 +84,8 @@ class EditProfileWindow(
             root_widget=bui.containerwidget(
                 size=(width, height + top_extra),
                 scale=self._base_scale,
-                stack_offset=(
-                    (0, 0) if uiscale is bui.UIScale.SMALL else (0, 0)
-                ),
-                toolbar_visibility=(
-                    None if uiscale is bui.UIScale.SMALL else 'menu_full'
-                ),
+                stack_offset=(0, 0),
+                toolbar_visibility=None,
             ),
             transition=transition,
             origin_widget=origin_widget,
@@ -550,7 +546,7 @@ class EditProfileWindow(
 
     def upgrade_profile(self) -> None:
         """Attempt to upgrade the profile to global."""
-        from bauiv1lib import account
+        from bauiv1lib.account.signin import show_sign_in_prompt
         from bauiv1lib.profile import upgrade as pupgrade
 
         new_name = self.getname().strip()
@@ -566,7 +562,7 @@ class EditProfileWindow(
         assert plus is not None
 
         if plus.get_v1_account_state() != 'signed_in':
-            account.show_sign_in_prompt()
+            show_sign_in_prompt()
             return
 
         pupgrade.ProfileUpgradeWindow(self)

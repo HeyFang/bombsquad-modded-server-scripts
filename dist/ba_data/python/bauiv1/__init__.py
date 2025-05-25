@@ -16,11 +16,12 @@ from __future__ import annotations
 
 import logging
 
-from efro.util import set_canonical_module_names
+# from efro.util import set_canonical_module_names
 from babase import (
     add_clean_frame_callback,
     allows_ticket_sales,
     app,
+    App,
     AppIntent,
     AppIntentDefault,
     AppIntentExec,
@@ -28,6 +29,7 @@ from babase import (
     appname,
     appnameupper,
     apptime,
+    AppState,
     AppTime,
     apptimer,
     AppTimer,
@@ -46,6 +48,7 @@ from babase import (
     displaytimer,
     DisplayTimer,
     do_once,
+    existing,
     fade_screen,
     get_display_resolution,
     get_input_idle_time,
@@ -57,6 +60,8 @@ from babase import (
     get_string_height,
     get_string_width,
     get_type_name,
+    get_virtual_safe_area_size,
+    get_virtual_screen_size,
     getclass,
     have_permission,
     in_logic_thread,
@@ -92,9 +97,11 @@ from babase import (
     SpecialChar,
     supports_max_fps,
     supports_vsync,
+    supports_unicode_display,
     timestring,
     UIScale,
     unlock_all_input,
+    utc_now_cloud,
     WeakCall,
     workspaces_in_use,
 )
@@ -112,9 +119,12 @@ from _bauiv1 import (
     hscrollwidget,
     imagewidget,
     Mesh,
+    root_ui_pause_updates,
+    root_ui_resume_updates,
     rowwidget,
     scrollwidget,
     set_party_window_open,
+    spinnerwidget,
     Sound,
     Texture,
     textwidget,
@@ -129,6 +139,8 @@ from bauiv1._uitypes import (
     BasicMainWindowState,
     uicleanupcheck,
     MainWindow,
+    RootUIUpdatePause,
+    MainWindowAutoRecreateSuppress,
 )
 from bauiv1._appsubsystem import UIV1AppSubsystem
 
@@ -136,6 +148,7 @@ __all__ = [
     'add_clean_frame_callback',
     'allows_ticket_sales',
     'app',
+    'App',
     'AppIntent',
     'AppIntentDefault',
     'AppIntentExec',
@@ -143,6 +156,7 @@ __all__ = [
     'appname',
     'appnameupper',
     'appnameupper',
+    'AppState',
     'apptime',
     'AppTime',
     'apptimer',
@@ -167,6 +181,7 @@ __all__ = [
     'displaytimer',
     'DisplayTimer',
     'do_once',
+    'existing',
     'fade_screen',
     'get_display_resolution',
     'get_input_idle_time',
@@ -180,6 +195,8 @@ __all__ = [
     'get_string_height',
     'get_string_width',
     'get_type_name',
+    'get_virtual_safe_area_size',
+    'get_virtual_screen_size',
     'getclass',
     'getmesh',
     'getsound',
@@ -198,6 +215,7 @@ __all__ = [
     'LoginInfo',
     'Lstr',
     'MainWindow',
+    'MainWindowAutoRecreateSuppress',
     'MainWindowState',
     'Mesh',
     'native_review_request',
@@ -216,6 +234,9 @@ __all__ = [
     'quit',
     'QuitType',
     'request_permission',
+    'root_ui_pause_updates',
+    'root_ui_resume_updates',
+    'RootUIUpdatePause',
     'rowwidget',
     'safecolor',
     'screenmessage',
@@ -226,8 +247,10 @@ __all__ = [
     'set_ui_input_device',
     'Sound',
     'SpecialChar',
+    'spinnerwidget',
     'supports_max_fps',
     'supports_vsync',
+    'supports_unicode_display',
     'Texture',
     'textwidget',
     'timestring',
@@ -236,6 +259,7 @@ __all__ = [
     'UIScale',
     'UIV1AppSubsystem',
     'unlock_all_input',
+    'utc_now_cloud',
     'WeakCall',
     'widget',
     'Widget',
@@ -244,7 +268,9 @@ __all__ = [
 ]
 
 # We want stuff to show up as bauiv1.Foo instead of bauiv1._sub.Foo.
-set_canonical_module_names(globals())
+# UPDATE: Trying without this for now. Seems like this might cause more
+# harm than good. Can flip it back on if it is missed.
+# set_canonical_module_names(globals())
 
 # Sanity check: we want to keep ballistica's dependencies and
 # bootstrapping order clearly defined; let's check a few particular

@@ -33,7 +33,7 @@ class NetworkSubsystem:
         # that a nearby server has been pinged.
         self.zone_pings: dict[str, float] = {}
 
-        # For debugging.
+        # For debugging/progress.
         self.v1_test_log: str = ''
         self.v1_ctest_results: dict[int, str] = {}
         self.connectivity_state = 'uninited'
@@ -42,7 +42,10 @@ class NetworkSubsystem:
 
 
 def get_ip_address_type(addr: str) -> socket.AddressFamily:
-    """Return socket.AF_INET6 or socket.AF_INET4 for the provided address."""
+    """Return an address-type given an address.
+
+    Can be :attr:`socket.AF_INET` or :attr:`socket.AF_INET6`.
+    """
 
     version = ipaddress.ip_address(addr).version
     if version == 4:

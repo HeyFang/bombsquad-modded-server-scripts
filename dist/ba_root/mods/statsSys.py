@@ -13,22 +13,32 @@ def insert_stats():
         # Fetching stats
         ros = bs.get_game_roster()
         stats = bs.get_foreground_host_session().stats
-        player_stats = stats.fetch_player_statistics()  
+        player_stats = stats.get_records()  # dict: name -> PlayerRecord
 
         combined_stats = []
 
-        # Iterate through the game roster and compare the player by name
         for entity in ros:
             for player in entity['players']:
                 name = player['name']
-                # Check if the player is in the player_stats
                 if name in player_stats:
-                    # Fetch the player stats
+                    record = player_stats[name]
                     pb_id = entity['account_id']
                     v2_id = entity['display_string']
-                    kills = player_stats[name]['kills']
-                    deaths = player_stats[name]['deaths']
-                    score = player_stats[name]['score']
+
+                    # Access actual attributes
+                    kills = record.kill_count
+                    deaths = record.killed_count
+                    score = record.score
+
+                    combined_stats.append({
+                        'name': name,
+                        'pb_id': pb_id,
+                        'v2_id': v2_id,
+                        'kills': kills,
+                        'deaths': deaths,
+                        'score': score
+                    })
+
 
                     # Check if the pb_id already exists in the database
                     Player = Query()

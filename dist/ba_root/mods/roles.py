@@ -81,6 +81,12 @@ all_cmds = {
     "send": VIP, "announce": VIP,
     "remove": VIP, "rm": VIP,
     "end": VIP,
+    "kill": VIP,
+    "freeze": VIP,
+    "thaw": VIP,
+    "gloves": VIP,
+    "curse": VIP,
+    "heal": VIP,
 
     "party": ADMIN, "partymode": ADMIN,
     "bans": ADMIN, "banlist": ADMIN,

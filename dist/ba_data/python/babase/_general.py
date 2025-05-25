@@ -34,48 +34,40 @@ DisplayTime = NewType('DisplayTime', float)
 
 
 class Existable(Protocol):
-    """A Protocol for objects supporting an exists() method.
-
-    Category: **Protocols**
-    """
+    """A Protocol for objects supporting an ``exists()`` method."""
 
     def exists(self) -> bool:
         """Whether this object exists."""
 
 
-ExistableT = TypeVar('ExistableT', bound=Existable)
-T = TypeVar('T')
-
-
-def existing(obj: ExistableT | None) -> ExistableT | None:
+def existing[ExistableT: Existable](
+    obj: ExistableT | None,
+) -> ExistableT | None:
     """Convert invalid references to None for any babase.Existable object.
 
-    Category: **Gameplay Functions**
-
-    To best support type checking, it is important that invalid references
-    not be passed around and instead get converted to values of None.
-    That way the type checker can properly flag attempts to pass possibly-dead
-    objects (FooType | None) into functions expecting only live ones
-    (FooType), etc. This call can be used on any 'existable' object
-    (one with an exists() method) and will convert it to a None value
-    if it does not exist.
+    To best support type checking, it is important that invalid
+    references not be passed around and instead get converted to values
+    of None. That way the type checker can properly flag attempts to
+    pass possibly-dead objects (``FooType | None``) into functions
+    expecting only live ones (``FooType``), etc. This call can be used
+    on any 'existable' object (one with an ``exists()`` method) and will
+    convert it to a ``None`` value if it does not exist.
 
     For more info, see notes on 'existables' here:
     https://ballistica.net/wiki/Coding-Style-Guide
     """
-    assert obj is None or hasattr(obj, 'exists'), f'No "exists" on {obj}'
+    assert obj is None or hasattr(obj, 'exists'), f'No "exists" attr on {obj}.'
     return obj if obj is not None and obj.exists() else None
 
 
-def getclass(
+def getclass[T](
     name: str, subclassof: type[T], check_sdlib_modulename_clash: bool = False
 ) -> type[T]:
-    """Given a full class name such as foo.bar.MyClass, return the class.
+    """Given a full class name such as ``foo.bar.MyClass``, return the class.
 
-    Category: **General Utility Functions**
-
-    The class will be checked to make sure it is a subclass of the provided
-    'subclassof' class, and a TypeError will be raised if not.
+    The class will be checked to make sure it is a subclass of the
+    provided 'subclassof' class, and a :class:`TypeError` will be raised
+    if not.
     """
     import importlib
 
@@ -92,78 +84,62 @@ def getclass(
     return cls
 
 
-def utf8_all(data: Any) -> Any:
-    """Convert any unicode data in provided sequence(s) to utf8 bytes."""
-    if isinstance(data, dict):
-        return dict(
-            (utf8_all(key), utf8_all(value))
-            for key, value in list(data.items())
-        )
-    if isinstance(data, list):
-        return [utf8_all(element) for element in data]
-    if isinstance(data, tuple):
-        return tuple(utf8_all(element) for element in data)
-    if isinstance(data, str):
-        return data.encode('utf-8', errors='ignore')
-    return data
-
-
 def get_type_name(cls: type) -> str:
-    """Return a full type name including module for a class."""
-    return f'{cls.__module__}.{cls.__name__}'
+    """Return a fully qualified type name for a class."""
+    return f'{cls.__module__}.{cls.__qualname__}'
 
 
 class _WeakCall:
     """Wrap a callable and arguments into a single callable object.
 
-    Category: **General Utility Classes**
+    When passed a bound method as the callable, the instance portion of
+    it is weak-referenced, meaning the underlying instance is free to
+    die if all other references to it go away. Should this occur,
+    calling the weak-call is simply a no-op.
 
-    When passed a bound method as the callable, the instance portion
-    of it is weak-referenced, meaning the underlying instance is
-    free to die if all other references to it go away. Should this
-    occur, calling the WeakCall is simply a no-op.
+    Think of this as a handy way to tell an object to do something at
+    some point in the future if it happens to still exist.
 
-    Think of this as a handy way to tell an object to do something
-    at some point in the future if it happens to still exist.
+    **EXAMPLE A:** This code will create a ``FooClass`` instance and
+    call its ``bar()`` method 5 seconds later; it will be kept alive
+    even though we overwrite its variable with None because the bound
+    method we pass as a timer callback (``foo.bar``) strong-references
+    it::
 
-    ##### Examples
-    **EXAMPLE A:** this code will create a FooClass instance and call its
-    bar() method 5 seconds later; it will be kept alive even though
-    we overwrite its variable with None because the bound method
-    we pass as a timer callback (foo.bar) strong-references it
-    >>> foo = FooClass()
-    ... babase.apptimer(5.0, foo.bar)
-    ... foo = None
+        foo = FooClass()
+        babase.apptimer(5.0, foo.bar)
+        foo = None
 
-    **EXAMPLE B:** This code will *not* keep our object alive; it will die
-    when we overwrite it with None and the timer will be a no-op when it
-    fires
-    >>> foo = FooClass()
-    ... babase.apptimer(5.0, ba.WeakCall(foo.bar))
-    ... foo = None
+    **EXAMPLE B:** This code will *not* keep our object alive; it will
+    die when we overwrite it with ``None`` and the timer will be a no-op
+    when it fires::
 
-    **EXAMPLE C:** Wrap a method call with some positional and keyword args:
-    >>> myweakcall = babase.WeakCall(self.dostuff, argval1,
-    ...                          namedarg=argval2)
-    ... # Now we have a single callable to run that whole mess.
-    ... # The same as calling myobj.dostuff(argval1, namedarg=argval2)
-    ... # (provided my_obj still exists; this will do nothing
-    ... # otherwise).
-    ... myweakcall()
+        foo = FooClass()
+        babase.apptimer(5.0, ba.WeakCall(foo.bar))
+        foo = None
 
-    Note: additional args and keywords you provide to the WeakCall()
-    constructor are stored as regular strong-references; you'll need
-    to wrap them in weakrefs manually if desired.
+    **EXAMPLE C:** Wrap a method call with some positional and keyword
+    args::
+
+        myweakcall = babase.WeakCall(self.dostuff, argval1,
+                                     namedarg=argval2)
+
+        # Now we have a single callable to run that whole mess.
+        # The same as calling myobj.dostuff(argval1, namedarg=argval2)
+        # (provided my_obj still exists; this will do nothing otherwise).
+        myweakcall()
+
+    Note: additional args and keywords you provide to the weak-call
+    constructor are stored as regular strong-references; you'll need to
+    wrap them in weakrefs manually if desired.
     """
+
+    # Optimize performance a bit; we shouldn't need to be super dynamic.
+    __slots__ = ['_call', '_args', '_keywds']
 
     _did_invalid_call_warning = False
 
     def __init__(self, *args: Any, **keywds: Any) -> None:
-        """Instantiate a WeakCall.
-
-        Pass a callable as the first arg, followed by any number of
-        arguments or keywords.
-        """
         if hasattr(args[0], '__func__'):
             self._call = WeakMethod(args[0])
         else:
@@ -173,9 +149,10 @@ class _WeakCall:
                     'Warning: callable passed to babase.WeakCall() is not'
                     ' weak-referencable (%s); use functools.partial instead'
                     ' to avoid this warning.',
+                    args[0],
                     stack_info=True,
                 )
-                self._did_invalid_call_warning = True
+                type(self)._did_invalid_call_warning = True
             self._call = args[0]
         self._args = args[1:]
         self._keywds = keywds
@@ -199,34 +176,27 @@ class _WeakCall:
 class _Call:
     """Wraps a callable and arguments into a single callable object.
 
-    Category: **General Utility Classes**
-
     The callable is strong-referenced so it won't die until this
     object does.
-
-    WARNING: This is exactly the same as Python's built in functools.partial().
-    Use functools.partial instead of this for new code, as this will probably
-    be deprecated at some point.
 
     Note that a bound method (ex: ``myobj.dosomething``) contains a reference
     to ``self`` (``myobj`` in that case), so you will be keeping that object
     alive too. Use babase.WeakCall if you want to pass a method to a callback
     without keeping its object alive.
+
+    Example: Wrap a method call with 1 positional and 1 keyword arg::
+
+        mycall = babase.Call(myobj.dostuff, argval, namedarg=argval2)
+
+        # Now we have a single callable to run that whole mess.
+        # ..the same as calling myobj.dostuff(argval, namedarg=argval2)
+        mycall()
     """
 
+    # Optimize performance a bit; we shouldn't need to be super dynamic.
+    __slots__ = ['_call', '_args', '_keywds']
+
     def __init__(self, *args: Any, **keywds: Any):
-        """Instantiate a Call.
-
-        Pass a callable as the first arg, followed by any number of
-        arguments or keywords.
-
-        ##### Example
-        Wrap a method call with 1 positional and 1 keyword arg:
-        >>> mycall = babase.Call(myobj.dostuff, argval, namedarg=argval2)
-        ... # Now we have a single callable to run that whole mess.
-        ... # ..the same as calling myobj.dostuff(argval, namedarg=argval2)
-        ... mycall()
-        """
         self._call = args[0]
         self._args = args[1:]
         self._keywds = keywds
@@ -252,6 +222,14 @@ if TYPE_CHECKING:
     # type checking on both positional and keyword arguments (as of mypy
     # 1.11).
 
+    # FIXME: Actually, currently (as of Dec 2024) mypy doesn't fully
+    # type check partial. The partial() call itself is checked, but the
+    # resulting callable seems to be essentially untyped. We should
+    # probably revise this stuff so that Call and WeakCall are for 100%
+    # complete calls so we can fully type check them using ParamSpecs or
+    # whatnot. We could then write a weak_partial() call if we actually
+    # need that particular combination of functionality.
+
     # Note: Something here is wonky with pylint, possibly related to our
     # custom pylint plugin. Disabling all checks seems to fix it.
     # pylint: disable=all
@@ -272,6 +250,9 @@ class WeakMethod:
     free to die. If called with a dead target, is simply a no-op.
     """
 
+    # Optimize performance a bit; we shouldn't need to be super dynamic.
+    __slots__ = ['_func', '_obj']
+
     def __init__(self, call: types.MethodType):
         assert isinstance(call, types.MethodType)
         self._func = call.__func__
@@ -290,8 +271,6 @@ class WeakMethod:
 
 def verify_object_death(obj: object) -> None:
     """Warn if an object does not get freed within a short period.
-
-    Category: **General Utility Functions**
 
     This can be handy to detect and prevent memory/resource leaks.
     """
@@ -333,27 +312,27 @@ def _verify_object_death(wref: weakref.ref) -> None:
 def storagename(suffix: str | None = None) -> str:
     """Generate a unique name for storing class data in shared places.
 
-    Category: **General Utility Functions**
-
-    This consists of a leading underscore, the module path at the
-    call site with dots replaced by underscores, the containing class's
+    This consists of a leading underscore, the module path at the call
+    site with dots replaced by underscores, the containing class's
     qualified name, and the provided suffix. When storing data in public
     places such as 'customdata' dicts, this minimizes the chance of
     collisions with other similarly named classes.
 
     Note that this will function even if called in the class definition.
 
-    ##### Examples
-    Generate a unique name for storage purposes:
-    >>> class MyThingie:
-    ...     # This will give something like
-    ...     # '_mymodule_submodule_mythingie_data'.
-    ...     _STORENAME = babase.storagename('data')
-    ...
-    ...     # Use that name to store some data in the Activity we were
-    ...     # passed.
-    ...     def __init__(self, activity):
-    ...         activity.customdata[self._STORENAME] = {}
+    Example: Generate a unique name for storage purposes::
+
+        class MyThingie:
+
+            # This will give something like
+            # '_mymodule_submodule_mythingie_data'.
+            _STORENAME = babase.storagename('data')
+
+            # Use that name to store some data in the Activity we were
+            # passed.
+            def __init__(self, activity):
+                activity.customdata[self._STORENAME] = {}
+
     """
     frame = inspect.currentframe()
     if frame is None:

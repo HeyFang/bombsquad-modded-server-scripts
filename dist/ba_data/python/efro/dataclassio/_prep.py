@@ -15,11 +15,11 @@ import dataclasses
 import typing
 import types
 import datetime
-from typing import TYPE_CHECKING, TypeVar, get_type_hints
+from typing import TYPE_CHECKING, get_type_hints
 
 # noinspection PyProtectedMember
 from efro.dataclassio._base import (
-    _parse_annotated,
+    parse_annotated,
     _get_origin,
     SIMPLE_TYPES,
     IOMultiType,
@@ -29,10 +29,9 @@ if TYPE_CHECKING:
     from typing import Any
     from efro.dataclassio._base import IOAttrs
 
-T = TypeVar('T')
 
-# How deep we go when prepping nested types
-# (basically for detecting recursive types)
+# How deep we go when prepping nested types (basically for detecting
+# recursive types)
 MAX_RECURSION = 10
 
 # Attr name for data we store on dataclass types that have been prepped.
@@ -68,7 +67,7 @@ def ioprep(cls: type, globalns: dict | None = None) -> None:
     )
 
 
-def ioprepped(cls: type[T]) -> type[T]:
+def ioprepped[T](cls: type[T]) -> type[T]:
     """Class decorator for easily prepping a dataclass at definition time.
 
     Note that in some cases it may not be possible to prep a dataclass
@@ -81,7 +80,7 @@ def ioprepped(cls: type[T]) -> type[T]:
     return cls
 
 
-def will_ioprep(cls: type[T]) -> type[T]:
+def will_ioprep[T](cls: type[T]) -> type[T]:
     """Class decorator hinting that we will prep a class later.
 
     In some cases (such as recursive types) we cannot use the @ioprepped
@@ -209,7 +208,7 @@ class PrepSession:
         # recurse through them, verifying that we support all contained
         # types and prepping any contained dataclass types.
         for attrname, anntype in resolved_annotations.items():
-            anntype, ioattrs = _parse_annotated(anntype)
+            anntype, ioattrs = parse_annotated(anntype)
 
             # If we found attached IOAttrs data, make sure it contains
             # valid values for the field it is attached to.
