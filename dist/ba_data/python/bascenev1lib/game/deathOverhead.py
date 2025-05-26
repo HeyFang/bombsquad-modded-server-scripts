@@ -320,7 +320,7 @@ class EliminationGame(bs.TeamGameActivity[Player, Team]):
         super().on_begin()
         self._start_time = bs.time()
         self.setup_standard_time_limit(self._time_limit)
-        self.setup_standard_powerup_drops()
+        
         if self._solo_mode:
             self._vs_text = bs.NodeActor(
                 bs.newnode(
