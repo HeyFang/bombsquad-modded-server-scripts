@@ -73,8 +73,8 @@ class PlayerSpaz(Spaz):
         self._drive_player_position()
         activity = bs.getactivity()
         if activity.__class__.__name__ == 'DeathMatchGame' and getattr(activity, 'name', '') == 'Boxing!!!':
-            self.node.handlemessage(bs.PowerupMessage(
-                poweruptype='punch'))  # Overloads to tell the type system our return type based on doraise val.
+            print("boxing mode iz givin punchhhh")
+            self.node.handlemessage(bs.PowerupMessage(poweruptype='punch'))    # Overloads to tell the type system our return type based on doraise val.
 
     # Overloads to tell the type system our return type based on doraise val.
 

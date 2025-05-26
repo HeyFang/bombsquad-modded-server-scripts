@@ -103,7 +103,7 @@
    "Complete": false
   },
   "Team Player": {
-   "Complete": false
+   "Complete": true
   },
   "The Great Wall": {
    "Complete": false
@@ -150,10 +150,10 @@
  "Fleet Zone Ping Last Flush Time": 1748087071,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 219.81364499993106,
-   "hyderabad.v4": 38.05326600013359,
-   "kolkata.v4": 54.73773300013818,
-   "mumbai.v4": 242.58776000010585
+   "delhi.v4": 48.20144124593571,
+   "hyderabad.v4": 41.45960509399765,
+   "kolkata.v4": 58.94671085984464,
+   "mumbai.v4": 23.925672557885264
   }
  },
  "Free-for-All Playlist Randomize": true,
@@ -176,7 +176,14 @@
    ]
   }
  },
- "Plugins": {},
+ "Plugins": {
+  "character_chooser (1).HeySmoothy": {
+   "enabled": true
+  },
+  "character_chooser (1).enable": {
+   "enabled": true
+  }
+ },
  "Port": 43210,
  "Show Tutorial": false,
  "Signed In Last Session": false,
@@ -411,7 +418,7 @@
   ]
  },
  "Teams Series Length": 7,
- "launchCount": 27,
+ "launchCount": 35,
  "lc14173": 1,
  "lc14292": 1
 }

@@ -145,7 +145,7 @@ class DeathMatchGame(bs.TeamGameActivity[Player, Team]):
     def on_begin(self) -> None:
         super().on_begin()
         self.setup_standard_time_limit(self._time_limit)
-        self.setup_standard_powerup_drops()
+       
 
         # Base kills needed to win on the size of the largest team.
         self._score_to_win = self._kills_to_win_per_player * max(

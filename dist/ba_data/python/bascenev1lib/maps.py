@@ -978,7 +978,7 @@ class LakeFrigid(bs.Map):
             'vr_fill_mesh': bs.getmesh('lakeFrigidVRFill'),
         }
         mat = bs.Material()
-        mat.add_actions(actions=('modify_part_collision', 'friction', 0.01))
+        mat.add_actions(actions=('modify_part_collision', 'friction', 2.0))
         data['ice_material'] = mat
         return data
 
