@@ -1,4 +1,34 @@
 !_TAG_FILE_ENCODING	utf-8	//
+avante.nvim-acknowledgments	avante.nvim.md	/## Acknowledgments
+avante.nvim-commands	avante.nvim.md	/## Commands
+avante.nvim-contributing	avante.nvim.md	/## Contributing
+avante.nvim-custom-prompts	avante.nvim.md	/## Custom prompts
+avante.nvim-default-setup-configuration	avante.nvim.md	/### Default setup configuration
+avante.nvim-features	avante.nvim.md	/## Features
+avante.nvim-highlight-groups	avante.nvim.md	/## Highlight Groups
+avante.nvim-installation	avante.nvim.md	/## Installation
+avante.nvim-key-bindings	avante.nvim.md	/## Key Bindings
+avante.nvim-license	avante.nvim.md	/## License
+avante.nvim-roadmap	avante.nvim.md	/## Roadmap
+avante.nvim-star-history	avante.nvim.md	/# Star History
+avante.nvim-todos	avante.nvim.md	/## TODOs
+avante.nvim-usage	avante.nvim.md	/## Usage
+blink.cmp-blink-completion-blink-cmp	blink.cmp.md	/# Blink Completion (blink.cmp)
+blink.cmp-contributors	blink.cmp.md	/### Contributors
+blink.cmp-features	blink.cmp.md	/## Features
+blink.cmp-installation	blink.cmp.md	/## Installation
+blink.cmp-special-thanks	blink.cmp.md	/## Special Thanks
+copilot.lua-authentication	copilot.lua.md	/### Authentication
+copilot.lua-commands	copilot.lua.md	/## Commands
+copilot.lua-copilot-lua	copilot.lua.md	/# copilot.lua
+copilot.lua-copilot-node-command	copilot.lua.md	/### copilot_node_command
+copilot.lua-filetypes	copilot.lua.md	/### filetypes
+copilot.lua-install	copilot.lua.md	/## Install
+copilot.lua-integrations	copilot.lua.md	/## Integrations
+copilot.lua-panel	copilot.lua.md	/### panel
+copilot.lua-server-opts-overrides	copilot.lua.md	/### server_opts_overrides
+copilot.lua-setup-and-configuration	copilot.lua.md	/## Setup and Configuration
+copilot.lua-suggestion	copilot.lua.md	/### suggestion
 friendly-snippets-add-snippets-from-a-framework-to-a-filetype	friendly-snippets.md	/## Add snippets from a framework to a filetype.
 friendly-snippets-credits	friendly-snippets.md	/## Credits
 friendly-snippets-excluding-snippets	friendly-snippets.md	/## Excluding snippets
@@ -184,3 +214,37 @@ nvim-ts-autotag-nvim-ts-autotag	nvim-ts-autotag.md	/# nvim-ts-autotag
 nvim-ts-autotag-setup	nvim-ts-autotag.md	/## Setup
 nvim-ts-autotag-sponsor	nvim-ts-autotag.md	/## Sponsor
 nvim-ts-autotag-usage	nvim-ts-autotag.md	/## Usage
+nvim-web-devicons-case-sensitivity	nvim-web-devicons.md	/### Case Sensitivity
+nvim-web-devicons-contributing	nvim-web-devicons.md	/## Contributing
+nvim-web-devicons-get-all-icons	nvim-web-devicons.md	/### Get all icons
+nvim-web-devicons-get-icon	nvim-web-devicons.md	/### Get Icon
+nvim-web-devicons-get-icon-and-color-code	nvim-web-devicons.md	/### Get icon and color code
+nvim-web-devicons-getting-and-setting-icons-by-filetype	nvim-web-devicons.md	/### Getting and setting icons by filetype
+nvim-web-devicons-installation	nvim-web-devicons.md	/## Installation
+nvim-web-devicons-known-issues	nvim-web-devicons.md	/## Known Issues
+nvim-web-devicons-my-setup-overrides-are-not-applied	nvim-web-devicons.md	/### My `setup` Overrides Are Not Applied
+nvim-web-devicons-notice	nvim-web-devicons.md	/# Notice
+nvim-web-devicons-nvim-web-devicons	nvim-web-devicons.md	/# Nvim-web-devicons
+nvim-web-devicons-requirements	nvim-web-devicons.md	/## Requirements
+nvim-web-devicons-set-an-icon	nvim-web-devicons.md	/### Set an icon
+nvim-web-devicons-setup	nvim-web-devicons.md	/### Setup
+nvim-web-devicons-usage	nvim-web-devicons.md	/## Usage
+nvim-web-devicons-variants	nvim-web-devicons.md	/### Variants
+nvim-web-devicons-viewing	nvim-web-devicons.md	/### Viewing
+nvim-web-devicons-windows-and-wsl-not-rendering-icons-properly-on-some-terminals	nvim-web-devicons.md	/### Windows and WSL not rendering icons properly on some terminals
+typescript.nvim-archived	typescript.nvim.md	/# ARCHIVED
+typescript.nvim-code-action-setup	typescript.nvim.md	/### Code Action Setup
+typescript.nvim-commands	typescript.nvim.md	/### Commands
+typescript.nvim-commands-available-as-code-actions	typescript.nvim.md	/### Commands Available as Code Actions
+typescript.nvim-contributing	typescript.nvim.md	/## Contributing
+typescript.nvim-faq	typescript.nvim.md	/## FAQ
+typescript.nvim-features	typescript.nvim.md	/## Features
+typescript.nvim-handlers	typescript.nvim.md	/### Handlers
+typescript.nvim-integrations	typescript.nvim.md	/## Integrations
+typescript.nvim-lua-code	typescript.nvim.md	/### Lua Code
+typescript.nvim-null-ls	typescript.nvim.md	/### null-ls
+typescript.nvim-setup	typescript.nvim.md	/## Setup
+typescript.nvim-tests	typescript.nvim.md	/## Tests
+typescript.nvim-typescript-code	typescript.nvim.md	/### TypeScript Code
+typescript.nvim-typescript-nvim	typescript.nvim.md	/# typescript.nvim
+typescript.nvim-will-not-support	typescript.nvim.md	/## Will not support

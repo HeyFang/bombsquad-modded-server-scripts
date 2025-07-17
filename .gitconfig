@@ -1,3 +1,5 @@
 [user]
 	email = heyfang36@yahoo.com
 	name = HeyFang
+[safe]
+	directory = /home/heyfang/ballistica/build/prefab/full/linux_x86_64_server

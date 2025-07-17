@@ -11,6 +11,8 @@
 # hlsearch on (H) or off (h):
 ~h
 # Command Line History (newest to oldest):
+:wq
+|2,0,1743835430,,"wq"
 :q
 |2,0,1734949858,,"q"
 
@@ -25,22 +27,34 @@
 # Registers:
 
 # File marks:
-'0  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/banlist.json
-|4,48,1,0,1734949858,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/banlist.json"
-'1  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py
-|4,49,1,0,1734948042,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py"
-'2  242  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
-|4,50,242,0,1734190696,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
-'3  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
-|4,51,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+'0  41  0  /mnt/f/handout/handout/brute_glade.py
+|4,48,41,0,1743835430,"/mnt/f/handout/handout/brute_glade.py"
+'1  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/banlist.json
+|4,49,1,0,1734949858,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/banlist.json"
+'2  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py
+|4,50,1,0,1734948042,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py"
+'3  242  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
+|4,51,242,0,1734190696,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
+'4  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,52,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
 
 # Jumplist (newest first):
+-'  41  0  /mnt/f/handout/handout/brute_glade.py
+|4,39,41,0,1743835430,"/mnt/f/handout/handout/brute_glade.py"
+-'  1  0  /mnt/f/handout/handout/brute_glade.py
+|4,39,1,0,1743835424,"/mnt/f/handout/handout/brute_glade.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/banlist.json
+|4,39,1,0,1734949858,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/banlist.json"
 -'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/banlist.json
 |4,39,1,0,1734949858,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/banlist.json"
 -'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py
 |4,39,1,0,1734948042,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py"
 -'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py
 |4,39,1,0,1734948042,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py
+|4,39,1,0,1734948042,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py
+|4,39,1,0,1734948042,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/roles.py"
 -'  242  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
 |4,39,242,0,1734190696,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
 -'  242  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
@@ -49,6 +63,22 @@
 |4,39,242,0,1734190696,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
 -'  242  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
 |4,39,242,0,1734190696,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
+-'  242  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
+|4,39,242,0,1734190696,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
+-'  242  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
+|4,39,242,0,1734190696,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
+-'  242  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
+|4,39,242,0,1734190696,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
+-'  242  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
+|4,39,242,0,1734190696,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
+|4,39,1,0,1734190675,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
+|4,39,1,0,1734190675,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
+|4,39,1,0,1734190675,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
+|4,39,1,0,1734190675,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
 -'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
 |4,39,1,0,1734190675,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py"
 -'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_activity.py
@@ -73,6 +103,38 @@
 |4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
 -'  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
 |4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  61  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,61,0,1734190658,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
+-'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
+|4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
 -'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
 |4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
 -'  1  0  ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py
@@ -91,6 +153,13 @@
 |4,39,1,0,1734190644,"~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_data/python/bascenev1/_hooks.py"
 
 # History of marks within files (newest to oldest):
+
+> /mnt/f/handout/handout/brute_glade.py
+	*	1743835428	0
+	"	41	0
+	^	41	0
+	.	40	17
+	+	40	17
 
 > ~/ballistica/build/prefab/full/linux_x86_64_server/release/dist/ba_root/mods/banlist.json
 	*	1734949857	0

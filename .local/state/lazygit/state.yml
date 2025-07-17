@@ -1,12 +1,14 @@
 lastupdatecheck: 0
 recentrepos:
     - /home/heyfang
+    - /home/heyfang/ballistica
+    - /mnt/f/repositories/Bombsquad-Ballistica-Modded-Server
 startuppopupversion: 5
 lastversion: 0.44.1
 customcommandshistory: []
 hidecommandlog: false
 ignorewhitespaceindiffview: false
-diffcontextsize: 3
+diffcontextsize: 2
 renamesimilaritythreshold: 50
 localbranchsortorder: recency
 remotebranchsortorder: alphabetical
