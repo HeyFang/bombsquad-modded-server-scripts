@@ -1,57 +1,73 @@
 # About
-- Game Party Server for <a href="https://www.froemling.net/apps/bombsquad">Bomb Squad</a> Game
-- This is a Modded Version of BombSquad linux_x86_64_server, build 1.7.48 API v9
-- You can find Vanilla Version (Basic Original) <a href="https://ballistica.net/downloads">here</a>
+- Game party server for <a href="https://www.froemling.net/apps/bombsquad">BombSquad</a>
+- Modded Linux x86_64 server, build 1.7.48 (API v9)
+- For the vanilla server, see <a href="https://ballistica.net/downloads">ballistica.net/downloads</a>
 
-# Instructions for Installation & Setup
-Run Following steps on ur system terminal
+# Install and setup
+Follow the steps below on a Debian/Ubuntu-based system.
 
-## Installation
+## 1) System packages
 
-- Initialize newly created server and install all dependencies
-```
+- Update and install prerequisites (includes tmux):
+```bash
 sudo apt update && sudo apt upgrade -y
+sudo apt install -y software-properties-common git tmux
 sudo add-apt-repository ppa:deadsnakes/ppa -y
-sudo apt install software-properties-common python3-pip python3.12-dev python3.12-venv python3-tinydb git -y
-sudo apt update && sudo apt upgrade -y
+sudo apt update
+sudo apt install -y python3-pip python3.12 python3.12-dev python3.12-venv python3-tinydb
 ```
-- Clone the repo
-```
+
+## 2) Get the files
+
+```bash
 git clone https://github.com/HeyFang/bombsquad-modded-server-scripts.git
+cd bombsquad-modded-server-scripts
 ```
-- Make files executable n editable
-```
-sudo chmod -R 777 bombsquad-modded-server-scripts
-```
-- Rename config_template.toml to config.toml and edit it according to your needs
-(make sure u remove '#' to uncomment the the required line)
 
-# Instructions for Running Game Server
-## Start Server
-- Run the following command to start server:
+## 3) Configure
+
+- Copy and edit the config:
+```bash
+cp staged/config_template.toml staged/config.toml
+# open staged/config.toml and adjust values as needed
 ```
-cd bombsquad-modded-server-scripts/staged
+- Tip: remove the `#` to uncomment any required setting.
+- Make sure to add pb-ids of admins in config.toml
+
+
+## 4) Permissions
+
+- Make the server binary executable (avoid using chmod 777):
+```bash
+chmod +x staged/ballisticakit_server ballisticakit_headless staged/dist/ballisticakit_headless
+```
+
+# Run the game server
+
+## Start server
+
+```bash
+cd staged
 tmux new -s 43210
-sudo ./ballisticakit_server
+./ballisticakit_server
 ```
-- We named the running tmux as `43210` to connect with it later if needed
-- You can replace `43210` with any name of your choice.
-- If you forget the session name, run `tmux ls` to list all tmux sessions.
-- Use `Ctrl + b` then `d` to exit session and keep it running in background
 
-## Re-Connecting
-- If you are not inside Tmux Session `43210`,
-- Run `tmux ls` to view all running sessions and confirm `43210` is active
-- Run the following command to connect back
-```
+- Session name `43210` is arbitrary; pick any name you like.
+- Press `Ctrl+b` then `d` to detach and keep it running in the background.
+- To list sessions later: `tmux ls`.
+- Note: Running as root is not required; prefer running as a normal user unless binding privileged ports.
+
+## Reconnect to the session
+
+```bash
 tmux attach -t 43210
 ```
 
-## Stop Server
-- If you are not inside Tmux Session `43210`, <a href="https://github.com/HeyFang/bombsquad-modded-server-scripts/blob/main/README.md#Re-Connecting">Reconnect as explained above</a>
-- Use `Ctrl + c` to stop running server party `(ballisticakit_server)`
-- Run the following cmd to terminate tmux session `43210`
-```
+## Stop the server
+
+- Inside the session, press `Ctrl+c` to stop `ballisticakit_server`.
+- Then end the tmux session:
+```bash
 tmux kill-session -t 43210
 ```
 
