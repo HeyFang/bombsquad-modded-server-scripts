@@ -26,11 +26,11 @@ cd bombsquad-modded-server-scripts
 
 ## 3) Configure
 
-- Copy and edit the config:
+- Make a config.toml:
 ```bash
-cp staged/config_template.toml staged/config.toml
-# open staged/config.toml and adjust values as needed
+sudo cp staged/config_template.toml staged/config.toml
 ```
+- Edit the `config.toml` according to your needs.
 - Tip: remove the `#` to uncomment any required setting.
 - Make sure to add pb-ids of admins in config.toml
 
@@ -39,7 +39,7 @@ cp staged/config_template.toml staged/config.toml
 
 - Make the server binary executable (avoid using chmod 777):
 ```bash
-chmod +x staged/ballisticakit_server ballisticakit_headless staged/dist/ballisticakit_headless
+sudo chmod +x staged/ballisticakit_server ballisticakit_headless staged/dist/ballisticakit_headless
 ```
 
 # Run the game server
@@ -49,7 +49,7 @@ chmod +x staged/ballisticakit_server ballisticakit_headless staged/dist/ballisti
 ```bash
 cd staged
 tmux new -s 43210
-./ballisticakit_server
+sudo ./ballisticakit_server
 ```
 
 - Session name `43210` is arbitrary; pick any name you like.
