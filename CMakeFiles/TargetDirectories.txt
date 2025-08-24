@@ -1,5 +1,0 @@
-/home/heyfang/ballistica/build/cmake/server-debug/CMakeFiles/ode.dir
-/home/heyfang/ballistica/build/cmake/server-debug/CMakeFiles/ballisticakitbin.dir
-/home/heyfang/ballistica/build/cmake/server-debug/CMakeFiles/ballisticakitso.dir
-/home/heyfang/ballistica/build/cmake/server-debug/CMakeFiles/edit_cache.dir
-/home/heyfang/ballistica/build/cmake/server-debug/CMakeFiles/rebuild_cache.dir
