@@ -32,6 +32,7 @@ class PopupWindow:
             'menu_store_no_back',
         ] = 'menu_minimal_no_back',
         edge_buffer_scale: float = 1.0,
+        darken_behind: bool = True,
     ):
         # pylint: disable=too-many-locals
         if focus_size is None:
@@ -99,9 +100,10 @@ class PopupWindow:
             claim_outside_clicks=True,
             color=bg_color,
             on_cancel_call=self.on_popup_cancel,
+            darken_behind=darken_behind,
         )
-        # complain if we outlive our root widget
-        bui.uicleanupcheck(self, self.root_widget)
+        # Complain if we outlive our root widget.
+        bui.app.ui_v1.add_ui_cleanup_check(self, self.root_widget)
 
     def on_popup_cancel(self) -> None:
         """Called when the popup is canceled.
@@ -195,7 +197,10 @@ class PopupMenuWindow(PopupWindow):
         # Init parent class - this will rescale and reposition things as
         # needed and create our root widget.
         super().__init__(
-            position, size=(self._width, self._height), scale=self._scale
+            position,
+            size=(self._width, self._height),
+            scale=self._scale,
+            darken_behind=False,  # Looks too intense for a menu.
         )
 
         if self._use_scroll:
@@ -370,7 +375,7 @@ class PopupMenu:
         self._window_widget: bui.Widget | None = None
 
         # Complain if we outlive our button.
-        bui.uicleanupcheck(self, self._button)
+        bui.app.ui_v1.add_ui_cleanup_check(self, self._button)
 
     def _make_popup(self) -> None:
         if not self._button:

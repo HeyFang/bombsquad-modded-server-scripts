@@ -12,10 +12,10 @@ from bautils.chat import (
     NoArgumentsProvidedError,
     IncorrectUsageError,
 )
-from bautils.tools import Color
+
+# Removed unused Color import
 
 
-# TODO: make it look more pretty, make characters icon appear in list
 @register_command
 class List(ServerCommand):
     """/l, /list or /clients"""
@@ -80,9 +80,9 @@ class Info(ServerCommand):
                 try:
                     profiles = target.inputdevice.get_player_profiles()
                 except Exception:
-                    profiles = []
+                    profiles = {}  # Initialize as empty dict instead of list
 
-                header = f"{'Sr.no':<9} |    {'Name':<12}\n" + ("_" * 25) + "\n"
+                header = f"{"Sr.no":<9} |    {"Name":<12}\n" + ("-" * 25) + "\n"
                 lines = [header]
                 for i, profile in enumerate(profiles, start=1):
                     try:

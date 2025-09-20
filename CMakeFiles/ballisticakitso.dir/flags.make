@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DBA_DEBUG_BUILD=1 -DBA_HEADLESS_BUILD=1 -DBA_MONOLITHIC_BUILD=0 -Dballisticakitso_EXPORTS
 
-CXX_INCLUDES = -I/home/heyfang/ballistica/ballisticakit-cmake/../src -I/usr/include/python3.13 -I/home/heyfang/ballistica/ballisticakit-cmake/../src/external/open_dynamics_engine-ef
+CXX_INCLUDES = -I/home/heyfang/ballistica/ballisticakit-cmake/../src/external/open_dynamics_engine-ef -I/home/heyfang/ballistica/ballisticakit-cmake/../src -isystem /usr/include/python3.13
 
-CXX_FLAGS =  -Wno-psabi -g -std=gnu++20 -fPIC -include ballistica/shared/buildconfig/buildconfig_cmake.h
+CXX_FLAGS = -g -std=gnu++20 -fPIC -fno-semantic-interposition -include /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/buildconfig/buildconfig_cmake.h
 

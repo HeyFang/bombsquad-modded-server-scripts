@@ -12,7 +12,6 @@ from bautils.chat import (
     register_command,
     NoArgumentsProvidedError,
     IncorrectUsageError,
-    InvalidClientIDError,
 )
 from bautils.tools import Color
 
@@ -40,7 +39,7 @@ class Kick(ServerCommand):
                 target = self.get_session_player(_id)
                 bs.broadcastmessage(
                     f"{user.getname()} kicked {target.getname()} "
-                    f"for {ban_time} seconds. Reason: {' '.join(reason)}.",
+                    f"for {ban_time} seconds. Reason: {" ".join(reason)}.",
                     color=Color.GREEN.float,
                     transient=True,
                     clients=None,
@@ -54,7 +53,7 @@ class Kick(ServerCommand):
                 target = self.get_session_player(_id)
                 bs.broadcastmessage(
                     f"{user.getname()} kicked {target.getname()}. "
-                    f"Reason: {' '.join(reason)}.",
+                    f"Reason: {" ".join(reason)}.",
                     color=Color.GREEN.float,
                     transient=True,
                     clients=None,
@@ -73,10 +72,8 @@ class Kick(ServerCommand):
 
         if ban_time <= 0:
             raise ValueError("Ban time must be a positive number.")
-
-        reason_str = " ".join(reason) if reason else "Reason not provided"
-        client = self.get_session_player(client_id)
-
+        if reason:
+            print(f"Disconnect reason: {" ".join(reason)}")
         bs.disconnect_client(client_id=client_id, ban_time=ban_time)
 
 
@@ -104,8 +101,9 @@ class Remove(ServerCommand):
                 for client in roaster:
                     try:
                         self._remove_player(client["client_id"])
-                    except:
-                        continue  # should skip host n players who dint join da game
+                    except Exception:  # pylint: disable=broad-except
+                        # Skip host and players who didn't join the game
+                        continue
                 bs.broadcastmessage(
                     f"{username} removed all players.",
                     color=Color.GREEN.float,

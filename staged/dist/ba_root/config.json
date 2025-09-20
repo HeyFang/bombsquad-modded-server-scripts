@@ -137,19 +137,19 @@
   "Client Input Device #1": "__account__"
  },
  "FFA Series Length": 24,
- "Fleet Zone Ping Last Flush Time": 1755638368,
+ "Fleet Zone Ping Last Flush Time": 1758376028,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 34.57540199997311,
-   "hyderabad.v4": 31.434854000053747,
-   "mumbai.v4": 12.314456000012797
+   "delhi.v4": 39.7924416965625,
+   "hyderabad.v4": 31.200432031474577,
+   "mumbai.v4": 14.76846216032752
   }
  },
  "Free-for-All Playlist Randomize": true,
  "Free-for-All Playlist Selection": "__default__",
  "Free-for-All Playlists": {},
  "Idle Exit Minutes": null,
- "Local Account Name": "Server22804434",
+ "Local Account Name": "Server23108603",
  "Player Profiles": {
   "__account__": {
    "character": "Spaz",
@@ -178,7 +178,7 @@
  "Signed In Last Session": false,
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 45,
+ "launchCount": 1,
  "lc14173": 1,
  "lc14292": 1
 }

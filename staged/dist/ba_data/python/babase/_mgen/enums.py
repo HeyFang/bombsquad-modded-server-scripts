@@ -184,3 +184,4 @@ class SpecialChar(Enum):
     FLAG_CHILE = 94
     MIKIROG = 95
     V2_LOGO = 96
+    CLOSE = 97

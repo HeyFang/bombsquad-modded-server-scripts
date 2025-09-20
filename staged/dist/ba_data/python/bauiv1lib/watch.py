@@ -240,7 +240,7 @@ class WatchWindow(bui.MainWindow):
             v = c_height - 30
             bui.textwidget(
                 parent=cnt,
-                position=(c_width * 0.5, v),
+                position=(c_width * 0.5, v + 6.0),
                 color=(0.6, 1.0, 0.6),
                 scale=0.7,
                 size=(0, 0),
@@ -413,6 +413,7 @@ class WatchWindow(bui.MainWindow):
             size=(c_width, c_height),
             transition='in_scale',
             parent=bui.get_special_widget('overlay_stack'),
+            darken_behind=True,
         )
         dname = self._get_replay_display_name(self._my_replay_selected)
         bui.textwidget(
@@ -543,8 +544,8 @@ class WatchWindow(bui.MainWindow):
                 ],
             ),
             bui.Call(self._delete_replay, self._my_replay_selected),
-            450,
-            150,
+            width=450,
+            height=150,
         )
 
     def _get_replay_display_name(self, replay: str) -> str:

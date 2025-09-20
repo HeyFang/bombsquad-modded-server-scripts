@@ -1,6 +1,6 @@
 {
   "accountSettingsWindow": {
-    "accountNameRules": "El nombre de la cuenta no puede contener emojis ni caracteres especiales",
+    "accountNameRules": "El Tag d La cuenta no puede contener emojis ni caracteres especiales",
     "accountsText": "Cuentas",
     "achievementProgressText": "Logros: ${COUNT} de ${TOTAL}",
     "campaignProgressText": "Progreso de la Campaña [Difícil]: ${PROGRESS}",
@@ -9,7 +9,7 @@
     "createAnAccountText": "Crea una Cuenta",
     "customName": "Nombre Personalizado",
     "deleteAccountText": "Borrar Cuenta",
-    "googlePlayGamesAccountSwitchText": "Si quieres usar una cuenta de Google distinta, usa la app Google Play Juegos para cambiarla.",
+    "googlePlayGamesAccountSwitchText": "Si Queres Usar una Cuenta diferente, usa la d Google Play Juegos para cambiarla.\n(NOTA: Ya No c si funciona)",
     "linkAccountsEnterCodeText": "Ingresar Código",
     "linkAccountsGenerateCodeText": "Generar Código",
     "linkAccountsInfoText": "(comparte tu progreso con diferentes plataformas)",
@@ -1755,6 +1755,7 @@
       "You got an achievement reward!": "¡Obtuviste una recompensa por tu logro!",
       "You have been promoted to a new league; congratulations!": "Has sido ascendido a una nueva liga; ¡felicitaciones!",
       "You lost a chest! (All your chest slots were full)": "¡Perdiste un cofre! (Todas tus ranuras de cofres estaban llenas).",
+      "You must sign in to do this.": "Debes iniciar sesión para hacer esto.",
       "You must update the app to view this.": "Debes actualizar la aplicación para ver esto.",
       "You must update to a newer version of the app to do this.": "Debes actualizar la aplicación a una versión más reciente para hacer esto.",
       "You must update to the newest version of the game to do this.": "Necesitas actualizar a la versión más reciente del juego para hacer esto.",

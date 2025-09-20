@@ -96,6 +96,7 @@ from _babase import (
     print_load_info,
     pushcall,
     quit,
+    reload_hooks,
     reload_media,
     request_permission,
     safecolor,
@@ -141,6 +142,7 @@ from babase._apputils import (
 )
 from babase._cloud import CloudSubscription
 from babase._devconsole import (
+    DevConsoleButtonDef,
     DevConsoleTab,
     DevConsoleTabEntry,
     DevConsoleSubsystem,
@@ -249,6 +251,7 @@ __all__ = [
     'ContextError',
     'ContextRef',
     'DelegateNotFoundError',
+    'DevConsoleButtonDef',
     'DevConsoleTab',
     'DevConsoleTabEntry',
     'DevConsoleSubsystem',
@@ -341,6 +344,7 @@ __all__ = [
     'pushcall',
     'quit',
     'QuitType',
+    'reload_hooks',
     'reload_media',
     'request_permission',
     'safecolor',

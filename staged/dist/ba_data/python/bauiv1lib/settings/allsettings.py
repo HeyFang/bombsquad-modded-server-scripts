@@ -20,6 +20,7 @@ class AllSettingsWindow(bui.MainWindow):
         self,
         transition: str | None = 'in_right',
         origin_widget: bui.Widget | None = None,
+        auxiliary_style: bool = True,
     ):
         # pylint: disable=too-many-locals
 
@@ -68,9 +69,10 @@ class AllSettingsWindow(bui.MainWindow):
             root_widget=bui.containerwidget(
                 size=(width, height),
                 toolbar_visibility=(
-                    'menu_minimal'
-                    if (uiscale is bui.UIScale.SMALL and not bui.in_main_menu())
-                    else 'menu_full'
+                    'menu_full' if bui.in_main_menu() else 'menu_minimal'
+                ),
+                toolbar_cancel_button_style=(
+                    'close' if auxiliary_style else 'back'
                 ),
                 scale=scale,
             ),
@@ -93,8 +95,12 @@ class AllSettingsWindow(bui.MainWindow):
                 size=(70, 70),
                 scale=0.8,
                 text_scale=1.2,
-                label=bui.charstr(bui.SpecialChar.BACK),
-                button_type='backSmall',
+                label=bui.charstr(
+                    bui.SpecialChar.CLOSE
+                    if auxiliary_style
+                    else bui.SpecialChar.BACK
+                ),
+                button_type=None if auxiliary_style else 'backSmall',
                 on_activate_call=self.main_window_back,
             )
             bui.containerwidget(edit=self._root_widget, cancel_button=btn)
@@ -213,7 +219,7 @@ class AllSettingsWindow(bui.MainWindow):
 
         # Hmm; we're now wide enough that being limited to pressing up
         # might be ok.
-        if bool(False):
+        if bool(True):
             # Left from our leftmost button should go to back button.
             if self._back_button is None:
                 bbtn = bui.get_special_widget('back_button')

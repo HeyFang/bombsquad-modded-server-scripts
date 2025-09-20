@@ -48,7 +48,14 @@ class CommandManager:
 
         # get the beggining of the of the message and get command.
         # capitalize it to match all cases.
-        command = cls.commands.get(msg.split()[0].upper())
+        if not msg or not msg.strip():
+            return None  # <- ignore empty messages completely
+
+        parts = msg.split()
+        if not parts:
+            return None
+
+        command = cls.commands.get(parts[0].upper())
 
         if command is not None:
             # set some attributes for abtraction

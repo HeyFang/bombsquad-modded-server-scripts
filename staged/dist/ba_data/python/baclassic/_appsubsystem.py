@@ -684,12 +684,6 @@ class ClassicAppSubsystem(babase.AppSubsystem):
 
         V2UpgradeWindow(login_name, code)
 
-    def account_link_code_window(self, data: dict[str, Any]) -> None:
-        """(internal)"""
-        from bauiv1lib.account.link import AccountLinkCodeWindow
-
-        AccountLinkCodeWindow(data)
-
     def server_dialog(self, delay: float, data: dict[str, Any]) -> None:
         """(internal)"""
         from bauiv1lib.serverdialog import (
@@ -818,11 +812,8 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         """(internal)"""
         from bauiv1lib.ingamemenu import InGameMenuWindow
 
-        # from bauiv1 import set_main_ui_input_device
-
         assert babase.app is not None
         if not babase.app.ui_v1.has_main_window():
-            # set_main_ui_input_device(device_id)
 
             # Note: we play a swish here for when our UI comes in, so we
             # need to make sure to disable swish sounds for any buttons
@@ -833,8 +824,13 @@ class ClassicAppSubsystem(babase.AppSubsystem):
             # Pause gameplay.
             self.pause()
 
+            menu_button = bauiv1.get_special_widget('menu_button')
             babase.app.ui_v1.set_main_window(
-                InGameMenuWindow(), is_top_level=True, suppress_warning=True
+                InGameMenuWindow(
+                    transition='scale_in', origin_widget=menu_button
+                ),
+                is_top_level=True,
+                suppress_warning=True,
             )
 
     def save_ui_state(self) -> None:
@@ -899,17 +895,17 @@ class ClassicAppSubsystem(babase.AppSubsystem):
 
     @staticmethod
     def basic_client_ui_button_label_str(
-        label: bacommon.bs.BasicClientUI.ButtonLabel,
+        label: bacommon.bs.BasicCloudDialog.ButtonLabel,
     ) -> babase.Lstr:
         """Given a client-ui label, return an Lstr."""
         import bacommon.bs
 
-        cls = bacommon.bs.BasicClientUI.ButtonLabel
+        cls = bacommon.bs.BasicCloudDialog.ButtonLabel
         if label is cls.UNKNOWN:
             # Server should not be sending us unknown stuff; make noise
             # if they do.
             logging.error(
-                'Got BasicClientUI.ButtonLabel.UNKNOWN; should not happen.'
+                'Got BasicCloudDialog.ButtonLabel.UNKNOWN; should not happen.'
             )
             return babase.Lstr(value='<error>')
 

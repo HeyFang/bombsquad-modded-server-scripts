@@ -13,6 +13,7 @@ from typing import override, assert_never, TYPE_CHECKING
 from efro.util import strict_partial, pairs_from_flat
 from efro.error import CommunicationError
 import bacommon.bs
+from bauiv1lib.utils import scroll_fade_bottom, scroll_fade_top
 import bauiv1 as bui
 
 if TYPE_CHECKING:
@@ -290,9 +291,9 @@ class _ExpireTimeSection(_Section):
 
 @dataclass
 class _EntryDisplay:
-    interaction_style: bacommon.bs.BasicClientUI.InteractionStyle
-    button_label_positive: bacommon.bs.BasicClientUI.ButtonLabel
-    button_label_negative: bacommon.bs.BasicClientUI.ButtonLabel
+    interaction_style: bacommon.bs.BasicCloudDialog.InteractionStyle
+    button_label_positive: bacommon.bs.BasicCloudDialog.ButtonLabel
+    button_label_negative: bacommon.bs.BasicCloudDialog.ButtonLabel
     sections: list[_Section]
     id: str
     total_height: float
@@ -312,6 +313,7 @@ class InboxWindow(bui.MainWindow):
         self,
         transition: str | None = 'in_right',
         origin_widget: bui.Widget | None = None,
+        auxiliary_style: bool = True,
     ):
 
         assert bui.app.classic is not None
@@ -350,11 +352,17 @@ class InboxWindow(bui.MainWindow):
         scroll_height = target_height - 31
         scroll_bottom = yoffs - 59 - scroll_height
 
+        # Go with full screen area scrollable on small ui.
+        if uiscale is bui.UIScale.SMALL:
+            scroll_height += 36
+            scroll_bottom -= 4
+
         super().__init__(
             root_widget=bui.containerwidget(
                 size=(self._width, self._height),
-                toolbar_visibility=(
-                    'menu_full' if uiscale is bui.UIScale.SMALL else 'menu_full'
+                toolbar_visibility=('menu_full'),
+                toolbar_cancel_button_style=(
+                    'close' if auxiliary_style else 'back'
                 ),
                 scale=scale,
             ),
@@ -376,28 +384,17 @@ class InboxWindow(bui.MainWindow):
                 position=(50, yoffs - 48),
                 size=(60, 60),
                 scale=0.6,
-                label=bui.charstr(bui.SpecialChar.BACK),
-                button_type='backSmall',
+                label=bui.charstr(
+                    bui.SpecialChar.CLOSE
+                    if auxiliary_style
+                    else bui.SpecialChar.BACK
+                ),
+                button_type=None if auxiliary_style else 'backSmall',
                 on_activate_call=self.main_window_back,
             )
             bui.containerwidget(
                 edit=self._root_widget, cancel_button=self._back_button
             )
-
-        self._title_text = bui.textwidget(
-            parent=self._root_widget,
-            position=(
-                self._width * 0.5,
-                yoffs - (45 if uiscale is bui.UIScale.SMALL else 30),
-            ),
-            size=(0, 0),
-            h_align='center',
-            v_align='center',
-            scale=0.6 if uiscale is bui.UIScale.SMALL else 0.8,
-            text=bui.Lstr(resource='inboxText'),
-            maxwidth=200,
-            color=bui.app.ui_v1.title_color,
-        )
 
         # Shows 'loading', 'no messages', etc.
         self._infotext = bui.textwidget(
@@ -440,10 +437,43 @@ class InboxWindow(bui.MainWindow):
                 left_widget=bui.get_special_widget('back_button'),
             )
 
+        # When we're doing fullscreen scrolling, fade content around
+        # toolbars.
+        if uiscale is bui.UIScale.SMALL:
+            scroll_fade_top(
+                self._root_widget,
+                self._width * 0.5 - scroll_width * 0.5,
+                scroll_bottom,
+                scroll_width,
+                scroll_height,
+            )
+            scroll_fade_bottom(
+                self._root_widget,
+                self._width * 0.5 - scroll_width * 0.5,
+                scroll_bottom,
+                scroll_width,
+                scroll_height,
+            )
+
         bui.containerwidget(
             edit=self._root_widget,
             cancel_button=self._back_button,
             single_depth=True,
+        )
+
+        self._title_text = bui.textwidget(
+            parent=self._root_widget,
+            position=(
+                self._width * 0.5,
+                yoffs - (45 if uiscale is bui.UIScale.SMALL else 30),
+            ),
+            size=(0, 0),
+            h_align='center',
+            v_align='center',
+            scale=0.6 if uiscale is bui.UIScale.SMALL else 0.8,
+            text=bui.Lstr(resource='inboxText'),
+            maxwidth=200,
+            color=bui.app.ui_v1.title_color,
         )
 
         # Kick off request.
@@ -480,7 +510,7 @@ class InboxWindow(bui.MainWindow):
     def _on_entry_display_press(
         self,
         display_weak: weakref.ReferenceType[_EntryDisplay],
-        action: bacommon.bs.ClientUIAction,
+        action: bacommon.bs.CloudDialogAction,
     ) -> None:
         display = display_weak()
         if display is None:
@@ -494,7 +524,7 @@ class InboxWindow(bui.MainWindow):
         # interaction types.
         if (
             display.interaction_style
-            is bacommon.bs.BasicClientUI.InteractionStyle.UNKNOWN
+            is bacommon.bs.BasicCloudDialog.InteractionStyle.UNKNOWN
         ):
             display.processing_complete = True
             self._close_soon_if_all_processed()
@@ -510,13 +540,14 @@ class InboxWindow(bui.MainWindow):
             return
 
         # Pause the root ui so stuff like token counts don't change
-        # automatically, allowing the action to animate them.
+        # automatically until we've run any client-effect animations
+        # resulting from this message.
         self._action_ui_pause = bui.RootUIUpdatePause()
 
         # Ask the master-server to run our action.
         with plus.accounts.primary:
             plus.cloud.send_message_cb(
-                bacommon.bs.ClientUIActionMessage(display.id, action),
+                bacommon.bs.CloudDialogActionMessage(display.id, action),
                 on_response=bui.WeakCall(
                     self._on_client_ui_action_response,
                     display_weak,
@@ -527,12 +558,12 @@ class InboxWindow(bui.MainWindow):
         # Tweak the UI to show that things are in motion.
         button = (
             display.button_positive
-            if action is bacommon.bs.ClientUIAction.BUTTON_PRESS_POSITIVE
+            if action is bacommon.bs.CloudDialogAction.BUTTON_PRESS_POSITIVE
             else display.button_negative
         )
         button_spinner = (
             display.button_spinner_positive
-            if action is bacommon.bs.ClientUIAction.BUTTON_PRESS_POSITIVE
+            if action is bacommon.bs.CloudDialogAction.BUTTON_PRESS_POSITIVE
             else display.button_spinner_negative
         )
         if button is not None:
@@ -571,8 +602,8 @@ class InboxWindow(bui.MainWindow):
     def _on_client_ui_action_response(
         self,
         display_weak: weakref.ReferenceType[_EntryDisplay],
-        action: bacommon.bs.ClientUIAction,
-        response: bacommon.bs.ClientUIActionResponse | Exception,
+        action: bacommon.bs.CloudDialogAction,
+        response: bacommon.bs.CloudDialogActionResponse | Exception,
     ) -> None:
         # pylint: disable=too-many-branches
 
@@ -595,12 +626,12 @@ class InboxWindow(bui.MainWindow):
         # Tweak the button to show results.
         button = (
             display.button_positive
-            if action is bacommon.bs.ClientUIAction.BUTTON_PRESS_POSITIVE
+            if action is bacommon.bs.CloudDialogAction.BUTTON_PRESS_POSITIVE
             else display.button_negative
         )
         button_spinner = (
             display.button_spinner_positive
-            if action is bacommon.bs.ClientUIAction.BUTTON_PRESS_POSITIVE
+            if action is bacommon.bs.CloudDialogAction.BUTTON_PRESS_POSITIVE
             else display.button_spinner_negative
         )
         # Always hide spinner at this point.
@@ -710,6 +741,10 @@ class InboxWindow(bui.MainWindow):
         sub_width = 400.0
         sub_height = margin_top
 
+        # For fullscreen scrollable, account for toolbar.
+        if uiscale is bui.UIScale.SMALL:
+            sub_height += 36
+
         # Construct entries for everything we'll display.
         for i, wrapper in enumerate(response.wrappers):
 
@@ -717,9 +752,9 @@ class InboxWindow(bui.MainWindow):
             # textfin: str
             color: tuple[float, float, float]
 
-            interaction_style: bacommon.bs.BasicClientUI.InteractionStyle
-            button_label_positive: bacommon.bs.BasicClientUI.ButtonLabel
-            button_label_negative: bacommon.bs.BasicClientUI.ButtonLabel
+            interaction_style: bacommon.bs.BasicCloudDialog.InteractionStyle
+            button_label_positive: bacommon.bs.BasicCloudDialog.ButtonLabel
+            button_label_negative: bacommon.bs.BasicCloudDialog.ButtonLabel
 
             sections: list[_Section] = []
             total_height = 80.0
@@ -727,7 +762,7 @@ class InboxWindow(bui.MainWindow):
             # Display only entries where we recognize all style/label
             # values and ui component types.
             if (
-                isinstance(wrapper.ui, bacommon.bs.BasicClientUI)
+                isinstance(wrapper.ui, bacommon.bs.BasicCloudDialog)
                 and not wrapper.ui.contains_unknown_elements()
             ):
                 color = (0.55, 0.5, 0.7)
@@ -735,14 +770,14 @@ class InboxWindow(bui.MainWindow):
                 button_label_positive = wrapper.ui.button_label_positive
                 button_label_negative = wrapper.ui.button_label_negative
 
-                idcls = bacommon.bs.BasicClientUIComponentTypeID
+                idcls = bacommon.bs.BasicCloudDialogComponentTypeID
                 for component in wrapper.ui.components:
                     ctypeid = component.get_type_id()
                     section: _Section
 
                     if ctypeid is idcls.TEXT:
                         assert isinstance(
-                            component, bacommon.bs.BasicClientUIComponentText
+                            component, bacommon.bs.BasicCloudDialogComponentText
                         )
                         section = _TextSection(
                             sub_width=sub_width,
@@ -760,7 +795,7 @@ class InboxWindow(bui.MainWindow):
 
                     elif ctypeid is idcls.LINK:
                         assert isinstance(
-                            component, bacommon.bs.BasicClientUIComponentLink
+                            component, bacommon.bs.BasicCloudDialogComponentLink
                         )
 
                         def _do_open_url(url: str, sec: _ButtonSection) -> None:
@@ -785,7 +820,7 @@ class InboxWindow(bui.MainWindow):
                     elif ctypeid is idcls.DISPLAY_ITEMS:
                         assert isinstance(
                             component,
-                            bacommon.bs.BasicClientUIDisplayItems,
+                            bacommon.bs.BasicCloudDialogDisplayItems,
                         )
                         section = _DisplayItemsSection(
                             sub_width=sub_width,
@@ -802,7 +837,7 @@ class InboxWindow(bui.MainWindow):
 
                         assert isinstance(
                             component,
-                            bacommon.bs.BasicClientUIBsClassicTourneyResult,
+                            bacommon.bs.BasicCloudDialogBsClassicTourneyResult,
                         )
                         campaignname, levelname = component.game.split(':')
                         assert bui.app.classic is not None
@@ -927,7 +962,7 @@ class InboxWindow(bui.MainWindow):
 
                     elif ctypeid is idcls.EXPIRE_TIME:
                         assert isinstance(
-                            component, bacommon.bs.BasicClientUIExpireTime
+                            component, bacommon.bs.BasicCloudDialogExpireTime
                         )
                         section = _ExpireTimeSection(
                             sub_width=sub_width,
@@ -950,11 +985,13 @@ class InboxWindow(bui.MainWindow):
                 # 'upgrade your app to see this' message.
                 color = (0.6, 0.6, 0.6)
                 interaction_style = (
-                    bacommon.bs.BasicClientUI.InteractionStyle.UNKNOWN
+                    bacommon.bs.BasicCloudDialog.InteractionStyle.UNKNOWN
                 )
-                button_label_positive = bacommon.bs.BasicClientUI.ButtonLabel.OK
+                button_label_positive = (
+                    bacommon.bs.BasicCloudDialog.ButtonLabel.OK
+                )
                 button_label_negative = (
-                    bacommon.bs.BasicClientUI.ButtonLabel.CANCEL
+                    bacommon.bs.BasicCloudDialog.ButtonLabel.CANCEL
                 )
 
                 section = _TextSection(
@@ -997,6 +1034,12 @@ class InboxWindow(bui.MainWindow):
 
         buttonrows: list[list[bui.Widget]] = []
         y = sub_height - margin_top
+
+        # For fullscreen scrollable, account for toolbar.
+        uiscale = bui.app.ui_v1.uiscale
+        if uiscale is bui.UIScale.SMALL:
+            y -= 36
+
         for i, _wrapper in enumerate(response.wrappers):
             entry_display = self._entry_displays[i]
             entry_display_weak = weakref.ref(entry_display)
@@ -1032,7 +1075,7 @@ class InboxWindow(bui.MainWindow):
             have_negative_button = (
                 entry_display.interaction_style
                 is (
-                    bacommon.bs.BasicClientUI
+                    bacommon.bs.BasicCloudDialog
                 ).InteractionStyle.BUTTON_POSITIVE_NEGATIVE
             )
 
@@ -1057,7 +1100,7 @@ class InboxWindow(bui.MainWindow):
                 on_activate_call=bui.WeakCall(
                     self._on_entry_display_press,
                     entry_display_weak,
-                    bacommon.bs.ClientUIAction.BUTTON_PRESS_POSITIVE,
+                    bacommon.bs.CloudDialogAction.BUTTON_PRESS_POSITIVE,
                 ),
                 enable_sound=False,
             )
@@ -1088,7 +1131,7 @@ class InboxWindow(bui.MainWindow):
                     on_activate_call=bui.WeakCall(
                         self._on_entry_display_press,
                         entry_display_weak,
-                        (bacommon.bs.ClientUIAction).BUTTON_PRESS_NEGATIVE,
+                        (bacommon.bs.CloudDialogAction).BUTTON_PRESS_NEGATIVE,
                     ),
                     enable_sound=False,
                 )

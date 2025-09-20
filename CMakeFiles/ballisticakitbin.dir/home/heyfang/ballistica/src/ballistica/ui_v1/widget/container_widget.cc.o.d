@@ -298,15 +298,19 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/ui_v1/wid
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_ref.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/ui/ui.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/vector4f.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/foundation/event_loop.h \
- /usr/include/c++/13/condition_variable /usr/include/c++/13/stop_token \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging_macros.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/core.h \
+ /usr/include/c++/13/thread /usr/include/c++/13/stop_token \
  /usr/include/c++/13/bits/std_thread.h /usr/include/c++/13/semaphore \
  /usr/include/c++/13/bits/semaphore_base.h \
  /usr/include/c++/13/bits/atomic_timed_wait.h \
  /usr/include/c++/13/bits/this_thread_sleep.h \
  /usr/include/x86_64-linux-gnu/sys/time.h /usr/include/semaphore.h \
  /usr/include/x86_64-linux-gnu/bits/semaphore.h \
- /usr/include/c++/13/thread \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/support/core_config.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/foundation/event_loop.h \
+ /usr/include/c++/13/condition_variable \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/lambda_runnable.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/timer_list.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/utils.h \
@@ -342,9 +346,5 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/ui_v1/wid
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/mesh/mesh_buffer.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/mesh/mesh_buffer_base.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/mesh/mesh_index_buffer_32.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging_macros.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/core.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/support/core_config.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/ui_v1/widget/root_widget.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/ui_v1/widget/stack_widget.h

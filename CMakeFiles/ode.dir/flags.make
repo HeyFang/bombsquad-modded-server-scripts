@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DBA_DEBUG_BUILD=1 -DBA_HEADLESS_BUILD=1
 
-CXX_INCLUDES = -I/home/heyfang/ballistica/ballisticakit-cmake/../src -I/home/heyfang/ballistica/ballisticakit-cmake/../src/external/open_dynamics_engine-ef
+CXX_INCLUDES = -I/home/heyfang/ballistica/ballisticakit-cmake/../src/external/open_dynamics_engine-ef -I/home/heyfang/ballistica/ballisticakit-cmake/../src
 
-CXX_FLAGS =  -Wno-psabi -g -std=gnu++20 -include ballistica/shared/buildconfig/buildconfig_cmake.h -fPIC -fno-semantic-interposition
+CXX_FLAGS = -g -std=gnu++20 -fPIC -fno-semantic-interposition -include /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/buildconfig/buildconfig_cmake.h
 

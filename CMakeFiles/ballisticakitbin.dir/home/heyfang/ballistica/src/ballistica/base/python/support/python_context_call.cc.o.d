@@ -247,21 +247,28 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/base/pyth
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/foundation/object.h \
  /usr/include/c++/13/utility /usr/include/c++/13/bits/stl_relops.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_ref.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/logic/logic.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/runnable.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/ui/ui.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/graphics.h \
  /usr/include/c++/13/list /usr/include/c++/13/bits/stl_list.h \
- /usr/include/c++/13/bits/list.tcc \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/support/frame_def.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/assets/asset.h \
+ /usr/include/c++/13/bits/list.tcc /usr/include/c++/13/map \
+ /usr/include/c++/13/bits/stl_tree.h \
+ /usr/include/c++/13/bits/node_handle.h \
+ /usr/include/c++/13/bits/stl_map.h \
+ /usr/include/c++/13/bits/stl_multimap.h \
+ /usr/include/c++/13/bits/erase_if.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/support/graphics_client_context.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/support/graphics_settings.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/vector2f.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/snapshot.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/logic/logic.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/runnable.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/ui/ui.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/support/frame_def.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/assets/asset.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/matrix44f.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/ui/widget_message.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/platform/support/min_sdl.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/vector4f.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/python/core_python.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging_macros.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/core.h \
  /usr/include/c++/13/thread /usr/include/c++/13/stop_token \
  /usr/include/c++/13/bits/std_thread.h /usr/include/c++/13/semaphore \
@@ -274,9 +281,9 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/base/pyth
  /usr/include/c++/13/bits/unordered_map.h \
  /usr/include/c++/13/bits/hashtable.h \
  /usr/include/c++/13/bits/hashtable_policy.h \
- /usr/include/c++/13/bits/node_handle.h \
- /usr/include/c++/13/bits/erase_if.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/support/core_config.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/python/core_python.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_object_set.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/foundation/event_loop.h \
  /usr/include/c++/13/condition_variable \
@@ -424,5 +431,4 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/base/pyth
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
  /usr/include/python3.13/cpython/fileutils.h \
  /usr/include/python3.13/cpython/pyfpe.h \
- /usr/include/python3.13/cpython/tracemalloc.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging.h
+ /usr/include/python3.13/cpython/tracemalloc.h

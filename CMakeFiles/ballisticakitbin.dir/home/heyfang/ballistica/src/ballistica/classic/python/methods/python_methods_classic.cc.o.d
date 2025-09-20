@@ -277,6 +277,9 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/classic/p
  /usr/include/c++/13/bits/hashtable_policy.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/logic/logic.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/runnable.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/classic/python/classic_python.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_object_set.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_ref.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/classic/support/classic_app_mode.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/app_mode/app_mode.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/scene_v1/scene_v1.h \
@@ -299,7 +302,6 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/classic/p
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/timer_list.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/point2d.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_ref.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_command.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_macros.h \
  /usr/include/python3.13/Python.h /usr/include/python3.13/patchlevel.h \

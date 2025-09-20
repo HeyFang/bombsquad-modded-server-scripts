@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import time
 import logging
 from typing import override
 
@@ -14,12 +13,8 @@ from bacommon.login import LoginType
 import bacommon.cloud
 import bauiv1 as bui
 
+from bauiv1lib.utils import scroll_fade_bottom, scroll_fade_top
 from bauiv1lib.connectivity import wait_for_connectivity
-
-# These days we're directing people to the web based account settings
-# for V2 account linking and trying to get them to disconnect remaining
-# V1 links, but leaving this escape hatch here in case needed.
-FORCE_ENABLE_V1_LINKING = False
 
 
 class AccountSettingsWindow(bui.MainWindow):
@@ -30,6 +25,7 @@ class AccountSettingsWindow(bui.MainWindow):
         transition: str | None = 'in_right',
         origin_widget: bui.Widget | None = None,
         close_once_signed_in: bool = False,
+        auxiliary_style: bool = True,
     ):
         # pylint: disable=too-many-statements
         # pylint: disable=too-many-locals
@@ -95,6 +91,11 @@ class AccountSettingsWindow(bui.MainWindow):
         self._scroll_height = target_height - 33
         scroll_bottom = yoffs - 61 - self._scroll_height
 
+        # Go with full-screen scrollable area in small ui.
+        if uiscale is bui.UIScale.SMALL:
+            self._scroll_height += 35
+            scroll_bottom -= 3
+
         self._sign_in_button = None
         self._sign_in_text = None
 
@@ -120,11 +121,9 @@ class AccountSettingsWindow(bui.MainWindow):
         super().__init__(
             root_widget=bui.containerwidget(
                 size=(self._width, self._height),
-                toolbar_visibility=(
-                    # 'menu_minimal'
-                    # if uiscale is bui.UIScale.SMALL
-                    # else 'menu_full'
-                    'menu_full'
+                toolbar_visibility=('menu_full'),
+                toolbar_cancel_button_style=(
+                    'close' if auxiliary_style else 'back'
                 ),
                 scale=scale,
             ),
@@ -142,20 +141,49 @@ class AccountSettingsWindow(bui.MainWindow):
             self._back_button = btn = bui.buttonwidget(
                 parent=self._root_widget,
                 position=(51, yoffs - 52.0),
-                size=(120, 60),
+                size=(60, 56),
                 scale=0.8,
                 text_scale=1.2,
                 autoselect=True,
-                label=bui.Lstr(resource='backText'),
-                button_type='back',
+                button_type=None if auxiliary_style else 'backSmall',
                 on_activate_call=self.main_window_back,
+                label=bui.charstr(
+                    bui.SpecialChar.CLOSE
+                    if auxiliary_style
+                    else bui.SpecialChar.BACK
+                ),
             )
             bui.containerwidget(edit=self._root_widget, cancel_button=btn)
-            bui.buttonwidget(
-                edit=btn,
-                button_type='backSmall',
-                size=(60, 56),
-                label=bui.charstr(bui.SpecialChar.BACK),
+
+        self._scrollwidget = bui.scrollwidget(
+            parent=self._root_widget,
+            highlight=False,
+            size=(self._scroll_width, self._scroll_height),
+            position=(
+                self._width * 0.5 - self._scroll_width * 0.5,
+                scroll_bottom,
+            ),
+            claims_left_right=True,
+            selection_loops_to_parent=True,
+            border_opacity=0.4,
+        )
+
+        # With full-screen scrolling, fade content as it approaches
+        # toolbars.
+        if uiscale is bui.UIScale.SMALL:
+            scroll_fade_top(
+                self._root_widget,
+                self._width * 0.5 - self._scroll_width * 0.5,
+                scroll_bottom,
+                self._scroll_width,
+                self._scroll_height,
+            )
+            scroll_fade_bottom(
+                self._root_widget,
+                self._width * 0.5 - self._scroll_width * 0.5,
+                scroll_bottom,
+                self._scroll_width,
+                self._scroll_height,
             )
 
         titleyoffs = -45.0 if uiscale is bui.UIScale.SMALL else -28.0
@@ -175,18 +203,6 @@ class AccountSettingsWindow(bui.MainWindow):
             v_align='center',
         )
 
-        self._scrollwidget = bui.scrollwidget(
-            parent=self._root_widget,
-            highlight=False,
-            size=(self._scroll_width, self._scroll_height),
-            position=(
-                self._width * 0.5 - self._scroll_width * 0.5,
-                scroll_bottom,
-            ),
-            claims_left_right=True,
-            selection_loops_to_parent=True,
-            border_opacity=0.4,
-        )
         self._subcontainer: bui.Widget | None = None
         self._refresh()
         self._restore_state()
@@ -219,22 +235,17 @@ class AccountSettingsWindow(bui.MainWindow):
         # another in the background this would break.
         v1_account_state_num = plus.get_v1_account_state_num()
         v1_account_state = plus.get_v1_account_state()
-        show_legacy_unlink_button = self._should_show_legacy_unlink_button()
 
         if (
             v1_account_state_num != self._v1_account_state_num
-            or show_legacy_unlink_button != self._show_legacy_unlink_button
             or self._needs_refresh
         ):
             self._v1_account_state_num = v1_account_state_num
             self._v1_signed_in = v1_account_state == 'signed_in'
-            self._show_legacy_unlink_button = show_legacy_unlink_button
             self._refresh()
 
         # Go ahead and refresh some individual things that may change
         # under us.
-        self._update_linked_accounts_text()
-        self._update_unlink_accounts_button()
         self._refresh_campaign_progress_text()
         self._refresh_achievements()
         self._refresh_tickets_text()
@@ -386,24 +397,15 @@ class AccountSettingsWindow(bui.MainWindow):
         )
         delete_account_button_space = 70.0
 
-        show_link_accounts_button = self._v1_signed_in and (
-            primary_v2_account is None or FORCE_ENABLE_V1_LINKING
-        )
-        link_accounts_button_space = 70.0
+        # show_link_accounts_button = self._v1_signed_in and (
+        #     primary_v2_account is None or FORCE_ENABLE_V1_LINKING
+        # )
+        # link_accounts_button_space = 70.0
 
         show_v1_obsolete_note = self._v1_signed_in and (
             primary_v2_account is None
         )
         v1_obsolete_note_space = 80.0
-
-        show_unlink_accounts_button = show_link_accounts_button
-        unlink_accounts_button_space = 90.0
-
-        # Phasing this out.
-        show_v2_link_info = False
-        v2_link_info_space = 70.0
-
-        legacy_unlink_button_space = 120.0
 
         show_sign_out_button = primary_v2_account is not None or (
             self._v1_signed_in and v1_account_type == 'Local'
@@ -422,6 +424,12 @@ class AccountSettingsWindow(bui.MainWindow):
         if self._subcontainer is not None:
             self._subcontainer.delete()
         self._sub_height = 90.0
+
+        # For fullscreen scrollable, account for toolbar.
+        uiscale = bui.app.ui_v1.uiscale
+        if uiscale is bui.UIScale.SMALL:
+            self._sub_height += 35
+
         if show_signed_in_as:
             self._sub_height += signed_in_as_space
         self._sub_height += via_space * len(via_lines)
@@ -453,16 +461,8 @@ class AccountSettingsWindow(bui.MainWindow):
             self._sub_height += manage_account_button_space
         if show_create_account_button:
             self._sub_height += create_account_button_space
-        if show_link_accounts_button:
-            self._sub_height += link_accounts_button_space
         if show_v1_obsolete_note:
             self._sub_height += v1_obsolete_note_space
-        if show_unlink_accounts_button:
-            self._sub_height += unlink_accounts_button_space
-        if show_v2_link_info:
-            self._sub_height += v2_link_info_space
-        if self._show_legacy_unlink_button:
-            self._sub_height += legacy_unlink_button_space
         if show_sign_out_button:
             self._sub_height += sign_out_button_space
         if show_delete_account_button:
@@ -479,6 +479,10 @@ class AccountSettingsWindow(bui.MainWindow):
 
         first_selectable = None
         v = self._sub_height - 10.0
+
+        # For fullscreen scrollable, account for toolbar.
+        if uiscale is bui.UIScale.SMALL:
+            v -= 35
 
         assert bui.app.classic is not None
         self._account_name_text: bui.Widget | None
@@ -1002,152 +1006,7 @@ class AccountSettingsWindow(bui.MainWindow):
         else:
             self._tickets_text = None
 
-        # bit of spacing before the reset/sign-out section
-        # v -= 5
-
         button_width = 300
-
-        self._linked_accounts_text: bui.Widget | None
-        if show_linked_accounts_text:
-            v -= linked_accounts_text_space * 0.8
-            self._linked_accounts_text = bui.textwidget(
-                parent=self._subcontainer,
-                position=(self._sub_width * 0.5, v),
-                size=(0, 0),
-                scale=0.9,
-                color=(0.75, 0.7, 0.8),
-                maxwidth=self._sub_width * 0.95,
-                text=bui.Lstr(resource=f'{self._r}.linkedAccountsText'),
-                h_align='center',
-                v_align='center',
-            )
-            v -= linked_accounts_text_space * 0.2
-            self._update_linked_accounts_text()
-        else:
-            self._linked_accounts_text = None
-
-        # Show link/unlink buttons only for V1 accounts.
-
-        if show_link_accounts_button:
-            v -= link_accounts_button_space
-            self._link_accounts_button = btn = bui.buttonwidget(
-                parent=self._subcontainer,
-                position=((self._sub_width - button_width) * 0.5, v),
-                autoselect=True,
-                size=(button_width, 60),
-                label='',
-                color=(0.55, 0.5, 0.6),
-                on_activate_call=self._link_accounts_press,
-            )
-            bui.textwidget(
-                parent=self._subcontainer,
-                draw_controller=btn,
-                h_align='center',
-                v_align='center',
-                size=(0, 0),
-                position=(self._sub_width * 0.5, v + 17 + 20),
-                text=bui.Lstr(resource=f'{self._r}.linkAccountsText'),
-                maxwidth=button_width * 0.8,
-                color=(0.75, 0.7, 0.8),
-            )
-            bui.textwidget(
-                parent=self._subcontainer,
-                draw_controller=btn,
-                h_align='center',
-                v_align='center',
-                size=(0, 0),
-                position=(self._sub_width * 0.5, v - 4 + 20),
-                text=bui.Lstr(resource=f'{self._r}.linkAccountsInfoText'),
-                flatness=1.0,
-                scale=0.5,
-                maxwidth=button_width * 0.8,
-                color=(0.75, 0.7, 0.8),
-            )
-            if first_selectable is None:
-                first_selectable = btn
-            bui.widget(
-                edit=btn, right_widget=bui.get_special_widget('squad_button')
-            )
-            bui.widget(edit=btn, left_widget=bbtn, show_buffer_bottom=50)
-
-        self._unlink_accounts_button: bui.Widget | None
-        if show_unlink_accounts_button:
-            v -= unlink_accounts_button_space
-            self._unlink_accounts_button = btn = bui.buttonwidget(
-                parent=self._subcontainer,
-                position=((self._sub_width - button_width) * 0.5, v + 25),
-                autoselect=True,
-                size=(button_width, 60),
-                label='',
-                color=(0.55, 0.5, 0.6),
-                on_activate_call=self._unlink_accounts_press,
-            )
-            self._unlink_accounts_button_label = bui.textwidget(
-                parent=self._subcontainer,
-                draw_controller=btn,
-                h_align='center',
-                v_align='center',
-                size=(0, 0),
-                position=(self._sub_width * 0.5, v + 55),
-                text=bui.Lstr(resource=f'{self._r}.unlinkAccountsText'),
-                maxwidth=button_width * 0.8,
-                color=(0.75, 0.7, 0.8),
-            )
-            if first_selectable is None:
-                first_selectable = btn
-            bui.widget(
-                edit=btn, right_widget=bui.get_special_widget('squad_button')
-            )
-            bui.widget(edit=btn, left_widget=bbtn, show_buffer_bottom=50)
-            self._update_unlink_accounts_button()
-        else:
-            self._unlink_accounts_button = None
-
-        if show_v2_link_info:
-            v -= v2_link_info_space
-            bui.textwidget(
-                parent=self._subcontainer,
-                h_align='center',
-                v_align='center',
-                size=(0, 0),
-                position=(self._sub_width * 0.5, v + v2_link_info_space - 20),
-                text=bui.Lstr(resource='v2AccountLinkingInfoText'),
-                flatness=1.0,
-                scale=0.8,
-                maxwidth=450,
-                color=(0.5, 0.45, 0.55),
-            )
-
-        if self._show_legacy_unlink_button:
-            v -= legacy_unlink_button_space
-            button_width_w = button_width * 1.5
-            bui.textwidget(
-                parent=self._subcontainer,
-                position=(self._sub_width * 0.5 - 150.0, v + 75),
-                size=(300.0, 60),
-                text=bui.Lstr(resource='whatIsThisText'),
-                scale=0.8,
-                color=(0.3, 0.7, 0.05),
-                maxwidth=200.0,
-                h_align='center',
-                v_align='center',
-                autoselect=True,
-                selectable=True,
-                on_activate_call=show_what_is_legacy_unlinking_page,
-                click_activate=True,
-            )
-            btn = bui.buttonwidget(
-                parent=self._subcontainer,
-                position=((self._sub_width - button_width_w) * 0.5, v + 25),
-                autoselect=True,
-                size=(button_width_w, 60),
-                label=bui.Lstr(
-                    resource=f'{self._r}.unlinkLegacyV1AccountsText'
-                ),
-                textcolor=(0.8, 0.4, 0),
-                color=(0.55, 0.5, 0.6),
-                on_activate_call=self._unlink_accounts_press,
-            )
 
         if show_sign_out_button:
             v -= sign_out_button_space
@@ -1293,75 +1152,6 @@ class AccountSettingsWindow(bui.MainWindow):
         else:
             logging.warning('show_game_service_ui requires classic')
 
-    def _have_unlinkable_v1_accounts(self) -> bool:
-        plus = bui.app.plus
-        assert plus is not None
-
-        # If this is not present, we haven't had contact from the server
-        # so let's not proceed.
-        if plus.get_v1_account_public_login_id() is None:
-            return False
-        accounts = plus.get_v1_account_misc_read_val_2('linkedAccounts', [])
-        return len(accounts) > 1
-
-    def _update_unlink_accounts_button(self) -> None:
-        if self._unlink_accounts_button is None:
-            return
-        if self._have_unlinkable_v1_accounts():
-            clr = (0.75, 0.7, 0.8, 1.0)
-        else:
-            clr = (1.0, 1.0, 1.0, 0.25)
-        bui.textwidget(edit=self._unlink_accounts_button_label, color=clr)
-
-    def _should_show_legacy_unlink_button(self) -> bool:
-        plus = bui.app.plus
-        if plus is None:
-            return False
-
-        # Only show this when fully signed in to a v2 account.
-        if not self._v1_signed_in or plus.accounts.primary is None:
-            return False
-
-        out = self._have_unlinkable_v1_accounts()
-        return out
-
-    def _update_linked_accounts_text(self) -> None:
-        plus = bui.app.plus
-        assert plus is not None
-
-        if self._linked_accounts_text is None:
-            return
-
-        # Disable this by default when signed in to a V2 account
-        # (since this shows V1 links which we should no longer care about).
-        if plus.accounts.primary is not None and not FORCE_ENABLE_V1_LINKING:
-            return
-
-        # if this is not present, we haven't had contact from the server so
-        # let's not proceed..
-        if plus.get_v1_account_public_login_id() is None:
-            num = int(time.time()) % 4
-            accounts_str = num * '.' + (4 - num) * ' '
-        else:
-            accounts = plus.get_v1_account_misc_read_val_2('linkedAccounts', [])
-            # UPDATE - we now just print the number here; not the actual
-            # accounts (they can see that in the unlink section if they're
-            # curious)
-            accounts_str = str(max(0, len(accounts) - 1))
-        bui.textwidget(
-            edit=self._linked_accounts_text,
-            text=bui.Lstr(
-                value='${L} ${A}',
-                subs=[
-                    (
-                        '${L}',
-                        bui.Lstr(resource=f'{self._r}.linkedAccountsText'),
-                    ),
-                    ('${A}', accounts_str),
-                ],
-            ),
-        )
-
     def _refresh_campaign_progress_text(self) -> None:
         if self._campaign_progress_text is None:
             return
@@ -1430,22 +1220,6 @@ class AccountSettingsWindow(bui.MainWindow):
 
         if self._achievements_text is not None:
             bui.textwidget(edit=self._achievements_text, text=txt_final)
-
-    def _link_accounts_press(self) -> None:
-        # pylint: disable=cyclic-import
-        from bauiv1lib.account.link import AccountLinkWindow
-
-        AccountLinkWindow(origin_widget=self._link_accounts_button)
-
-    def _unlink_accounts_press(self) -> None:
-        # pylint: disable=cyclic-import
-        from bauiv1lib.account.unlink import AccountUnlinkWindow
-
-        if not self._have_unlinkable_v1_accounts():
-            bui.getsound('error').play()
-            return
-
-        AccountUnlinkWindow(origin_widget=self._unlink_accounts_button)
 
     def _cancel_sign_in_press(self) -> None:
         # If we're waiting on an adapter to give us credentials, abort.

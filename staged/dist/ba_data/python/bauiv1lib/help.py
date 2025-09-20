@@ -54,11 +54,19 @@ class HelpWindow(bui.MainWindow):
 
         # To get top/left coords, go to the center of our window and
         # offset by half the width/height of our target area.
-        yoffs = 0.5 * height + 0.5 * target_height + 30.0
+        yoffs = 0.5 * height + 0.5 * target_height
 
         scroll_width = target_width
-        scroll_height = target_height - 36
-        scroll_bottom = yoffs - 64 - scroll_height
+
+        # Use the full screen area in small mode (we'll include our
+        # title in the scrollable content).
+        if uiscale is bui.UIScale.SMALL:
+            scroll_height = target_height
+            scroll_bottom = yoffs - scroll_height
+        else:
+            yoffs += 30
+            scroll_height = target_height - 36
+            scroll_bottom = yoffs - 64 - scroll_height
 
         super().__init__(
             root_widget=bui.containerwidget(
@@ -94,24 +102,6 @@ class HelpWindow(bui.MainWindow):
             )
             bui.containerwidget(edit=self._root_widget, cancel_button=btn)
 
-        bui.textwidget(
-            parent=self._root_widget,
-            position=(
-                width * 0.5,
-                yoffs - (47 if uiscale is bui.UIScale.SMALL else 25),
-            ),
-            size=(0, 0),
-            text=bui.Lstr(
-                resource=f'{self._r}.titleText',
-                subs=[('${APP_NAME}', bui.Lstr(resource='titleText'))],
-            ),
-            scale=0.9,
-            maxwidth=scroll_width * 0.7,
-            color=bui.app.ui_v1.title_color,
-            h_align='center',
-            v_align='center',
-        )
-
         self._scrollwidget = bui.scrollwidget(
             parent=self._root_widget,
             size=(scroll_width, scroll_height),
@@ -136,7 +126,8 @@ class HelpWindow(bui.MainWindow):
             edit=self._root_widget, selected_child=self._scrollwidget
         )
 
-        # self._sub_width = 810 if uiscale is bui.UIScale.SMALL else 660
+        inline_title_height = 50
+
         self._sub_width = 660
         self._sub_height = (
             1590
@@ -146,6 +137,10 @@ class HelpWindow(bui.MainWindow):
             )
         )
 
+        # Make space for our title when we're stuffing it inline.
+        if uiscale is bui.UIScale.SMALL:
+            self._sub_height += inline_title_height
+
         self._subcontainer = bui.containerwidget(
             parent=self._scrollwidget,
             size=(self._sub_width, self._sub_height),
@@ -153,9 +148,38 @@ class HelpWindow(bui.MainWindow):
             claims_left_right=False,
         )
 
+        # Stick our title on the scrollable content in small ui mode so
+        # we can use the full screen area for said content.
+        bui.textwidget(
+            parent=(
+                self._subcontainer
+                if uiscale is bui.UIScale.SMALL
+                else self._root_widget
+            ),
+            position=(
+                (self._sub_width * 0.5, self._sub_height - 20)
+                if uiscale is bui.UIScale.SMALL
+                else (width * 0.5, yoffs - 25)
+            ),
+            size=(0, 0),
+            text=bui.Lstr(
+                resource=f'{self._r}.titleText',
+                subs=[('${APP_NAME}', bui.Lstr(resource='titleText'))],
+            ),
+            scale=0.9,
+            maxwidth=scroll_width * 0.7,
+            color=bui.app.ui_v1.title_color,
+            h_align='center',
+            v_align='center',
+        )
+
         spacing = 1.0
-        h = self._sub_width * 0.5
+        baseh = self._sub_width * 0.5
+        h = baseh + 30
         v = self._sub_height - 55
+        if uiscale is bui.UIScale.SMALL:
+            v -= inline_title_height
+
         logo_tex = bui.gettexture('logo')
         icon_buffer = 1.1
         header = (0.7, 1.0, 0.7, 1.0)
@@ -194,6 +218,7 @@ class HelpWindow(bui.MainWindow):
             position=(hval2 - 0.5 * icon_size, v - 0.45 * icon_size),
             texture=logo_tex,
         )
+        h = baseh
 
         app = bui.app
         assert app.classic is not None
@@ -260,6 +285,8 @@ class HelpWindow(bui.MainWindow):
             v_align='center',
             flatness=1.0,
         )
+
+        h = baseh + 20
 
         v -= spacing * 40.0
         txt_scale = 0.74
@@ -350,6 +377,8 @@ class HelpWindow(bui.MainWindow):
 
         v -= spacing * 150.0
 
+        h = baseh + 30
+
         txt = bui.Lstr(resource=f'{self._r}.controlsText').evaluate()
         txt_scale = 1.4
         txt_maxwidth = 480
@@ -381,6 +410,8 @@ class HelpWindow(bui.MainWindow):
         )
 
         v -= spacing * 45.0
+
+        h = baseh
 
         txt_scale = 0.7
         txt = bui.Lstr(
@@ -534,6 +565,8 @@ class HelpWindow(bui.MainWindow):
 
         v -= spacing * 280.0
 
+        h = baseh + 30
+
         txt = bui.Lstr(resource=f'{self._r}.powerupsText').evaluate()
         txt_scale = 1.4
         txt_maxwidth = 480
@@ -562,6 +595,8 @@ class HelpWindow(bui.MainWindow):
             texture=logo_tex,
         )
 
+        h = baseh + 20
+
         v -= spacing * 50.0
         txt_scale = getres(f'{self._r}.powerupsSubtitleTextScale')
         txt = bui.Lstr(resource=f'{self._r}.powerupsSubtitleText').evaluate()
@@ -577,6 +612,8 @@ class HelpWindow(bui.MainWindow):
             v_align='center',
             flatness=1.0,
         )
+
+        h = baseh + 20
 
         v -= spacing * 1.0
 
@@ -647,7 +684,7 @@ class HelpWindow(bui.MainWindow):
                 position=(h + mm3, v),
                 size=(0, 0),
                 scale=txt_scale,
-                maxwidth=300,
+                maxwidth=290,
                 flatness=1.0,
                 text=txtl,
                 h_align='left',

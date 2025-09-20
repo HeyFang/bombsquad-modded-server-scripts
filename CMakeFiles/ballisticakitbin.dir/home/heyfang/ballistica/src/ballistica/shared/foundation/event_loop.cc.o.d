@@ -373,7 +373,6 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/shared/fo
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/support/core_config.h \
  /usr/include/c++/13/optional \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging_macros.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/platform/core_platform.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/support/base_soft.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/foundation/feature_set_native_component.h \
