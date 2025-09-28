@@ -14,7 +14,7 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install -y software-properties-common git tmux
 sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt update
-sudo apt install -y python3-pip python3.12 python3.12-dev python3.12-venv python3-tinydb
+sudo apt install -y python3-pip python3.13 python3.13-dev python3.13-venv python3-tinydb
 ```
 
 ## 2) Get the files
@@ -70,5 +70,6 @@ tmux attach -t 43210
 ```bash
 tmux kill-session -t 43210
 ```
+
 
 
