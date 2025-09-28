@@ -33,12 +33,6 @@ def _on_player_join(client_id: int) -> None:
 
     if v2_id not in info:
         # Collect metadata
-        ip_addr = None
-        try:
-            ip_addr = ba.get_client_public_address(client_id)
-        except Exception:
-            pass
-
         uuid = None
         try:
             uuid = ba.get_client_device_uuid(client_id)
@@ -47,7 +41,6 @@ def _on_player_join(client_id: int) -> None:
 
         record = {
             "first_seen": datetime.now(datetime.timezone.utc()).isoformat(),
-            "ip": ip_addr,
             "uuid": uuid,
         }
         info[v2_id] = record
