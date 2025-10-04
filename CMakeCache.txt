@@ -384,7 +384,7 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding Python3
-FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/usr/include/python3.13][/usr/lib/x86_64-linux-gnu/libpython3.13.so][cfound components: Development Development.Module Development.Embed ][v3.13.3(3.13)]
+FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/usr/include/python3.13][/usr/lib/x86_64-linux-gnu/libpython3.13.so][cfound components: Development Development.Module Development.Embed ][v3.13.7(3.13)]
 //linker supports push/pop state
 _CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED:INTERNAL=TRUE
 //Path to a program.

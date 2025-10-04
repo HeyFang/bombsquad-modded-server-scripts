@@ -244,7 +244,6 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/base/netw
  /usr/include/c++/13/tr1/riemann_zeta.tcc /usr/include/c++/13/cstring \
  /usr/include/string.h /usr/include/strings.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/networking/networking.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging_macros.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/core.h \
  /usr/include/c++/13/thread /usr/include/c++/13/stop_token \
  /usr/include/c++/13/bits/std_thread.h /usr/include/c++/13/semaphore \
@@ -260,7 +259,6 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/base/netw
  /usr/include/c++/13/bits/node_handle.h \
  /usr/include/c++/13/bits/erase_if.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/support/core_config.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/foundation/event_loop.h \
  /usr/include/c++/13/condition_variable /usr/include/c++/13/list \
  /usr/include/c++/13/bits/stl_list.h /usr/include/c++/13/bits/list.tcc \

@@ -1,5 +1,5 @@
 # Released under the MIT License. See LICENSE for details.
 #
-"""Package that handles discord related utilities."""
+"""Handles All kinds of server utils provided by this project."""
 
 # ba_meta require api 9

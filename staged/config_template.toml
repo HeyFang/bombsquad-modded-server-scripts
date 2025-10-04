@@ -24,6 +24,11 @@
 # settings->advanced->enter-code.
 #admins = ["pb-IF4FP0co", "pb-aNdMayBeAnotherHeRE"]
 
+# --- ADD THIS NEW LIST FOR YOUR TOKENS ---
+# A list of secret tokens for server admins.
+# The C++ code will read this list on startup.
+#admin_tokens = []
+
 # Whether an admin can kick players directly.
 #enable_admins_kick = true
 

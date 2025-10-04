@@ -1773,6 +1773,7 @@
       "You got an achievement reward!": "Başarı ödülü kazandın!",
       "You have been promoted to a new league; congratulations!": "Yeni bir lige terfi ettin; tebrikler!",
       "You lost a chest! (All your chest slots were full)": "Bir sandık kaybettin! (Tüm sandık yuvaların doluydu)",
+      "You must sign in to do this.": "Bunu yapmak için oturum açmalısın.",
       "You must update the app to view this.": "Bunu görmek için oyunu güncellemen gerekli.",
       "You must update to a newer version of the app to do this.": "Bunu yapmak için uygulamayı yeni bir sürüme güncellemelisin.",
       "You must update to the newest version of the game to do this.": "Bunu yapmak için oyunun en yeni sürümüne güncellemelisiniz.",
@@ -1855,7 +1856,7 @@
       "If you pick up a curse, your only hope for survival is to\nfind a health powerup in the next few seconds.": "Eğer Lanetlenirsen, Uğruna savaşılacak tek umudun;\nilerleyen saniyelerde bir sağlık-paketi bulmak olur.",
       "If you stay in one place, you're toast. Run and dodge to survive..": "Bir yerde durursan, kızarmış ekmek olursun. Hayatta kalmak için koş ve kaç..",
       "If you've got lots of players coming and going, turn on 'auto-kick-idle-players'\nunder settings in case anyone forgets to leave the game.": "Eğer girip çıkan birçok oyuncun varsa; oyundan çıkmayı unutma ihtimallerine karşı\nayarlardaki 'Boştaki-oyuncuları-çıkar'ı aktifleştir.",
-      "If your device gets too warm or you'd like to conserve battery power,\nturn down \"Visuals\" or \"Resolution\" in Settings->Graphics": "Eğer cihazın çok ısındıysa veya güç tasarrufu yapmak istiyorsan\nAyarlar->Grafikler den \"Görseller\" veya \"Çözünürlük\" ayarlarını düşür.",
+      "If your device gets too warm or you'd like to conserve battery power,\nturn down \"Visuals\" or \"Resolution\" in Settings->Graphics": "Eğer cihazın çok ısındıysa veya güç tasarrufu yapmak istiyorsan\nAyarlardan çözünürlüğe basarak ve ondan bazılarını düşürerek biraz olsada önleyebilirsin",
       "If your framerate is choppy, try turning down resolution\nor visuals in the game's graphics settings.": "Eğer FPS dengesiz ise; Oyunun grafik ayarlarından görseller\nveya çözünürlüğü düşürmeyi dene.",
       "In Capture-the-Flag, your own flag must be at your base to score, If the other\nteam is about to score, stealing their flag can be a good way to stop them.": "Bayrak-Yakalamaca'da skor yapmak için kendi bayrağın kendi bölgende olmalı. Eğer diğer\ntakım skor yapmak üzereyse; bayraklarını çalmak, onları durdurmak için güzel bir yoldur.",
       "In hockey, you'll maintain more speed if you turn gradually.": "Hokey de, yavaşça dönersen topu daha hızlı sürebilirsin.",
@@ -2005,7 +2006,7 @@
   "winsText": "${NAME} Kazandı!",
   "workspaceSyncErrorText": "${WORKSPACE} eşitlemesinde hata oluştu. Detaylar için günlüğü inceleyin.",
   "workspaceSyncReuseText": "${WORKSPACE} eşitlenemiyor. Önceden eşitlenmiş sürüm kullanılıyor.",
-  "worldScoresUnavailableText": "Global Skorlar Mevcut Değil.",
+  "worldScoresUnavailableText": "Global Skorlar Mevcut Değil, İnternetin çekmiyor olabilir.",
   "worldsBestScoresText": "Global En İyi Skorlar",
   "worldsBestTimesText": "Global En İyi Süreler",
   "xbox360ControllersWindow": {
@@ -2017,7 +2018,7 @@
     "titleText": "Xbox 360 Kontrolcüsü ${APP_NAME} ile kullanılıyor:"
   },
   "yesAllowText": "Evet, Kabul!",
-  "yourBestScoresText": "En İyi Skorların",
+  "yourBestScoresText": "En İyi Rekorların",
   "yourBestTimesText": "En İyi Sürelerin",
-  "yourPrizeText": "Ödülün:"
+  "yourPrizeText": "Yaptığın şey karşılığında ödül:"
 }

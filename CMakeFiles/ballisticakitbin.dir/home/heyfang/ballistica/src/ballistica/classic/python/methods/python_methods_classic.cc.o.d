@@ -281,6 +281,8 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/classic/p
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_object_set.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_ref.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/classic/support/classic_app_mode.h \
+ /usr/include/c++/13/unordered_set \
+ /usr/include/c++/13/bits/unordered_set.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/app_mode/app_mode.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/scene_v1/scene_v1.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/ui_v1/ui_v1.h \

@@ -139,7 +139,11 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/scene_v1/
  /usr/include/c++/13/bits/node_handle.h \
  /usr/include/c++/13/bits/stl_set.h \
  /usr/include/c++/13/bits/stl_multiset.h \
- /usr/include/c++/13/bits/erase_if.h \
+ /usr/include/c++/13/bits/erase_if.h /usr/include/c++/13/unordered_set \
+ /usr/include/c++/13/bits/unordered_set.h \
+ /usr/include/c++/13/bits/hashtable.h \
+ /usr/include/c++/13/bits/hashtable_policy.h \
+ /usr/include/c++/13/bits/enable_special_members.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/assets/assets.h \
  /usr/include/c++/13/mutex /usr/include/c++/13/exception \
  /usr/include/c++/13/bits/exception_ptr.h \
@@ -169,9 +173,6 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/scene_v1/
  /usr/include/x86_64-linux-gnu/sys/single_threaded.h \
  /usr/include/c++/13/unordered_map \
  /usr/include/c++/13/bits/unordered_map.h \
- /usr/include/c++/13/bits/hashtable.h \
- /usr/include/c++/13/bits/hashtable_policy.h \
- /usr/include/c++/13/bits/enable_special_members.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/base.h \
  /usr/include/c++/13/atomic /usr/include/c++/13/bits/atomic_base.h \
  /usr/include/c++/13/bits/atomic_lockfree_defines.h \

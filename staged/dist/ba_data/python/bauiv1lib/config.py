@@ -34,6 +34,7 @@ class ConfigCheckBox:
         maxwidth: float | None = None,
         autoselect: bool = True,
         value_change_call: Callable[[Any], Any] | None = None,
+        check_box_id: str | None = None,
     ):
         if displayname is None:
             displayname = configkey
@@ -41,6 +42,7 @@ class ConfigCheckBox:
         self._configkey = configkey
         self.widget = bui.checkboxwidget(
             parent=parent,
+            id=check_box_id,
             autoselect=autoselect,
             position=position,
             size=size,
@@ -98,7 +100,9 @@ class ConfigNumberEdit:
         as_percent: bool = False,
         fallback_value: float = 0.0,
         f: int = 1,
+        idprefix: str | None = None,
     ):
+        # pylint: disable=too-many-locals
         if displayname is None:
             displayname = configkey
 
@@ -143,6 +147,7 @@ class ConfigNumberEdit:
         )
         self.minusbutton = bui.buttonwidget(
             parent=parent,
+            id=None if idprefix is None else f'{idprefix}|minus',
             position=(position[0] + 230 + xoffset, position[1]),
             size=(28, 28),
             label='-',
@@ -153,6 +158,7 @@ class ConfigNumberEdit:
         )
         self.plusbutton = bui.buttonwidget(
             parent=parent,
+            id=None if idprefix is None else f'{idprefix}|plus',
             position=(position[0] + 280 + xoffset, position[1]),
             size=(28, 28),
             label='+',

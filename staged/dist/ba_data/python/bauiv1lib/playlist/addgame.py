@@ -202,6 +202,10 @@ class PlaylistAddGameWindow(bui.MainWindow):
             )
         )
 
+    @override
+    def main_window_should_preserve_selection(self) -> bool:
+        return False
+
     def _on_game_types_loaded(
         self, gametypes: list[type[bs.GameActivity]]
     ) -> None:
@@ -288,7 +292,7 @@ class PlaylistAddGameWindow(bui.MainWindow):
             return
 
         self.main_window_replace(
-            StoreBrowserWindow(
+            lambda: StoreBrowserWindow(
                 show_tab=StoreBrowserWindow.TabID.MINIGAMES,
                 origin_widget=self._get_more_games_button,
                 minimal_toolbars=True,

@@ -30,7 +30,7 @@ class _Section:
         """Return rows of selectable controls."""
         return []
 
-    def emit(self, subcontainer: bui.Widget, y: float) -> None:
+    def emit(self, subcontainer: bui.Widget, y: float, idprefix: str) -> None:
         """Emit the section."""
 
 
@@ -76,7 +76,7 @@ class _TextSection(_Section):
         return self.full_height
 
     @override
-    def emit(self, subcontainer: bui.Widget, y: float) -> None:
+    def emit(self, subcontainer: bui.Widget, y: float, idprefix: str) -> None:
         bui.textwidget(
             parent=subcontainer,
             position=(
@@ -133,9 +133,10 @@ class _ButtonSection(_Section):
         section_strong.call(section_strong)
 
     @override
-    def emit(self, subcontainer: bui.Widget, y: float) -> None:
+    def emit(self, subcontainer: bui.Widget, y: float, idprefix: str) -> None:
         self.button = bui.buttonwidget(
             parent=subcontainer,
+            id=f'{idprefix}|button',
             position=(
                 self.sub_width * 0.5 - self.button_width * 0.5,
                 y - self.spacing_top - self.button_height,
@@ -185,7 +186,7 @@ class _DisplayItemsSection(_Section):
         return self.full_height
 
     @override
-    def emit(self, subcontainer: bui.Widget, y: float) -> None:
+    def emit(self, subcontainer: bui.Widget, y: float, idprefix: str) -> None:
         # pylint: disable=cyclic-import
         from baclassic import show_display_item
 
@@ -268,7 +269,7 @@ class _ExpireTimeSection(_Section):
         bui.textwidget(edit=self._widget, text=val, color=color)
 
     @override
-    def emit(self, subcontainer: bui.Widget, y: float) -> None:
+    def emit(self, subcontainer: bui.Widget, y: float, idprefix: str) -> None:
         self._widget = bui.textwidget(
             parent=subcontainer,
             position=(
@@ -360,7 +361,7 @@ class InboxWindow(bui.MainWindow):
         super().__init__(
             root_widget=bui.containerwidget(
                 size=(self._width, self._height),
-                toolbar_visibility=('menu_full'),
+                toolbar_visibility='menu_full',
                 toolbar_cancel_button_style=(
                     'close' if auxiliary_style else 'back'
                 ),
@@ -380,6 +381,7 @@ class InboxWindow(bui.MainWindow):
         else:
             self._back_button = bui.buttonwidget(
                 parent=self._root_widget,
+                id=f'{self.main_window_id_prefix}|back',
                 autoselect=True,
                 position=(50, yoffs - 48),
                 size=(60, 60),
@@ -418,6 +420,7 @@ class InboxWindow(bui.MainWindow):
         )
         self._scrollwidget = bui.scrollwidget(
             parent=self._root_widget,
+            id=f'{self.main_window_id_prefix}|scroll',
             size=(scroll_width, scroll_height),
             position=(self._width * 0.5 - scroll_width * 0.5, scroll_bottom),
             capture_arrows=True,
@@ -497,6 +500,10 @@ class InboxWindow(bui.MainWindow):
                 transition=transition, origin_widget=origin_widget
             )
         )
+
+    @override
+    def main_window_should_preserve_selection(self) -> bool:
+        return True
 
     def _error(self, errmsg: bui.Lstr | str) -> None:
         """Put ourself in a permanent error state."""
@@ -1019,7 +1026,7 @@ class InboxWindow(bui.MainWindow):
         sub_height += margin_bottom
 
         subcontainer = bui.containerwidget(
-            id='inboxsub',
+            id=f'{self.main_window_id_prefix}|subc',
             parent=self._scrollwidget,
             size=(sub_width, sub_height),
             background=False,
@@ -1040,8 +1047,9 @@ class InboxWindow(bui.MainWindow):
         if uiscale is bui.UIScale.SMALL:
             y -= 36
 
-        for i, _wrapper in enumerate(response.wrappers):
-            entry_display = self._entry_displays[i]
+        # for i, _wrapper in enumerate(response.wrappers):
+        for entry_display in self._entry_displays:
+            # entry_display = self._entry_displays[i]
             entry_display_weak = weakref.ref(entry_display)
             bwidth = 140
             bheight = 40
@@ -1063,8 +1071,15 @@ class InboxWindow(bui.MainWindow):
             bui.widget(edit=img, depth_range=(0, 0.1))
 
             # Section contents.
-            for sec in entry_display.sections:
-                sec.emit(subcontainer, ysection)
+            for s, sec in enumerate(entry_display.sections):
+                sec.emit(
+                    subcontainer,
+                    ysection,
+                    (
+                        f'{self.main_window_id_prefix}|entry_{entry_display.id}'
+                        f'|section{s}'
+                    ),
+                )
                 # Wire up any widgets created by this section.
                 sec_button_row = sec.get_button_row()
                 if sec_button_row:
@@ -1089,6 +1104,10 @@ class InboxWindow(bui.MainWindow):
             )
             entry_display.button_positive = btn = bui.buttonwidget(
                 parent=subcontainer,
+                id=(
+                    f'{self.main_window_id_prefix}|entry_{entry_display.id}'
+                    f'|buttonpositive'
+                ),
                 position=bpos,
                 autoselect=True,
                 size=(bwidth, bheight),
@@ -1120,6 +1139,10 @@ class InboxWindow(bui.MainWindow):
                 bpos = (25, y - entry_display.total_height + 15.0)
                 entry_display.button_negative = btn2 = bui.buttonwidget(
                     parent=subcontainer,
+                    id=(
+                        f'{self.main_window_id_prefix}'
+                        f'|entry_{entry_display.id}|buttonnegative'
+                    ),
                     position=bpos,
                     autoselect=True,
                     size=(bwidth, bheight),
@@ -1177,6 +1200,14 @@ class InboxWindow(bui.MainWindow):
                 )
 
             above_widget = buttons[0]
+
+        # Most of our UI won't exist until this point so we need to
+        # explicitly restore state for selection restore to work.
+        #
+        # Note to self: perhaps we should *not* do this if significant
+        # time has passed since the window was made or if input commands
+        # have happened.
+        self.main_window_restore_shared_state()
 
 
 def _get_bs_classic_tourney_results_sections() -> list[_Section]:

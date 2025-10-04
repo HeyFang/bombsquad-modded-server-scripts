@@ -38,6 +38,11 @@ class ServerConfig:
     # settings->advanced->enter-code.
     admins: list[str] = field(default_factory=list)
 
+    # --- ADD THIS NEW LIST FOR YOUR TOKENS ---
+    # A list of secret tokens for server admins.
+    # The C++ code will read this list on startup.
+    admin_tokens: list[str] = field(default_factory=list)
+
     # Whether an admin can kick players directly.
     enable_admins_kick: bool = True
 

@@ -148,6 +148,10 @@ class PlaylistMapSelectWindow(bui.MainWindow):
             )
         )
 
+    @override
+    def main_window_should_preserve_selection(self) -> bool:
+        return False
+
     def _refresh(self, select_get_more_maps_button: bool = False) -> None:
         # pylint: disable=too-many-statements
         # pylint: disable=too-many-branches
@@ -301,7 +305,7 @@ class PlaylistMapSelectWindow(bui.MainWindow):
         self._selected_get_more_maps = True
 
         self.main_window_replace(
-            StoreBrowserWindow(
+            lambda: StoreBrowserWindow(
                 show_tab=StoreBrowserWindow.TabID.MAPS,
                 origin_widget=self._get_more_maps_button,
                 minimal_toolbars=True,

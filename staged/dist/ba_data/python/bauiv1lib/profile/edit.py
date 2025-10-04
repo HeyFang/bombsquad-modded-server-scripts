@@ -22,19 +22,12 @@ class EditProfileWindow(
     def reload_window(self) -> None:
         """Transitions out and recreates ourself."""
 
-        # no-op if we're not in control.
-        if not self.main_window_has_control():
-            return
-
         # Replace ourself with ourself, but keep the same back location.
         assert self.main_window_back_state is not None
         self.main_window_replace(
-            EditProfileWindow(self.getname()),
+            lambda: EditProfileWindow(self.getname()),
             back_state=self.main_window_back_state,
         )
-
-    # def __del__(self) -> None:
-    #     print(f'~EditProfileWindow({id(self)})')
 
     def __init__(
         self,
@@ -535,6 +528,11 @@ class EditProfileWindow(
             )
         )
 
+    @override
+    def main_window_should_preserve_selection(self) -> bool:
+        # Not bothering with this for now.
+        return False
+
     def assign_random_name(self) -> None:
         """Assigning a random name to the player."""
         names = bs.get_random_names()
@@ -652,11 +650,8 @@ class EditProfileWindow(
         """User wants to get more icons."""
         from bauiv1lib.store.browser import StoreBrowserWindow
 
-        if not self.main_window_has_control():
-            return
-
         self.main_window_replace(
-            StoreBrowserWindow(
+            lambda: StoreBrowserWindow(
                 minimal_toolbars=True,
                 show_tab=StoreBrowserWindow.TabID.ICONS,
             )
@@ -680,11 +675,8 @@ class EditProfileWindow(
     def on_character_picker_get_more_press(self) -> None:
         from bauiv1lib.store.browser import StoreBrowserWindow
 
-        if not self.main_window_has_control():
-            return
-
         self.main_window_replace(
-            StoreBrowserWindow(
+            lambda: StoreBrowserWindow(
                 minimal_toolbars=True,
                 show_tab=StoreBrowserWindow.TabID.CHARACTERS,
             )
@@ -832,6 +824,9 @@ class EditProfileWindow(
 
     def save(self, transition_out: bool = True) -> bool:
         """Save has been selected."""
+        # pylint: disable=cyclic-import
+
+        from bauiv1lib.profile.browser import ProfileBrowserWindow
 
         # no-op if our underlying widget is dead or on its way out.
         if not self._root_widget or self._root_widget.transitioning_out:
@@ -855,6 +850,9 @@ class EditProfileWindow(
             )
             bui.getsound('error').play()
             return False
+
+        # Set the profile-browser to have this one selected by default.
+        ProfileBrowserWindow.selected_profile = new_name
 
         if transition_out:
             bui.getsound('gunCocking').play()

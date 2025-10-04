@@ -74,6 +74,7 @@ class UIV1AppSubsystem(babase.AppSubsystem):
         # For storing arbitrary class-level state data for Windows or
         # other UI related classes.
         self.window_states: dict[type, Any] = {}
+        self.main_window_shared_states: dict = {}
 
         self.title_color = (0.72, 0.7, 0.75)
         self.heading_color = (0.72, 0.7, 0.75)
@@ -89,12 +90,22 @@ class UIV1AppSubsystem(babase.AppSubsystem):
         self._last_win_recreate_uiscale: bauiv1.UIScale | None = None
         self._last_win_recreate_time: float | None = None
         self._win_recreate_timer: babase.AppTimer | None = None
+        self._base_ids: dict[str, int] = {}
 
         # Elements in our root UI will call anything here when
         # activated.
         self.root_ui_calls: dict[
             UIV1AppSubsystem.RootUIElement, Callable[[], None]
         ] = {}
+
+    def new_id_prefix(self, name: str) -> str:
+        """Generate a unique id given a base name.
+
+        Useful to ensure widgets have globally unique ids even if
+        a particular window type is instantiated multiple times.
+        """
+        val = self._base_ids[name] = self._base_ids.get(name, 0) + 1
+        return f'{name}{val}'
 
     def _update_ui_scale(self) -> None:
         uiscalestr = babase.get_ui_scale()
@@ -145,12 +156,13 @@ class UIV1AppSubsystem(babase.AppSubsystem):
         self,
         window: bauiv1.MainWindow,
         *,
+        back_state: MainWindowState | None,
         from_window: bauiv1.MainWindow | None | bool = True,
         is_back: bool = False,
         is_top_level: bool = False,
         is_auxiliary: bool = False,
-        back_state: MainWindowState | None = None,
         suppress_warning: bool = False,
+        restore_shared_state: bool = True,
     ) -> None:
         """Set the current 'main' window.
 
@@ -161,9 +173,9 @@ class UIV1AppSubsystem(babase.AppSubsystem):
         The caller is responsible for cleaning up any previous main
         window.
         """
-        # pylint: disable=too-many-locals
         # pylint: disable=too-many-branches
         # pylint: disable=too-many-statements
+        # pylint: disable=too-many-locals
         from bauiv1._window import MainWindow
 
         # If we haven't grabbed initial uiscale or screen size for
@@ -189,6 +201,10 @@ class UIV1AppSubsystem(babase.AppSubsystem):
 
         # We used to accept Widgets but now want MainWindows.
         if not isinstance(window, MainWindow):
+
+            # if callable(window):
+            #     window = window()
+            # else:
             raise RuntimeError(
                 f'set_main_window() now takes a MainWindow as its "window" arg.'
                 f' You passed a {type(window)}.',
@@ -291,30 +307,15 @@ class UIV1AppSubsystem(babase.AppSubsystem):
             if is_top_level:
                 # Top level windows don't have or expect anywhere to go
                 # back to.
-                window.main_window_back_state = None
-            elif back_state is not None:
-                window.main_window_back_state = back_state
-            else:
-                oldwin = self._main_window()
-                if oldwin is None:
-                    # We currenty only hold weak refs to windows so that
-                    # they are free to die on their own, but we expect
-                    # the main menu window to keep itself alive as long
-                    # as its the main one. Holler if that seems to not
-                    # be happening.
-                    logging.warning(
-                        'set_main_window: No old MainWindow found'
-                        ' and is_top_level is False;'
-                        ' this should not happen.'
-                    )
-                    window.main_window_back_state = None
-                else:
-                    window.main_window_back_state = self.save_main_window_state(
-                        oldwin
-                    )
+                assert back_state is None
+            window.main_window_back_state = back_state
 
         self._main_window = window_weakref
         self._main_window_widget = window_widget
+
+        # Now that we're all set up, restore any state.
+        if restore_shared_state:
+            window.main_window_restore_shared_state()
 
     def has_main_window(self) -> bool:
         """Return whether a main menu window is present."""
@@ -355,6 +356,23 @@ class UIV1AppSubsystem(babase.AppSubsystem):
         winstate.window_type = type(window)
 
         return winstate
+
+    def save_current_main_window_state(self) -> MainWindowState | None:
+        """Save state for the current window, if any."""
+        # Calc a back-state from the current window.
+        current_main_win = self._main_window()
+        if current_main_win is None:
+            # We currenty only hold weak refs to windows so that
+            # they are free to die on their own, but we expect
+            # the main menu window to keep itself alive as long
+            # as its the main one. Holler if that seems to not
+            # be happening.
+            babase.uilog.warning(
+                'save_current_main_window_state: No old MainWindow found;'
+                ' this should not happen.'
+            )
+            return None
+        return self.save_main_window_state(current_main_win)
 
     def restore_main_window_state(self, state: MainWindowState) -> None:
         """Restore UI to a saved state."""
@@ -542,7 +560,7 @@ class UIV1AppSubsystem(babase.AppSubsystem):
         # Ok, no existing auxiliary stuff was found period. Just
         # navigate forward to this UI.
         current_main_window.main_window_replace(
-            win_create_call(), is_auxiliary=True
+            win_create_call, is_auxiliary=True
         )
 
     def _schedule_main_win_recreate(self) -> None:

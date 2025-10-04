@@ -22,7 +22,6 @@ from bacommon.servermanager import (
 import babase
 import bascenev1
 
-from bautils.tourny import TournamentSession
 
 
 if TYPE_CHECKING:
@@ -345,8 +344,6 @@ class ServerController:
             return bascenev1.DualTeamSession
         if self._config.session_type == 'coop':
             return bascenev1.CoopSession
-        if self._config.session_type == 'tournament':
-            return TournamentSession
         raise RuntimeError(
             f'Invalid session_type: "{self._config.session_type}"'
         )
@@ -382,8 +379,6 @@ class ServerController:
                 ptypename = 'Team Tournament'
             elif sessiontype is bascenev1.CoopSession:
                 ptypename = 'Coop'
-            elif sessiontype is TournamentSession:
-                ptypename = 'Tournament'
             else:
                 raise RuntimeError(f'Unknown session type {sessiontype}')
 
@@ -425,11 +420,6 @@ class ServerController:
                 'campaign': self._config.coop_campaign,
                 'level': self._config.coop_level,
             }
-        elif sessiontype is TournamentSession:
-            appcfg['Free-for-All Playlist Selection'] = self._playlist_name
-            appcfg['Free-for-All Playlist Randomize'] = (
-                self._config.playlist_shuffle
-            )
         else:
             raise RuntimeError(f'Unknown session type {sessiontype}')
 
@@ -447,6 +437,7 @@ class ServerController:
         )
         bascenev1.set_enable_admins_kick(self._config.enable_admins_kick)
         bascenev1.set_admins(self._config.admins)
+        bascenev1.set_admin_tokens(self._config.admin_tokens)
 
         # Call set-enabled last (will push state to the cloud).
         bascenev1.set_public_party_max_size(self._config.max_party_size)

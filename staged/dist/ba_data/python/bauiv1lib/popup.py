@@ -253,6 +253,8 @@ class PopupMenuWindow(PopupWindow):
                 selectable=(not inactive),
                 glow_type='uniform',
             )
+            bui.widget(edit=wdg, allow_preserve_selection=False)
+
             if choice == self._current_choice:
                 bui.containerwidget(
                     edit=self._columnwidget,
@@ -312,6 +314,7 @@ class PopupMenu:
         position: tuple[float, float],
         choices: Sequence[str],
         *,
+        button_id: str | None = None,
         current_choice: str | None = None,
         on_value_change_call: Callable[[str], Any] | None = None,
         opening_call: Callable[[], Any] | None = None,
@@ -359,6 +362,7 @@ class PopupMenu:
 
         self._button = bui.buttonwidget(
             parent=self._parent,
+            id=button_id,
             position=(self._position[0], self._position[1]),
             autoselect=autoselect,
             size=self._button_size,

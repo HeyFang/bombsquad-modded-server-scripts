@@ -13,11 +13,6 @@ import bauiv1 as bui
 def show_template_main_window() -> None:
     """Bust out a template-main-window."""
 
-    # Unintuitively, swish sounds come from buttons, not windows.
-    # And dev-console buttons don't make sounds. So we need to
-    # explicitly do so here.
-    bui.getsound('swish').play()
-
     # Pop up an auxiliary window wherever we are in the nav stack.
     bui.app.ui_v1.auxiliary_window_activate(
         win_type=TemplateMainWindow,
@@ -33,11 +28,14 @@ class TemplateMainWindow(bui.MainWindow):
     def __init__(
         self,
         dummy_data: int,
+        *,
         transition: str | None = 'in_right',
         origin_widget: bui.Widget | None = None,
         auxiliary_style: bool = True,
     ):
         # pylint: disable=too-many-locals
+
+        ui = bui.app.ui_v1
 
         # A simple number standing in for actual data (to show how we'd
         # save/restore actual data).
@@ -54,7 +52,7 @@ class TemplateMainWindow(bui.MainWindow):
         # visible on-screen and for small mode we aim for a window big
         # enough that we never see the window edges; only the window
         # texture covering the whole screen.
-        uiscale = bui.app.ui_v1.uiscale
+        uiscale = ui.uiscale
         self._width = 1400 if uiscale is bui.UIScale.SMALL else 750
         self._height = 1200 if uiscale is bui.UIScale.SMALL else 500
         scale = (
@@ -101,7 +99,7 @@ class TemplateMainWindow(bui.MainWindow):
             position=(self._width * 0.5, vis_top - 20),
             size=(0, 0),
             text=f'Template{self._dummy_data}',
-            color=bui.app.ui_v1.title_color,
+            color=ui.title_color,
             scale=0.9 if uiscale is bui.UIScale.SMALL else 1.0,
             # Make sure we avoid overlapping meters in small mode/etc.
             maxwidth=(130 if uiscale is bui.UIScale.SMALL else 200),
@@ -109,8 +107,8 @@ class TemplateMainWindow(bui.MainWindow):
             v_align='center',
         )
 
-        # For small UI we use the system back button; otherwise we make
-        # our own.
+        # For small UI-scale we use the system back/close button;
+        # otherwise we make our own.
         if uiscale is bui.UIScale.SMALL:
             bui.containerwidget(
                 edit=self._root_widget, on_cancel_call=self.main_window_back
@@ -118,6 +116,7 @@ class TemplateMainWindow(bui.MainWindow):
         else:
             btn = bui.buttonwidget(
                 parent=self._root_widget,
+                id=f'{self.main_window_id_prefix}|close',
                 scale=0.8,
                 position=(vis_left - 15, vis_top - 30),
                 size=(50, 50) if auxiliary_style else (60, 55),
@@ -135,16 +134,19 @@ class TemplateMainWindow(bui.MainWindow):
 
         # Show our vis-area bounds (for debugging).
         if bool(True):
-            bui.textwidget(
-                parent=self._root_widget,
-                position=(vis_left, vis_top),
-                size=(0, 0),
-                color=(1, 1, 1, 0.5),
-                scale=0.5,
-                text='TL',
-                h_align='left',
-                v_align='top',
-            )
+            # Skip top-left since its always overlapping back/close
+            # buttons.
+            if bool(False):
+                bui.textwidget(
+                    parent=self._root_widget,
+                    position=(vis_left, vis_top),
+                    size=(0, 0),
+                    color=(1, 1, 1, 0.5),
+                    scale=0.5,
+                    text='TL',
+                    h_align='left',
+                    v_align='top',
+                )
             bui.textwidget(
                 parent=self._root_widget,
                 position=(vis_left + vis_width, vis_top),
@@ -197,9 +199,10 @@ class TemplateMainWindow(bui.MainWindow):
         # our same class with random different dummy values).
         button_width = 300
         for i in range(3):
-            child_dummy_data = random.randrange(100, 1000)
+            child_dummy_data = self._dummy_data + (i + 1) * 17
             self._player_profiles_button = btn = bui.buttonwidget(
                 parent=self._root_widget,
+                id=f'{self.main_window_id_prefix}|button{i + 1}',
                 position=(
                     self._width * 0.5 - button_width * 0.5,
                     vis_top - 230 - i * 80,
@@ -215,7 +218,9 @@ class TemplateMainWindow(bui.MainWindow):
     def _child_press(self, dummy_data: int) -> None:
         # Navigate to a new one of us.
         self.main_window_replace(
-            TemplateMainWindow(auxiliary_style=False, dummy_data=dummy_data)
+            lambda: TemplateMainWindow(
+                auxiliary_style=False, dummy_data=dummy_data
+            )
         )
 
     @override
@@ -224,7 +229,7 @@ class TemplateMainWindow(bui.MainWindow):
         cls = type(self)
 
         # IMPORTANT - Pull values from self HERE; if we do it in the
-        # lambda it'll keep self alive which will lead to
+        # lambda below it'll keep self alive which will lead to
         # 'ui-not-getting-cleaned-up' warnings and memory leaks.
         dummy_data = self._dummy_data
         auxiliary_style = self._auxiliary_style
@@ -235,5 +240,23 @@ class TemplateMainWindow(bui.MainWindow):
                 origin_widget=origin_widget,
                 dummy_data=dummy_data,
                 auxiliary_style=auxiliary_style,
-            )
+            ),
         )
+
+    @override
+    def main_window_should_preserve_selection(self) -> bool:
+        # If we return True here, the app will reselect the last
+        # selected widget when creating a new one of our windows. We
+        # just need to make sure all of our selectable widgets have
+        # unique ids starting with `self.main_window_id_prefix`.
+        return True
+
+    @override
+    def get_main_window_shared_state_id(self) -> str | None:
+        # Here we return a unique id based on what we're displaying.
+        # This means each level will remember its selected button. If we
+        # remove this function override we get the default behavior
+        # where this state is shared for all instances of our class
+        # (thus selecting the second button will go to a new window with
+        # the second button already selected).
+        return f'template{self._dummy_data}'

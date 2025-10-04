@@ -55,7 +55,11 @@ class CommandManager:
         if not parts:
             return None
 
-        command = cls.commands.get(parts[0].upper())
+        cmd = parts[0]
+        prefix = cmd[0]  # Keep original prefix case
+        cmd_name = cmd[1:].upper()  # Convert only command name to upper
+
+        command = cls.commands.get(prefix + cmd_name)
 
         if command is not None:
             # set some attributes for abtraction

@@ -289,6 +289,10 @@ class PlaylistEditWindow(bui.MainWindow):
             )
         )
 
+    @override
+    def main_window_should_preserve_selection(self) -> bool:
+        return False
+
     def _set_ui_selection(self, selection: str) -> None:
         self._editcontroller.set_edit_ui_selection(selection)
 
