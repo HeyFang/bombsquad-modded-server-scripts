@@ -13,7 +13,7 @@
    "Complete": false
   },
   "Free Loader": {
-   "Complete": false
+   "Complete": true
   },
   "Gold Miner": {
    "Complete": false
@@ -140,14 +140,163 @@
  "Fleet Zone Ping Last Flush Time": 1759043007,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 34.41294198199852,
-   "hyderabad.v4": 31.03512373800183,
-   "mumbai.v4": 11.59039986000149
+   "delhi.v4": 34.55133700026636,
+   "hyderabad.v4": 32.618596000247635,
+   "mumbai.v4": 16.028045999973983
   }
  },
  "Free-for-All Playlist Randomize": true,
  "Free-for-All Playlist Selection": "__default__",
- "Free-for-All Playlists": {},
+ "Free-for-All Playlists": {
+  "cyklons epic ffa": [
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives Per Player": 3,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "The Pad"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Allow Negative Scores": false,
+     "Epic Mode": true,
+     "Kills to Win Per Player": 10,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Monkey Face"
+    },
+    "type": "bascenev1lib.game.boxing.Boxing"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives Per Player": 3,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Rampage"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Enable Bombs": true,
+     "Epic Mode": true,
+     "Infection Spread Rate": 0.04,
+     "Max Infected Size": 6,
+     "Max Size Increases Every": 10,
+     "Mines": 15,
+     "Sec/Extra Mine": 5,
+     "map": "Football Stadium"
+    },
+    "type": "bascenev1lib.game.infection.Infection"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives Per Player": 3,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Courtyard"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Hold Time": 10,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Zigzag"
+    },
+    "type": "bascenev1lib.game.kingofthehill.KingOfTheHillGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives Per Player": 3,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Monkey Face"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Enable Bottom Credit": false,
+     "Enable Punching": false,
+     "Enable Running": true,
+     "Epic Mode": true,
+     "Max Round Time": 15,
+     "map": "Doom Shroom"
+    },
+    "type": "bascenev1lib.game.musical_flags.MFGame"
+   },
+   {
+    "settings": {
+     "Allow Negative Scores": false,
+     "Epic Mode": true,
+     "Kills to Win Per Player": 10,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Roundabout"
+    },
+    "type": "bascenev1lib.game.deathmatch.DeathMatchGame"
+   },
+   {
+    "settings": {
+     "Allow Negative Scores": false,
+     "Epic Mode": true,
+     "Kills to Win Per Player": 10,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Hockey Stadium"
+    },
+    "type": "bascenev1lib.game.boxing.Boxing"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "map": "Rampage"
+    },
+    "type": "bascenev1lib.game.meteorshower.MeteorShowerGame"
+   },
+   {
+    "settings": {
+     "Allow Negative Scores": false,
+     "Epic Mode": true,
+     "Kills to Win Per Player": 10,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Bridgit"
+    },
+    "type": "bascenev1lib.game.deathmatch.DeathMatchGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives Per Player": 3,
+     "Respawn Times": 0.25,
+     "Time Limit": 0,
+     "map": "Roundabout"
+    },
+    "type": "bascenev1lib.game.elimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Bomb Spawning": 1000,
+     "Epic Mode": true,
+     "Laps": 1,
+     "Mine Spawning": 2000,
+     "Time Limit": 120,
+     "map": "Big G"
+    },
+    "type": "bascenev1lib.game.squid_race.SquidRaceGame"
+   }
+  ]
+ },
  "Idle Exit Minutes": null,
  "Local Account Name": "Server23182450",
  "Player Profiles": {
@@ -630,7 +779,7 @@
   ]
  },
  "Teams Series Length": 7,
- "launchCount": 65,
+ "launchCount": 75,
  "lc14173": 1,
  "lc14292": 1
 }
