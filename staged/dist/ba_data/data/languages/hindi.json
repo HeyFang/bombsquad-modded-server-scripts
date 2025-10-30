@@ -1759,6 +1759,7 @@
       "Streak: ${NUM} days": "स्ट्रीक: ${NUM} दिन",
       "Temporarily unavailable; please try again later.": "अस्थाई रूप से अनुपलब्ध; बाद में पुन: प्रयास करें।",
       "The tournament ended before you finished.": "टूर्नामेंट समाप्त होने से पहले समाप्त हो गया।",
+      "There is nothing here.": "यहां कुछ नही है।",
       "This account cannot be unlinked for ${NUM} days.": "यह खाता ${NUM} दिनों के लिए अनलिंक नहीं किया जा सकता है।",
       "This code cannot be used on the account that created it.": "इस कोड का उपयोग उस खाते पर नहीं किया जा सकता है जिसने इसे बनाया है।",
       "This is currently unavailable; please try again later.": "यह अभी अनुपलब्ध है; कृपया बाद में पुन: प्रयास करें।",

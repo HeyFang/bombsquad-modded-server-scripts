@@ -102,7 +102,8 @@ class IOMultiType[EnumT: Enum]:
     inheriting from that registry class. Dataclassio will then do the
     right thing when that registry class is used in type annotations.
 
-    See tests/test_efro/test_dataclassio.py for examples.
+    For an example multitype class (useful to use as a starting point
+    for your own) see :class:`efro.dataclassio.templatemultitype`.
     """
 
     @classmethod
@@ -321,7 +322,7 @@ class IOAttrs:
                 and self.soft_default_factory is self.MISSING
             ):
                 raise TypeError(
-                    f'Field {field.name} of {cls} has'
+                    f'Field \'{field.name}\' of {cls} has'
                     f' neither a default nor a default_factory'
                     f' and IOAttrs contains neither a soft_default'
                     f' nor a soft_default_factory;'

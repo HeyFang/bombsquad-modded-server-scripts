@@ -1751,6 +1751,7 @@
       "Streak: ${NUM} days": "Seri: ${NUM} gün",
       "Temporarily unavailable; please try again later.": "Geçici olarak kullanım dışı; lütfen daha sonra tekrar deneyiniz.",
       "The tournament ended before you finished.": "Sen bitiremeden turnuva sona erdi.",
+      "There is nothing here.": "Burada bir şey yok.",
       "This account cannot be unlinked for ${NUM} days.": "Bu hesap, ${NUM} gün boyunca kaldırılamaz.",
       "This code cannot be used on the account that created it.": "Bu kod onun yaptığı hesapta kullanılamaz.",
       "This is currently unavailable; please try again later.": "Bu şu anda kullanılamıyor; lütfen daha sonra tekrar deneyin.",

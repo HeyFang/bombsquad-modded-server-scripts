@@ -408,7 +408,7 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         # Otherwise just force the issue.
         else:
             babase.pushcall(
-                babase.Call(bascenev1.new_host_session, MainMenuSession)
+                babase.CallStrict(bascenev1.new_host_session, MainMenuSession)
             )
 
     def getmaps(self, playtype: str) -> list[str]:
@@ -702,7 +702,7 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         if sddata is not None:
             babase.apptimer(
                 delay,
-                babase.Call(ServerDialogWindow, sddata),
+                babase.CallStrict(ServerDialogWindow, sddata),
             )
 
     def show_url_window(self, address: str) -> None:
@@ -881,6 +881,11 @@ class ClassicAppSubsystem(babase.AppSubsystem):
                     # If there's a saved ui state, restore that.
                     if self.saved_ui_state is not None:
                         app.ui_v1.restore_main_window_state(self.saved_ui_state)
+                        # Kill the state now that we're back; we'll
+                        # generate a new one when we leave. This keeps
+                        # UIOpenStates stored in the state doing the
+                        # right thing.
+                        self.saved_ui_state = None
                     else:
                         # Otherwise start fresh at the main menu.
                         from bauiv1lib.mainmenu import MainMenuWindow

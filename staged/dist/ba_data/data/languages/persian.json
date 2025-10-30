@@ -1756,6 +1756,7 @@
       "Streak: ${NUM} days": "‎روز ${NUM} دوره‌ی ورود روزانه:",
       "Temporarily unavailable; please try again later.": "در حال حاضر این گذینه موجود نمی باشد؛لطفا بعدا امتحان کنید",
       "The tournament ended before you finished.": "ناورد به پایان رسید، پیش از اینکه شما به پایان برسید.",
+      "There is nothing here.": "اینجا هیچی نیست.",
       "This account cannot be unlinked for ${NUM} days.": "این حساب برای مدت ${NUM} روز قابل جداسازی نیست!",
       "This code cannot be used on the account that created it.": "کد در حسابی که با آن ساخته شده قابل استفاده نیست",
       "This is currently unavailable; please try again later.": ".این گزینه در حال حاضر در دسترس نیست; لطفا بعدا دوباره تلاش کنید",

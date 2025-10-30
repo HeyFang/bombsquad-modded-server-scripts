@@ -7,6 +7,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import bascenev1 as bs
 
+# import settings
+try:
+    from .. import settings
+except ImportError:
+    print("\nERROR: Could not import settings.py from bautils directory."
+          " Discord admin auth will be disabled.")
+    # Define a dummy module with default False if import fails
+    class DummySettings:
+        enableDiscordAdminAuth = False
+    settings = DummySettings()
+
+
 if TYPE_CHECKING:
     from .server_command import ServerCommand
 
@@ -15,6 +27,7 @@ class CommandManager:
     """Factory Managing server commands."""
 
     commands: dict[str, ServerCommand] = {}
+    verified_admins: dict[int, str] = {}
 
     @classmethod
     def add_command(cls, command: ServerCommand) -> None:
@@ -28,10 +41,70 @@ class CommandManager:
         # Get the class name if name is not provided
         if command.name is None:
             command.name = command.__class__.__name__
-
-        cls.commands[command.command_prefix() + command.name.upper()] = command
+        cmd_key = command.command_prefix() + command.name.upper()
+        cls.commands[cmd_key] = command
         for alias in command.aliases:
-            cls.commands[command.command_prefix() + alias.upper()] = command
+            alias_key = command.command_prefix() + alias.upper()
+            cls.commands[alias_key] = command
+    
+    # verification-
+    @classmethod
+    def mark_admin_verified(cls, client_id: int, shortname: str) -> bool:
+        """
+        Verify an admin based on current client_id and shortname match.
+        If successful, stores the client_id -> shortname mapping.
+        Returns True on success, False otherwise.
+        """
+        try:
+            session = bs.get_foreground_host_session()
+            player = None
+            if session:
+                for p in session.sessionplayers:
+                    if p.inputdevice.client_id == client_id:
+                        player = p
+                        break
+
+            # Check if player exists AND their current shortname matches the one provided
+            if player and player.getname(full=False, icon=False) == shortname:
+                # Store the mapping
+                cls.verified_admins[client_id] = shortname
+                print(f"Admin client_id {client_id} (Name: {shortname}) verified via external source.")
+                bs.broadcastmessage(
+                    "Admin verification successful.",
+                    clients=[client_id], transient=True, color=(0, 1, 0)
+                )
+                return True # Verification successful
+            else:
+                if not player:
+                    print(f"Attempted to verify non-existent client_id: {client_id}")
+                else:
+                    print(f"Attempted to verify client_id {client_id} but name mismatch "
+                          f"(Discord provided: '{shortname}', Game shows: '{player.getname(full=False, icon=False)}')")
+                return False # Verification failed
+
+        except Exception as e:
+            print(f"Error in mark_admin_verified for client_id {client_id}, name {shortname}: {e}")
+            return False # Verification failed due to error
+
+    # check verification
+    @classmethod
+    def is_admin_verified(cls, client_id: int, current_shortname: str) -> bool:
+        """
+        Checks if client_id is verified AND the stored name matches the current name.
+        """
+        verified_name = cls.verified_admins.get(client_id)
+        # Return True only if client_id is found AND the stored name matches the current name
+        if verified_name is not None and verified_name == current_shortname:
+            return True
+        return False
+
+    # remove verification if needed (not used currently)
+    @classmethod
+    def remove_verified_admin(cls, client_id: int) -> None:
+        """Remove a client_id from verification when they disconnect."""
+        if client_id in cls.verified_admins:
+            del cls.verified_admins[client_id]
+            # Optional: print(f"Removed client_id {client_id} from verified admins.")
 
     @classmethod
     def listen(cls, msg: str, client_id: int) -> str | None:
@@ -65,13 +138,81 @@ class CommandManager:
             # set some attributes for abtraction
             command.client_id = client_id
             command.message = msg
+            # print(f"DEBUG: Command '{cmd}' received from client_id {client_id}.") # DEBUG 1
 
             if command.admin_authentication():
                 # check admins from loaded config file.
                 if command.is_admin:
+                    #print(f"DEBUG: Client {client_id} IS an admin (pb-id check passed).") # DEBUG 2
+
+                    # settings checks
+                    # default to False if settings are missing
+                    ip_auth_enabled = getattr(settings, 'enableIpAuth', False)
+                    discord_auth_enabled = getattr(settings, 'enableDiscordAdminAuth', False)
+                    discord_integration_enabled = getattr(settings, 'enableDiscordIntegration', False)
+                    # Determine if Discord verification should actually be performed
+                    perform_discord_check = discord_auth_enabled and discord_integration_enabled
+
+                    #print(f"DEBUG: Discord auth enabled? {discord_auth_enabled}") # DEBUG 3
+                    #print(f"DEBUG: Current verified_admins dict: {cls.verified_admins}")
+
+                    if ip_auth_enabled:
+                        # IP address check
+                        try:
+                            client_ip = bs.get_client_ip_address(client_id=client_id)
+                            authorized_ips = getattr(settings, 'authorizedAdminIPs', [])
+                            if client_ip not in authorized_ips:
+                                print(f"Client {client_id} IP '{client_ip}' not in authorized admin IPs.")
+                                bs.broadcastmessage(
+                                    "❌ Access Denied!",
+                                    clients=[client_id],
+                                    transient=True,
+                                    color=(1, 0, 0),
+                                )
+                                return None  # Block command execution
+                            else:
+                                #print(f"Client {client_id} IP '{client_ip}' passed IP auth check.")
+                                pass
+                        except Exception as e:
+                            print(f"Error getting IP for client_id {client_id}: {e}")
+                            bs.broadcastmessage(
+                                "❌ Error verifying IP address.",
+                                clients=[client_id],
+                                transient=True,
+                                color=(1, 0, 0),
+                            )
+                            return None  # Block command execution
+                    if perform_discord_check:
+                        # verification check
+                        # Get the player's current shortname NOW
+                        try:
+                            player = command.get_session_player() # Get player using client_id
+                            current_shortname = player.getname(full=False, icon=False)
+
+                            #print(f"DEBUG: Checking verification for client_id={client_id}, current_shortname='{current_shortname}'") # DEBUG 4
+                        except Exception as e:
+                            print(f"Error getting player name for verification check: {e}")
+                            bs.broadcastmessage( "❌ Error checking verification status.", clients=[client_id], color=(1,0,0))
+                            return None # Block command if we can't get name
+
+                        # Check BOTH client_id existence AND if current name matches stored name
+                        if not cls.is_admin_verified(client_id, current_shortname):
+                            #print(f"DEBUG: is_admin_verified FAILED for client_id={client_id}, name='{current_shortname}'") # DEBUG 5
+                            bs.broadcastmessage(
+                                f"Not verified!",
+                                clients=[client_id], transient=True, color=(1, 0.5, 0)
+                            )
+                            return None # Block command execution
+                        else:
+                            print(f"DEBUG: is_admin_verified PASSED for client_id={client_id}, name='{current_shortname}'") # DEBUG 6
+                        # --- END VERIFICATION CHECK ---
+
+                    # If we reach here, either auth is disabled, or they are verified correctly
+                    #print(f"DEBUG: Executing command '{cmd}' for client_id {client_id}") # DEBUG PRINT 7
                     command()
 
                 else:
+                    #print(f"DEBUG: Client {client_id} is NOT an admin (pb-id check failed).") # DEBUG 8
                     bs.broadcastmessage(
                         "❌ Access Denied: Admins only!",
                         clients=[client_id],
@@ -84,3 +225,6 @@ class CommandManager:
             if not command.return_message():
                 return None  # commands wont show up in chatbox
         return msg  # /<invalid_command_name> will be visible in chatbox
+
+# CommandManager.verified_admins[113] = "HeyFang"
+# print(f"DEBUG: Manually added test verification: {CommandManager.verified_admins}")

@@ -313,12 +313,13 @@ class ProfileBrowserWindow(bui.MainWindow):
         plus = bui.app.plus
         assert plus is not None
 
-        # Go back to default selection.
-        type(self).selected_profile = None
-
         plus.add_v1_account_transaction(
             {'type': 'REMOVE_PLAYER_PROFILE', 'name': self.selected_profile}
         )
+
+        # Go back to default selection.
+        type(self).selected_profile = None
+
         plus.run_v1_account_transactions()
         bui.getsound('shieldDown').play()
         self._refresh()
@@ -419,12 +420,12 @@ class ProfileBrowserWindow(bui.MainWindow):
                 text=bui.Lstr(value=f'    {tval}'),
                 h_align='left',
                 v_align='center',
-                on_select_call=bui.WeakCall(self._select, p_name, index),
+                on_select_call=bui.WeakCallStrict(self._select, p_name, index),
                 maxwidth=self._scroll_width * 0.86,
                 corner_scale=scl,
                 color=bui.safecolor(color, 0.4),
                 always_highlight=True,
-                on_activate_call=bui.Call(self._edit_button.activate),
+                on_activate_call=bui.CallStrict(self._edit_button.activate),
                 selectable=True,
             )
             # We handle reselection of these manually; no need for ids.

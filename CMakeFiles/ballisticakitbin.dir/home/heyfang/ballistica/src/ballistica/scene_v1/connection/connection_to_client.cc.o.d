@@ -447,4 +447,9 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/scene_v1/
  /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
  /usr/include/x86_64-linux-gnu/bits/in.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/point2d.h
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/point2d.h \
+ /usr/include/c++/13/fstream /usr/include/c++/13/istream \
+ /usr/include/c++/13/bits/istream.tcc /usr/include/c++/13/bits/codecvt.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/basic_file.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/c++io.h \
+ /usr/include/c++/13/bits/fstream.tcc

@@ -1751,6 +1751,7 @@
       "Streak: ${NUM} days": "الستريك: ${NUM} الأيام",
       "Temporarily unavailable; please try again later.": "غير متاح مؤقتا؛ الرجاء معاودة المحاولة في وقت لاحق.",
       "The tournament ended before you finished.": "انتهت البطولة قبل الانتهاء.",
+      "There is nothing here.": "لا يوجد شيء هنا.",
       "This account cannot be unlinked for ${NUM} days.": "لا يمكن إلغاء ربط هذا الحساب بمبلغ ${NUM} من الأيام.",
       "This code cannot be used on the account that created it.": "لا يمكن استخدام هذا الرمز على الحساب الذي أنشأه.",
       "This is currently unavailable; please try again later.": "ذلك غير متوفر حاليا؛ يرجى المحاولة لاحقا",

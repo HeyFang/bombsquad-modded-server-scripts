@@ -1733,6 +1733,7 @@
       "Streak: ${NUM} days": "Racha de: ${NUM} días",
       "Temporarily unavailable; please try again later.": "Temporalmente indisponible; por favor inténtalo más tarde.",
       "The tournament ended before you finished.": "El torneo terminó antes de que terminaras.",
+      "There is nothing here.": "No hay nada aqui.",
       "This account cannot be unlinked for ${NUM} days.": "Esta cuenta no puede ser desvinculada por ${NUM} día(s).",
       "This code cannot be used on the account that created it.": "Este código no puede ser usado en la misma cuenta que ha sido creado.",
       "This is currently unavailable; please try again later.": "Esto no está disponible actualmente; por favor inténtelo más tarde.",

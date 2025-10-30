@@ -375,6 +375,8 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/ui_v1/pyt
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/assets/sound_asset.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/assets/asset.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/audio/al_sys.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/logic/logic.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/runnable.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/python/base_python.h \
  /usr/include/c++/13/set /usr/include/c++/13/bits/stl_tree.h \
  /usr/include/c++/13/bits/stl_set.h \
@@ -393,19 +395,23 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/ui_v1/pyt
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/ui/widget_message.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/platform/support/min_sdl.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/vector4f.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/ui_v1/python/class/python_class_ui_mesh.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/point2d.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_class.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_macros.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/core.h \
- /usr/include/c++/13/thread /usr/include/c++/13/stop_token \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/foundation/event_loop.h \
+ /usr/include/c++/13/condition_variable /usr/include/c++/13/stop_token \
  /usr/include/c++/13/bits/std_thread.h /usr/include/c++/13/semaphore \
  /usr/include/c++/13/bits/semaphore_base.h \
  /usr/include/c++/13/bits/atomic_timed_wait.h \
  /usr/include/c++/13/bits/this_thread_sleep.h \
  /usr/include/x86_64-linux-gnu/sys/time.h /usr/include/semaphore.h \
  /usr/include/x86_64-linux-gnu/bits/semaphore.h \
+ /usr/include/c++/13/thread \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/lambda_runnable.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/timer_list.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/ui_v1/python/class/python_class_ui_mesh.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/point2d.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_class.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/python/python_macros.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/core.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/support/core_config.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/logging/logging.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/ui_v1/python/class/python_class_ui_sound.h \

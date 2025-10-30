@@ -295,29 +295,4 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/ui_v1/wid
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/runnable.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/lambda_runnable.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/ui/ui.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/vector4f.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/core.h \
- /usr/include/c++/13/thread /usr/include/c++/13/stop_token \
- /usr/include/c++/13/bits/std_thread.h /usr/include/c++/13/semaphore \
- /usr/include/c++/13/bits/semaphore_base.h \
- /usr/include/c++/13/bits/atomic_timed_wait.h \
- /usr/include/c++/13/bits/this_thread_sleep.h \
- /usr/include/x86_64-linux-gnu/sys/time.h /usr/include/semaphore.h \
- /usr/include/x86_64-linux-gnu/bits/semaphore.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/support/core_config.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/platform/core_platform.h \
- /usr/include/x86_64-linux-gnu/sys/stat.h \
- /usr/include/x86_64-linux-gnu/bits/stat.h \
- /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
- /usr/include/x86_64-linux-gnu/bits/statx.h /usr/include/linux/stat.h \
- /usr/include/linux/types.h /usr/include/x86_64-linux-gnu/asm/types.h \
- /usr/include/asm-generic/types.h /usr/include/asm-generic/int-ll64.h \
- /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
- /usr/include/asm-generic/bitsperlong.h /usr/include/linux/posix_types.h \
- /usr/include/linux/stddef.h \
- /usr/include/x86_64-linux-gnu/asm/posix_types.h \
- /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
- /usr/include/asm-generic/posix_types.h \
- /usr/include/x86_64-linux-gnu/bits/statx-generic.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/vector4f.h

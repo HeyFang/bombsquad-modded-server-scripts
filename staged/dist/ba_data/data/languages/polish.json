@@ -1837,6 +1837,7 @@
       "Streak: ${NUM} days": "Seria: ${NUM} dni",
       "Temporarily unavailable; please try again later.": "Tymczasowo niedostępne; spróbuj ponownie później.",
       "The tournament ended before you finished.": "Wyniki po zakończonym turnieju.",
+      "There is nothing here.": "Nic tutaj nie ma.",
       "This account cannot be unlinked for ${NUM} days.": "To konto nie może zostać rozłączone przez ${NUM} dni.",
       "This code cannot be used on the account that created it.": "Kod nie może zostać użyty na koncie, które go stworzyło.",
       "This is currently unavailable; please try again later.": "To jest obecnie niedostępne; proszę spróbować ponownie później.",

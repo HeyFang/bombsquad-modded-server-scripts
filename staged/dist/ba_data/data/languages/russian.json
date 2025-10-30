@@ -1840,6 +1840,7 @@
       "Streak: ${NUM} days": "Промежуток: ${NUM} дней",
       "Temporarily unavailable; please try again later.": "Временно недоступно; Пожалуйста, повторите попытку позже.",
       "The tournament ended before you finished.": "Турнир закончился прежде, чем вы закончили.",
+      "There is nothing here.": "Тут ничего нет.",
       "This account cannot be unlinked for ${NUM} days.": "Этот аккаунт невозможно отвязать в течение ${NUM} дней.",
       "This code cannot be used on the account that created it.": "Этот код не может быть использован его создателем.",
       "This is currently unavailable; please try again later.": "В настоящее время он недоступен; пожалуйста, повторите попытку позже",

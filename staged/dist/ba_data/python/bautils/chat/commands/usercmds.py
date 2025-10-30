@@ -106,3 +106,35 @@ class Info(ServerCommand):
     def admin_authentication(self) -> bool:
         # Let anyone use /info
         return False
+
+@register_command
+class hello(ServerCommand):
+    """/hello - A simple test command."""
+
+    @override
+    def on_command_call(self) -> None:
+        session = bs.get_foreground_host_session()
+        if not session: return
+
+        for player in session.sessionplayers:
+            client_id = player.inputdevice.client_id
+            if client_id is not None and client_id != -1: # Check for valid client ID
+                try:
+                    ip = bs.get_client_ip_address(client_id=client_id)
+                    if ip:
+                        print(f"Player '{player.getname()}' (Client ID: {client_id}) IP: {ip}")
+                    else:
+                        print(f"Player '{player.getname()}' (Client ID: {client_id}) IP: Not available")
+                except Exception as e:
+                    print(f"Error getting IP for Client ID {client_id}: {e}")
+            else:
+                print(f"Player '{player.getname()}' is not a remote client.")
+        bs.broadcastmessage(
+            f"Hello, {self.get_session_player(self.client_id).getname()}!",
+            transient=True,
+            clients=[self.client_id],
+        )
+
+    @override
+    def admin_authentication(self) -> bool:
+        return False

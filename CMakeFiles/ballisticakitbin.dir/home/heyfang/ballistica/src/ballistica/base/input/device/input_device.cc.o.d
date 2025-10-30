@@ -259,4 +259,14 @@ CMakeFiles/ballisticakitbin.dir/home/heyfang/ballistica/src/ballistica/base/inpu
  /usr/include/c++/13/bits/stl_tree.h /usr/include/c++/13/bits/stl_set.h \
  /usr/include/c++/13/bits/stl_multiset.h \
  /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/logic/logic.h \
- /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/runnable.h
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/runnable.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/ui/ui.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/support/frame_def.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/assets/asset.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/graphics/support/graphics_settings.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/vector2f.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/generic/snapshot.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/matrix44f.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/base/ui/widget_message.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/core/platform/support/min_sdl.h \
+ /home/heyfang/ballistica/ballisticakit-cmake/../src/ballistica/shared/math/vector4f.h

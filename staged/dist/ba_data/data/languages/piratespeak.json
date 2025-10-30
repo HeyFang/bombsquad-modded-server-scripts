@@ -1751,6 +1751,7 @@
       "Streak: ${NUM} days": "days with no accidents: ${NUM}",
       "Temporarily unavailable; please try again later.": "Be out o' reach fer now; please try again later, matey.",
       "The tournament ended before you finished.": "The tourney be over 'fore ye finished.",
+      "There is nothing here.": "There ain't a thing here, arrr.",
       "This account cannot be unlinked for ${NUM} days.": "This account be stuck fer ${NUM} days.",
       "This code cannot be used on the account that created it.": "This code be not fer use on the account that made it.",
       "This is currently unavailable; please try again later.": "This be not available now; try again later, matey.",

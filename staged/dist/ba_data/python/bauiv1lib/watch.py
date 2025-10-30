@@ -150,6 +150,7 @@ class WatchWindow(bui.MainWindow):
             ),
             size=(self._scroll_width - 2.0 * tab_bar_inset, 50),
             on_select_call=self._set_tab,
+            idprefix=self.main_window_id_prefix,
         )
 
         first_tab = self._tab_row.tabs[tabdefs[0][0]]
@@ -349,7 +350,11 @@ class WatchWindow(bui.MainWindow):
             )
             bui.containerwidget(edit=cnt, selected_child=scrlw)
             self._columnwidget = bui.columnwidget(
-                parent=scrlw, left_border=10, border=2, margin=0
+                parent=scrlw,
+                id=f'{self.main_window_id_prefix}|column',
+                left_border=10,
+                border=2,
+                margin=0,
             )
 
             bui.widget(
@@ -400,7 +405,7 @@ class WatchWindow(bui.MainWindow):
 
                 bs.new_host_session(mainmenu.MainMenuSession)
 
-        bui.fade_screen(False, endcall=bui.Call(bui.pushcall, do_it))
+        bui.fade_screen(False, endcall=bui.CallStrict(bui.pushcall, do_it))
         bui.containerwidget(edit=self._root_widget, transition='out_left')
 
     def _on_my_replay_rename_press(self) -> None:
@@ -453,7 +458,7 @@ class WatchWindow(bui.MainWindow):
             parent=cnt,
             id=f'{self.main_window_id_prefix}|replayrenamecancel',
             label=bui.Lstr(resource='cancelText'),
-            on_activate_call=bui.Call(
+            on_activate_call=bui.CallStrict(
                 lambda c: bui.containerwidget(edit=c, transition='out_scale'),
                 cnt,
             ),
@@ -467,7 +472,7 @@ class WatchWindow(bui.MainWindow):
             label=bui.Lstr(resource=f'{self._r}.renameText'),
             size=(180, 60),
             position=(c_width - 230, 30),
-            on_activate_call=bui.Call(
+            on_activate_call=bui.CallStrict(
                 self._rename_my_replay, self._my_replay_selected
             ),
             autoselect=True,
@@ -553,7 +558,7 @@ class WatchWindow(bui.MainWindow):
                     )
                 ],
             ),
-            bui.Call(self._delete_replay, self._my_replay_selected),
+            bui.CallStrict(self._delete_replay, self._my_replay_selected),
             width=450,
             height=150,
         )
@@ -611,7 +616,7 @@ class WatchWindow(bui.MainWindow):
                     (1.0, 1, 0.4) if name == '__lastReplay.brp' else (1, 1, 1)
                 ),
                 always_highlight=True,
-                on_select_call=bui.Call(self._on_my_replay_select, name),
+                on_select_call=bui.CallStrict(self._on_my_replay_select, name),
                 on_activate_call=self._my_replays_watch_replay_button.activate,
                 text=self._get_replay_display_name(name),
                 h_align='left',

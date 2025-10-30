@@ -1733,6 +1733,7 @@
       "Streak: ${NUM} days": "已连续登录${NUM}天",
       "Temporarily unavailable; please try again later.": "目前暂不可用；请稍候再试！",
       "The tournament ended before you finished.": "本次锦标赛在你完成之前结束。",
+      "There is nothing here.": "这里什么都没有",
       "This account cannot be unlinked for ${NUM} days.": "此帐户无法在${NUM}天内取消关联。",
       "This code cannot be used on the account that created it.": "此代码不可在创建其的账户上使用。",
       "This is currently unavailable; please try again later.": "当前不可用：请稍后再试",

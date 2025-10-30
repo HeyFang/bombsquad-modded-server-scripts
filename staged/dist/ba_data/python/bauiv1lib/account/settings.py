@@ -33,6 +33,8 @@ class AccountSettingsWindow(bui.MainWindow):
         plus = bui.app.plus
         assert plus is not None
 
+        self._uiopenstate = bui.UIOpenState('accountsettings')
+
         self._sign_in_v2_proxy_button: bui.Widget | None = None
         self._sign_in_device_button: bui.Widget | None = None
 
@@ -49,7 +51,7 @@ class AccountSettingsWindow(bui.MainWindow):
         self._v1_signed_in = plus.get_v1_account_state() == 'signed_in'
         self._v1_account_state_num = plus.get_v1_account_state_num()
         self._check_sign_in_timer = bui.AppTimer(
-            1.0, bui.WeakCall(self._update), repeat=True
+            1.0, bui.WeakCallStrict(self._update), repeat=True
         )
 
         self._can_reset_achievements = False
@@ -863,7 +865,9 @@ class AccountSettingsWindow(bui.MainWindow):
                 color=(0.55, 0.5, 0.6),
                 icon=bui.gettexture('settingsIcon'),
                 textcolor=(0.75, 0.7, 0.8),
-                on_activate_call=bui.WeakCall(self._on_manage_account_press),
+                on_activate_call=bui.WeakCallStrict(
+                    self._on_manage_account_press
+                ),
             )
             if first_selectable is None:
                 first_selectable = btn
@@ -884,7 +888,9 @@ class AccountSettingsWindow(bui.MainWindow):
                 label=bui.Lstr(resource=f'{self._r}.createAnAccountText'),
                 color=(0.55, 0.5, 0.6),
                 textcolor=(0.75, 0.7, 0.8),
-                on_activate_call=bui.WeakCall(self._on_create_account_press),
+                on_activate_call=bui.WeakCallStrict(
+                    self._on_create_account_press
+                ),
             )
             if first_selectable is None:
                 first_selectable = btn
@@ -1100,7 +1106,9 @@ class AccountSettingsWindow(bui.MainWindow):
         if bui.app.plus is not None:
             bui.apptimer(
                 0.15,
-                bui.Call(bui.app.plus.show_game_service_ui, 'achievements'),
+                bui.CallStrict(
+                    bui.app.plus.show_game_service_ui, 'achievements'
+                ),
             )
         else:
             logging.warning('show_game_service_ui requires plus feature-set.')
@@ -1138,7 +1146,9 @@ class AccountSettingsWindow(bui.MainWindow):
         with plus.accounts.primary:
             plus.cloud.send_message_cb(
                 bacommon.cloud.ManageAccountMessage(weblocation=weblocation),
-                on_response=bui.WeakCall(self._on_manage_account_response),
+                on_response=bui.WeakCallPartial(
+                    self._on_manage_account_response
+                ),
             )
 
     def _on_manage_account_response(
@@ -1158,7 +1168,9 @@ class AccountSettingsWindow(bui.MainWindow):
         if bui.app.plus is not None:
             bui.apptimer(
                 0.15,
-                bui.Call(bui.app.plus.show_game_service_ui, 'leaderboards'),
+                bui.CallStrict(
+                    bui.app.plus.show_game_service_ui, 'leaderboards'
+                ),
             )
         else:
             logging.warning('show_game_service_ui requires classic')
@@ -1245,7 +1257,7 @@ class AccountSettingsWindow(bui.MainWindow):
         self._needs_refresh = True
 
         # Speed UI updates along.
-        bui.apptimer(0.1, bui.WeakCall(self._update))
+        bui.apptimer(0.1, bui.WeakCallStrict(self._update))
 
     def _sign_out_press(self) -> None:
         plus = bui.app.plus
@@ -1273,7 +1285,7 @@ class AccountSettingsWindow(bui.MainWindow):
         )
 
         # Speed UI updates along.
-        bui.apptimer(0.1, bui.WeakCall(self._update))
+        bui.apptimer(0.1, bui.WeakCallStrict(self._update))
 
     def _sign_in_press(self, login_type: str | LoginType) -> None:
 
@@ -1305,7 +1317,7 @@ class AccountSettingsWindow(bui.MainWindow):
             cfg['Auto Account State'] = login_type
             cfg.commit()
             self._needs_refresh = True
-            bui.apptimer(0.1, bui.WeakCall(self._update))
+            bui.apptimer(0.1, bui.WeakCallStrict(self._update))
             return
 
         # V2 login sign-in buttons generally go through adapters.
@@ -1313,12 +1325,12 @@ class AccountSettingsWindow(bui.MainWindow):
         if adapter is not None:
             self._signing_in_adapter = adapter
             adapter.sign_in(
-                result_cb=bui.WeakCall(self._on_adapter_sign_in_result),
+                result_cb=bui.WeakCallPartial(self._on_adapter_sign_in_result),
                 description='account settings button',
             )
             # Will get 'Signing in...' to show.
             self._needs_refresh = True
-            bui.apptimer(0.1, bui.WeakCall(self._update))
+            bui.apptimer(0.1, bui.WeakCallStrict(self._update))
         else:
             bui.screenmessage(f'Unsupported login_type: {login_type.name}')
 
@@ -1365,7 +1377,7 @@ class AccountSettingsWindow(bui.MainWindow):
                 # credentials go through and the account name shows up.
                 bui.apptimer(
                     1.5,
-                    bui.Call(
+                    bui.CallStrict(
                         bui.screenmessage,
                         bui.Lstr(
                             resource=self._r
@@ -1376,7 +1388,7 @@ class AccountSettingsWindow(bui.MainWindow):
 
         # Speed any UI updates along.
         self._needs_refresh = True
-        bui.apptimer(0.1, bui.WeakCall(self._update))
+        bui.apptimer(0.1, bui.WeakCallStrict(self._update))
 
     def _v2_proxy_sign_in_press(self) -> None:
 

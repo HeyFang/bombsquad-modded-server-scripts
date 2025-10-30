@@ -22,6 +22,9 @@ class ResourceTypeInfoWindow(PopupWindow):
         origin_widget: bui.Widget,
     ):
         assert bui.app.classic is not None
+
+        self._uiopenstate = bui.UIOpenState(f'resourcetypeinfo{resource_type}')
+
         uiscale = bui.app.ui_v1.uiscale
         scale = (
             2.0
@@ -32,6 +35,7 @@ class ResourceTypeInfoWindow(PopupWindow):
         self._width = 570
         self._height = 400
         self._get_tokens_button: bui.Widget | None = None
+        self._idprefix = bui.app.ui_v1.new_id_prefix('resourcetypeinfo')
         bg_color = (0.5, 0.4, 0.6)
         super().__init__(
             size=(self._width, self._height),
@@ -43,17 +47,15 @@ class ResourceTypeInfoWindow(PopupWindow):
         )
         self._cancel_button = bui.buttonwidget(
             parent=self.root_widget,
+            id=f'{self._idprefix}|cancel',
             position=(40, self._height - 40),
             size=(50, 50),
             scale=0.7,
-            # label='',
             color=bg_color,
             on_activate_call=self._on_cancel_press,
             autoselect=True,
             label=bui.charstr(bui.SpecialChar.CLOSE),
             textcolor=(1, 1, 1),
-            # icon=bui.gettexture('crossOut'),
-            # iconscale=1.2,
         )
 
         yoffs = self._height - 145
@@ -78,6 +80,7 @@ class ResourceTypeInfoWindow(PopupWindow):
             if not bui.app.classic.gold_pass:
                 self._get_tokens_button = bui.buttonwidget(
                     parent=self.root_widget,
+                    id=f'{self._idprefix}|gettokens',
                     position=(
                         self._width * 0.5 - bwidth * 0.5,
                         yoffs - 15.0 - bheight - max_rdesc_height,
@@ -87,7 +90,9 @@ class ResourceTypeInfoWindow(PopupWindow):
                     label=bui.Lstr(resource='tokens.getTokensText'),
                     size=(bwidth, bheight),
                     autoselect=True,
-                    on_activate_call=bui.WeakCall(self._on_get_tokens_press),
+                    on_activate_call=bui.WeakCallStrict(
+                        self._on_get_tokens_press
+                    ),
                 )
 
         elif resource_type == 'trophies':
