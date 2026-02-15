@@ -28,7 +28,7 @@ cd bombsquad-modded-server-scripts
 
 - Make a config.toml:
 ```bash
-sudo cp config_template.toml config.toml
+cp config_template.toml config.toml
 ```
 - Edit the `config.toml` according to your needs.
 - Tip: remove the `#` to uncomment any required setting.
