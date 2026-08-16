@@ -1,0 +1,59 @@
+# Released under the MIT License. See LICENSE for details.
+#
+"""Functionality related to cloud based assets."""
+
+from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    pass
+
+
+# NOTE TO SELF:
+# Whenever adding login types here, make sure to update all
+# basn nodes before trying to send values through to bamaster,
+# as they need to be extractable by basn en route.
+
+
+class LoginType(Enum):
+    """Types of logins available."""
+
+    #: Email/password
+    EMAIL = 'email'
+
+    #: Google Play Game Services
+    GPGS = 'gpgs'
+
+    #: Apple's Game Center
+    GAME_CENTER = 'game_center'
+
+    #: Discord (OAuth2 via Discord Social SDK)
+    DISCORD = 'discord'
+
+    @property
+    def displayname(self) -> str:
+        """A human readable name for this value."""
+        cls = LoginType
+        match self:
+            case cls.EMAIL:
+                return 'Email/Password'
+            case cls.GPGS:
+                return 'Google Play Games'
+            case cls.GAME_CENTER:
+                return 'Game Center'
+            case cls.DISCORD:
+                return 'Discord'
+
+    @property
+    def displaynameshort(self) -> str:
+        """A short human readable name for this value."""
+        cls = LoginType
+        match self:
+            case cls.EMAIL:
+                return 'Email'
+            case cls.GPGS:
+                return 'GPGS'
+            case cls.GAME_CENTER:
+                return 'Game Center'
+            case cls.DISCORD:
+                return 'Discord'

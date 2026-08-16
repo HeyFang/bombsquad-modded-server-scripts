@@ -1,0 +1,603 @@
+# Released under the MIT License. See LICENSE for details.
+#
+"""Provides a popup for displaying info about any account."""
+
+from typing import TYPE_CHECKING, override
+import logging
+
+import bauiv1 as bui
+from bascenev1lib.actor import spazappearance
+from bauiv1 import _commonassets, classicassets
+from bauiv1 import builtinassets
+
+from bauiv1lib.popup import PopupWindow, PopupMenuWindow
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from bauiv1lib.popup import PopupMenu
+
+
+def _league_tier_name(name: str) -> bui.LangStr:
+    """Display form for a server-sent league tier name.
+
+    Known tiers map to their authored entries; anything else (a future
+    tier from a newer server) shows verbatim.
+    """
+    lstrs = classicassets.strings.league
+    entry = {
+        'Bronze': lstrs.bronze,
+        'Silver': lstrs.silver,
+        'Gold': lstrs.gold,
+        'Diamond': lstrs.diamond,
+    }.get(name)
+    return bui.langstr_value(name) if entry is None else entry
+
+
+#: Probe marker for checking whether a locale's rank line places the
+#: suffix slot at the end (drives the bracketed points layout).
+_SUFFIX_MARKER = '\x01'
+
+
+class AccountViewerWindow(PopupWindow):
+    """Popup window that displays info for an account."""
+
+    def __init__(
+        self,
+        account_id: str,
+        *,
+        profile_id: str | None = None,
+        position: tuple[float, float] = (0.0, 0.0),
+        scale: float | None = None,
+        offset: tuple[float, float] = (0.0, 0.0),
+    ):
+        if bui.app.classic is None:
+            raise RuntimeError('This requires classic support.')
+
+        plus = bui.app.plus
+        assert plus is not None
+
+        self._account_id = account_id
+        self._profile_id = profile_id
+
+        uiscale = bui.app.ui_v1.uiscale
+        if scale is None:
+            scale = (
+                2.6
+                if uiscale is bui.UIScale.SMALL
+                else 1.8 if uiscale is bui.UIScale.MEDIUM else 1.4
+            )
+        self._transitioning_out = False
+
+        self._width = 400
+        self._height = (
+            300
+            if uiscale is bui.UIScale.SMALL
+            else 400 if uiscale is bui.UIScale.MEDIUM else 450
+        )
+        self._subcontainer: bui.Widget | None = None
+
+        bg_color = (0.5, 0.4, 0.6)
+
+        # Creates our _root_widget.
+        super().__init__(
+            position=position,
+            size=(self._width, self._height),
+            scale=scale,
+            bg_color=bg_color,
+            offset=offset,
+        )
+
+        self._cancel_button = bui.buttonwidget(
+            id=f'{self._idprefix}|close',
+            parent=self.root_widget,
+            position=(50, self._height - 30),
+            size=(50, 50),
+            scale=0.5,
+            label=bui.charstr(bui.SpecialChar.CLOSE),
+            textcolor=(1, 1, 1),
+            color=bg_color,
+            on_activate_call=self._on_cancel_press,
+            autoselect=True,
+        )
+
+        self._title_text = bui.textwidget(
+            parent=self.root_widget,
+            position=(self._width * 0.5, self._height - 20),
+            size=(0, 0),
+            h_align='center',
+            v_align='center',
+            scale=0.6,
+            text=classicassets.strings.account.player_info,
+            maxwidth=200,
+            color=bui.app.ui_v1.title_color,
+        )
+
+        self._scrollwidget = bui.scrollwidget(
+            parent=self.root_widget,
+            size=(self._width - 60, self._height - 70),
+            position=(30, 30),
+            capture_arrows=True,
+            simple_culling_v=10,
+            border_opacity=0.4,
+        )
+        bui.widget(edit=self._scrollwidget, autoselect=True)
+
+        # Note to self: Make sure to always update loading text and
+        # spinner visibility together.
+        self._loading_text = bui.textwidget(
+            parent=self._scrollwidget,
+            scale=0.5,
+            text='',
+            size=(self._width - 60, 100),
+            h_align='center',
+            v_align='center',
+        )
+        self._loading_spinner = bui.spinnerwidget(
+            parent=self.root_widget,
+            position=(self._width * 0.5, self._height * 0.5),
+            style='bomb',
+            size=48,
+        )
+
+        # In cases where the user most likely has a browser/email, lets
+        # offer a 'report this user' button.
+        if (
+            bui.is_browser_likely_available()
+            and plus.get_v1_account_misc_read_val(
+                'showAccountExtrasMenu', False
+            )
+        ):
+            self._extras_menu_button = bui.buttonwidget(
+                id=f'{self._idprefix}|more',
+                parent=self.root_widget,
+                size=(20, 20),
+                position=(self._width - 60, self._height - 30),
+                autoselect=True,
+                label='...',
+                button_type='square',
+                color=(0.64, 0.52, 0.69),
+                textcolor=(0.57, 0.47, 0.57),
+                on_activate_call=self._on_extras_menu_press,
+            )
+
+        bui.containerwidget(
+            edit=self.root_widget, cancel_button=self._cancel_button
+        )
+
+        bui.app.classic.master_server_v1_get(
+            'bsAccountInfo',
+            {
+                'buildNumber': bui.app.env.engine_build_number,
+                'accountID': self._account_id,
+                'profileID': self._profile_id,
+            },
+            callback=bui.WeakCallPartial(self._on_query_response),
+        )
+
+    def popup_menu_selected_choice(
+        self, window: PopupMenu, choice: str
+    ) -> None:
+        """Called when a menu entry is selected."""
+        del window  # Unused arg.
+        if choice == 'more':
+            self._on_more_press()
+        elif choice == 'report':
+            self._on_report_press()
+        elif choice == 'ban':
+            self._on_ban_press()
+        else:
+            print('ERROR: unknown account info extras menu item:', choice)
+
+    def popup_menu_closing(self, window: PopupMenu) -> None:
+        """Called when the popup menu is closing."""
+
+    def _on_extras_menu_press(self) -> None:
+        choices = ['more', 'report']
+        choices_display = [
+            _commonassets.strings.actions.more,
+            classicassets.strings.account.report_this_player,
+        ]
+        is_admin = False
+        if is_admin:
+            bui.screenmessage('TEMP FORCING ADMIN ON')
+            choices.append('ban')
+            choices_display.append(
+                classicassets.strings.account.ban_this_player
+            )
+
+        assert bui.app.classic is not None
+        uiscale = bui.app.ui_v1.uiscale
+        PopupMenuWindow(
+            position=self._extras_menu_button.get_screen_space_center(),
+            scale=(
+                2.3
+                if uiscale is bui.UIScale.SMALL
+                else 1.65 if uiscale is bui.UIScale.MEDIUM else 1.23
+            ),
+            choices=choices,
+            choices_display=choices_display,
+            current_choice='more',
+            delegate=self,
+        )
+
+    def _on_ban_press(self) -> None:
+        plus = bui.app.plus
+        assert plus is not None
+
+        plus.add_v1_account_transaction(
+            {'type': 'BAN_ACCOUNT', 'account': self._account_id}
+        )
+        plus.run_v1_account_transactions()
+
+    def _on_report_press(self) -> None:
+        from bauiv1lib import report
+
+        report.ReportPlayerWindow(
+            self._account_id, origin_widget=self._extras_menu_button
+        )
+
+    def _on_more_press(self) -> None:
+        plus = bui.app.plus
+        assert plus is not None
+        bui.open_url(
+            f'{plus.get_legacy_master_server_address()}'
+            f'/highscores?profile={self._account_id}'
+        )
+
+    def _on_query_response(self, data: dict[str, Any] | None) -> None:
+        # pylint: disable=too-many-statements
+        # FIXME: Tidy this up.
+        # pylint: disable=too-many-locals
+        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-nested-blocks
+        assert bui.app.classic is not None
+        if data is None:
+            bui.textwidget(
+                edit=self._loading_text,
+                text=_commonassets.strings.status.unavailable_no_connection,
+            )
+            bui.spinnerwidget(edit=self._loading_spinner, visible=False)
+        else:
+            try:
+                self._loading_text.delete()
+                self._loading_spinner.delete()
+                trophystr = ''
+                try:
+                    trophystr = data['trophies']
+                    num = 10
+                    chunks = [
+                        trophystr[i : i + num]
+                        for i in range(0, len(trophystr), num)
+                    ]
+                    trophystr = '\n\n'.join(chunks)
+                    if trophystr == '':
+                        trophystr = '-'
+                except Exception:
+                    logging.exception('Error displaying trophies.')
+                account_name_spacing = 15
+                tscale = 0.65
+                ts_height = bui.get_string_height(
+                    trophystr, suppress_warning=True
+                )
+                sub_width = self._width - 80
+                sub_height = (
+                    200
+                    + ts_height * tscale
+                    + account_name_spacing * len(data['accountDisplayStrings'])
+                )
+                self._subcontainer = bui.containerwidget(
+                    parent=self._scrollwidget,
+                    size=(sub_width, sub_height),
+                    background=False,
+                )
+                v = sub_height - 20
+
+                title_scale = 0.37
+                center = 0.3
+                maxwidth_scale = 0.45
+                showing_character = False
+                if data['profileDisplayString'] is not None:
+                    tint_color = (1, 1, 1)
+                    try:
+                        if data['profile'] is not None:
+                            profile = data['profile']
+                            assert bui.app.classic is not None
+                            character = bui.app.classic.spaz_appearances.get(
+                                profile['character'], None
+                            )
+                            if character is not None:
+                                tint_color = (
+                                    profile['color']
+                                    if 'color' in profile
+                                    else (1, 1, 1)
+                                )
+                                tint2_color = (
+                                    profile['highlight']
+                                    if 'highlight' in profile
+                                    else (1, 1, 1)
+                                )
+                                icon_tex = character.icon_texture
+                                tint_tex = character.icon_mask_texture
+                                btex = builtinassets.textures
+                                mask_texture = btex.character_icon_mask.get()
+                                bui.imagewidget(
+                                    parent=self._subcontainer,
+                                    position=(sub_width * center - 40, v - 80),
+                                    size=(80, 80),
+                                    color=(1, 1, 1),
+                                    mask_texture=mask_texture,
+                                    texture=spazappearance.ui_texture(icon_tex),
+                                    tint_texture=spazappearance.ui_texture(
+                                        tint_tex
+                                    ),
+                                    tint_color=tint_color,
+                                    tint2_color=tint2_color,
+                                )
+                                v -= 95
+                    except Exception:
+                        logging.exception('Error displaying character.')
+                    bui.textwidget(
+                        parent=self._subcontainer,
+                        size=(0, 0),
+                        position=(sub_width * center, v),
+                        h_align='center',
+                        v_align='center',
+                        scale=0.9,
+                        color=bui.safecolor(tint_color, 0.7),
+                        shadow=1.0,
+                        text=data['profileDisplayString'],
+                        maxwidth=sub_width * maxwidth_scale * 0.75,
+                    )
+                    showing_character = True
+                    v -= 33
+
+                center = 0.75 if showing_character else 0.5
+                maxwidth_scale = 0.45 if showing_character else 0.9
+
+                v = sub_height - 20
+                if len(data['accountDisplayStrings']) <= 1:
+                    account_title = classicassets.strings.account.title
+                else:
+                    account_title = classicassets.strings.account.accounts
+                bui.textwidget(
+                    parent=self._subcontainer,
+                    size=(0, 0),
+                    position=(sub_width * center, v),
+                    flatness=1.0,
+                    h_align='center',
+                    v_align='center',
+                    scale=title_scale,
+                    color=bui.app.ui_v1.infotextcolor,
+                    text=account_title,
+                    maxwidth=sub_width * maxwidth_scale,
+                )
+                draw_small = (
+                    showing_character or len(data['accountDisplayStrings']) > 1
+                )
+                v -= 14 if draw_small else 20
+                for account_string in data['accountDisplayStrings']:
+                    bui.textwidget(
+                        parent=self._subcontainer,
+                        size=(0, 0),
+                        position=(sub_width * center, v),
+                        h_align='center',
+                        v_align='center',
+                        scale=0.55 if draw_small else 0.8,
+                        text=account_string,
+                        maxwidth=sub_width * maxwidth_scale,
+                    )
+                    v -= account_name_spacing
+
+                v += account_name_spacing
+                v -= 25 if showing_character else 29
+
+                bui.textwidget(
+                    parent=self._subcontainer,
+                    size=(0, 0),
+                    position=(sub_width * center, v),
+                    flatness=1.0,
+                    h_align='center',
+                    v_align='center',
+                    scale=title_scale,
+                    color=bui.app.ui_v1.infotextcolor,
+                    text=classicassets.strings.ui.rank,
+                    maxwidth=sub_width * maxwidth_scale,
+                )
+                v -= 14
+                if data['rank'] is None:
+                    rank_str = '-'
+                    suffix_offset = None
+                else:
+                    # This is inherently layout code (we measure widths
+                    # and hand-place a bracketed suffix), so we evaluate
+                    # to flat text locally.
+                    suffix_at_end = (
+                        classicassets.strings.league.rank_in_league(
+                            rank=str(data['rank'][2]),
+                            name=_league_tier_name(data['rank'][0]),
+                            suffix=_SUFFIX_MARKER,
+                        )
+                        .evaluate()
+                        .endswith(_SUFFIX_MARKER)
+                    )
+                    rank_str = classicassets.strings.league.rank_in_league(
+                        rank=str(data['rank'][2]),
+                        name=_league_tier_name(data['rank'][0]),
+                        suffix='',
+                    ).evaluate()
+                    rank_str_width = min(
+                        sub_width * maxwidth_scale,
+                        bui.get_string_width(rank_str, suppress_warning=True)
+                        * 0.55,
+                    )
+
+                    # Only tack our suffix on if its at the end and only for
+                    # non-diamond leagues.
+                    if suffix_at_end and data['rank'][0] != 'Diamond':
+                        suffix_offset = rank_str_width * 0.5 + 2
+                    else:
+                        suffix_offset = None
+
+                bui.textwidget(
+                    parent=self._subcontainer,
+                    size=(0, 0),
+                    position=(sub_width * center, v),
+                    h_align='center',
+                    v_align='center',
+                    scale=0.55,
+                    text=rank_str,
+                    maxwidth=sub_width * maxwidth_scale,
+                )
+                if suffix_offset is not None:
+                    assert data['rank'] is not None
+                    bui.textwidget(
+                        parent=self._subcontainer,
+                        size=(0, 0),
+                        position=(sub_width * center + suffix_offset, v + 3),
+                        h_align='left',
+                        v_align='center',
+                        scale=0.29,
+                        flatness=1.0,
+                        text='[' + str(data['rank'][1]) + ']',
+                    )
+                v -= 14
+
+                suffix_at_end = (
+                    classicassets.strings.league.rank_in_league(
+                        rank='0',
+                        name='',
+                        suffix=_SUFFIX_MARKER,
+                    )
+                    .evaluate()
+                    .endswith(_SUFFIX_MARKER)
+                )
+                old_offs = -50
+                prev_ranks_shown = 0
+                for prev_rank in data['prevRanks']:
+                    # Layout code again: measure/place flat text. The
+                    # ':    ' glue is locale-invariant.
+                    season_str = classicassets.strings.league.season(
+                        number=str(prev_rank[0])
+                    ).evaluate()
+                    rank_part = classicassets.strings.league.rank_in_league(
+                        rank=str(prev_rank[3]),
+                        name=_league_tier_name(prev_rank[1]),
+                        suffix='',
+                    ).evaluate()
+                    rank_str = f'{season_str}:    {rank_part}'
+                    rank_str_width = min(
+                        sub_width * maxwidth_scale,
+                        bui.get_string_width(rank_str, suppress_warning=True)
+                        * 0.3,
+                    )
+
+                    # Only tack our suffix on if its at the end and only for
+                    # non-diamond leagues.
+                    if suffix_at_end and prev_rank[1] != 'Diamond':
+                        suffix_offset = rank_str_width + 2
+                    else:
+                        suffix_offset = None
+                    bui.textwidget(
+                        parent=self._subcontainer,
+                        size=(0, 0),
+                        position=(sub_width * center + old_offs, v),
+                        h_align='left',
+                        v_align='center',
+                        scale=0.3,
+                        text=rank_str,
+                        flatness=1.0,
+                        maxwidth=sub_width * maxwidth_scale,
+                    )
+                    if suffix_offset is not None:
+                        bui.textwidget(
+                            parent=self._subcontainer,
+                            size=(0, 0),
+                            position=(
+                                sub_width * center + old_offs + suffix_offset,
+                                v + 1,
+                            ),
+                            h_align='left',
+                            v_align='center',
+                            scale=0.20,
+                            flatness=1.0,
+                            text='[' + str(prev_rank[2]) + ']',
+                        )
+                    prev_ranks_shown += 1
+                    v -= 10
+
+                v -= 13
+
+                bui.textwidget(
+                    parent=self._subcontainer,
+                    size=(0, 0),
+                    position=(sub_width * center, v),
+                    flatness=1.0,
+                    h_align='center',
+                    v_align='center',
+                    scale=title_scale,
+                    color=bui.app.ui_v1.infotextcolor,
+                    text=classicassets.strings.ui.achievements,
+                    maxwidth=sub_width * maxwidth_scale,
+                )
+                v -= 14
+                bui.textwidget(
+                    parent=self._subcontainer,
+                    size=(0, 0),
+                    position=(sub_width * center, v),
+                    h_align='center',
+                    v_align='center',
+                    scale=0.55,
+                    text=str(data['achievementsCompleted'])
+                    + ' / '
+                    + str(len(bui.app.classic.ach.achievements)),
+                    maxwidth=sub_width * maxwidth_scale,
+                )
+                v -= 25
+
+                if prev_ranks_shown == 0 and showing_character:
+                    v -= 20
+                elif prev_ranks_shown == 1 and showing_character:
+                    v -= 10
+
+                center = 0.5
+                maxwidth_scale = 0.9
+
+                bui.textwidget(
+                    parent=self._subcontainer,
+                    size=(0, 0),
+                    position=(sub_width * center, v),
+                    h_align='center',
+                    v_align='center',
+                    scale=title_scale,
+                    color=bui.app.ui_v1.infotextcolor,
+                    flatness=1.0,
+                    text=classicassets.strings.account.trophies_this_season,
+                    maxwidth=sub_width * maxwidth_scale,
+                )
+                v -= 19
+                bui.textwidget(
+                    parent=self._subcontainer,
+                    size=(0, ts_height),
+                    position=(sub_width * 0.5, v - ts_height * tscale),
+                    h_align='center',
+                    v_align='top',
+                    corner_scale=tscale,
+                    text=trophystr,
+                )
+
+            except Exception:
+                logging.exception('Error displaying account info.')
+
+    def _on_cancel_press(self) -> None:
+        self._transition_out()
+
+    def _transition_out(self) -> None:
+        if not self._transitioning_out:
+            self._transitioning_out = True
+            bui.containerwidget(edit=self.root_widget, transition='out_scale')
+
+    @override
+    def on_popup_cancel(self) -> None:
+        builtinassets.audio.swish.get().play()
+        self._transition_out()

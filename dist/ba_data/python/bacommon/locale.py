@@ -1,0 +1,1363 @@
+# Released under the MIT License. See LICENSE for details.
+#
+"""Functionality for wrangling locale info."""
+
+# Length here is exhaustive per-locale data, not accumulated cruft: six
+# properties each if-chain over all ~44 values so assert_never() makes a
+# missed locale a type error. Those chains have to sit next to the enum
+# to do that, so splitting them out would trade the guarantee for a line
+# count.
+# pylint: disable=too-many-lines
+
+import logging
+import unicodedata
+from enum import Enum
+from functools import cached_property, lru_cache
+from typing import TYPE_CHECKING, assert_never, assert_type
+
+if TYPE_CHECKING:
+    pass
+
+
+#: Separator between a language picker entry's two halves.
+#:
+#: **This is a workaround for an engine text-layout quirk, and the exact
+#: character matters. Do not "clean this up" to an em dash.**
+#:
+#: The game client absorbs punctuation into an adjacent OS-rendered text
+#: span on purpose, so punctuation next to OS-drawn glyphs doesn't
+#: visually mismatch it (``TextGraphics::IsOSDrawableAscii``, whose
+#: comment says as much). The layout loop is roughly::
+#:
+#:     if (IsOSDrawableAscii(val) && !os_span.empty()) {
+#:         os_span.push_back(val);          // absorbed
+#:     } else if (Glyph* g = GetGlyph(val, big)) {
+#:         ...                              // baked glyph; CLOSES the span
+#:     } else {
+#:         os_span.push_back(val);          // no glyph -> absorbed anyway
+#:     }
+#:
+#: An RTL endonym opens an OS span. A separator that gets absorbed joins
+#: that span, so bidi runs over "<arabic> - " as one unit, resolves the
+#: trailing neutrals against an RTL paragraph, and draws them on the
+#: *left*: ``- العربية Arabic``. A separator that instead closes the span
+#: leaves the Arabic alone in it, where it shapes correctly.
+#:
+#: U+00B7 MIDDLE DOT closes it because it clears **both** gates, and each
+#: is independently required:
+#:
+#: 1. It is above every ASCII range ``IsOSDrawableAscii`` tests
+#:    (32-47, 58-64, 91-96, 123-126), so it is not absorbed. An ASCII
+#:    hyphen (45) sits in the first range and IS absorbed -- which is why
+#:    swapping the em dash for a hyphen changed nothing.
+#: 2. It is under ``kGlyphCount`` (1280) and ``g_glyph_map[183]`` is a
+#:    real font page, so it has a baked glyph and takes the span-closing
+#:    branch.
+#:
+#: Miss either and it breaks: an em dash (U+2014) clears gate 1 but is
+#: above 1280, so it has no baked glyph, falls to the final ``else``, and
+#: is absorbed regardless. Same for a bullet (U+2022). **So the rule is
+#: NOT "use any non-ASCII character"** -- it is "128-1279 with a baked
+#: glyph", or one of the ASCII characters ``IsOSDrawableAscii``
+#: explicitly excludes (parens, quotes, brackets).
+#:
+#: Parentheses would work too and were the original form, but they nest
+#: badly: the qualified variants already carry their own parenthetical on
+#: both sides, giving ``Português (Brasil) (Portuguese (Brazil))``.
+#:
+#: Verified on Android 2026-07-30. That generalizes across platforms in a
+#: way the earlier bidi-isolate attempt did not: this hinges on the baked
+#: font sheet and on platform-independent engine code, not on each
+#: platform's text stack. Full trace, including two failed approaches, in
+#: ballistica-internal ``docs/followups.md``.
+LANGUAGE_PICKER_SEPARATOR = '\u00b7'  # MIDDLE DOT
+
+
+def language_picker_label(locale: LocaleResolved, translated_name: str) -> str:
+    """Build one entry for a language picker.
+
+    Reads ``"<endonym> · <name in the reader's language>"``, e.g.
+    ``"Svenska · Swedish"``, collapsing to just the endonym when the two
+    would be identical (the entry for the language you already use).
+    The endonym lets a speaker find their own language whatever the ui
+    is set to; the translated name lets everyone else identify a script
+    they cannot read. Shape follows macOS's language list, which uses a
+    dash; see :data:`LANGUAGE_PICKER_SEPARATOR` for why we cannot.
+
+    Known remaining wart, engine-side: the space *before* the separator
+    still gets absorbed into an RTL endonym's span, so those rows render
+    slightly tight on that side (``العربية· Arabic``). And when *both*
+    halves are non-ASCII -- an RTL endonym in a CJK ui -- everything
+    lands in one span whatever the separator, and one of the two orders
+    always reverses. That one needs real mixed-direction layout in the
+    engine (docs/followups.md). The master server's html picker is
+    unaffected throughout: the browser lays out the whole string itself.
+
+    Lives beside the data rather than in either picker because there
+    are two of them -- the client's settings window and the master
+    server's account-settings page -- and they have already drifted
+    once on ordering.
+    """
+    if locale.endonym == translated_name:
+        return locale.endonym
+    return f'{locale.endonym} {LANGUAGE_PICKER_SEPARATOR} {translated_name}'
+
+
+class Locale(Enum):
+    """A distinct grouping of language, cultural norms, etc.
+
+    This list of locales is considered 'sacred' - we assume any values
+    (and associated long values) added here remain in use out in the
+    wild indefinitely. If a locale is superseded by a newer or more
+    specific one, the new locale should be added and both new and old
+    should map to the same :class:`LocaleResolved`.
+    """
+
+    # Locale values are not iso codes or anything specific; just
+    # abbreviated English strings intended to be recognizable. In cases
+    # where space is unimportant or humans might be writing these, go
+    # with long-values which .
+
+    ENGLISH = 'eng'
+    CHINESE = 'chn'  # Obsolete
+    CHINESE_TRADITIONAL = 'chn_tr'
+    CHINESE_SIMPLIFIED = 'chn_sim'
+    PORTUGUESE = 'prtg'  # Obsolete
+    PORTUGUESE_PORTUGAL = 'prtg_pr'
+    PORTUGUESE_BRAZIL = 'prtg_brz'
+    ARABIC = 'arabc'
+    BELARUSSIAN = 'blrs'
+    CROATIAN = 'croat'
+    CZECH = 'czch'
+    DANISH = 'dnsh'
+    DUTCH = 'dtch'
+    PIRATE_SPEAK = 'pirate'
+    ESPERANTO = 'esprnto'
+    FILIPINO = 'filp'
+    FRENCH = 'frnch'
+    GERMAN = 'grmn'
+    GIBBERISH = 'gibber'
+    GREEK = 'greek'
+    HINDI = 'hndi'
+    HUNGARIAN = 'hngr'
+    INDONESIAN = 'indnsn'
+    ITALIAN = 'italn'
+    KOREAN = 'kor'
+    MALAY = 'mlay'
+    PERSIAN = 'pers'
+    POLISH = 'pol'
+    ROMANIAN = 'rom'
+    RUSSIAN = 'rusn'
+    SERBIAN = 'srbn'
+    SPANISH = 'spn'  # Obsolete
+    SPANISH_LATIN_AMERICA = 'spn_lat'
+    SPANISH_SPAIN = 'spn_spn'
+    SLOVAK = 'slvk'
+    SWEDISH = 'swed'
+    TAMIL = 'taml'
+    THAI = 'thai'
+    TURKISH = 'turk'
+    UKRAINIAN = 'ukrn'
+    VENETIAN = 'venetn'
+    VIETNAMESE = 'viet'
+    KAZAKH = 'kazk'
+    JAPANESE = 'jpn'
+
+    # Note: We use if-statement chains here so we can use assert_never()
+    # to ensure we cover all existing values. But we cache lookups so
+    # that we only have to go through those long if-statement chains
+    # once per enum value.
+
+    @cached_property
+    def long_value(self) -> str:
+        """A longer more human readable alternative to value.
+
+        Like the regular enum values, these values will never change and
+        can be used for persistent storage/etc.
+        """
+        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-return-statements
+
+        cls = Locale
+
+        if self is cls.ENGLISH:
+            return 'English'
+        if self is cls.CHINESE:
+            return 'Chinese'
+        if self is cls.CHINESE_TRADITIONAL:
+            return 'ChineseTraditional'
+        if self is cls.CHINESE_SIMPLIFIED:
+            return 'ChineseSimplified'
+        if self is cls.PORTUGUESE:
+            return 'Portuguese'
+        if self is cls.PORTUGUESE_PORTUGAL:
+            return 'PortuguesePortugal'
+        if self is cls.PORTUGUESE_BRAZIL:
+            return 'PortugueseBrazil'
+        if self is cls.ARABIC:
+            return 'Arabic'
+        if self is cls.BELARUSSIAN:
+            return 'Belarussian'
+        if self is cls.CROATIAN:
+            return 'Croatian'
+        if self is cls.CZECH:
+            return 'Czech'
+        if self is cls.DANISH:
+            return 'Danish'
+        if self is cls.DUTCH:
+            return 'Dutch'
+        if self is cls.PIRATE_SPEAK:
+            return 'PirateSpeak'
+        if self is cls.ESPERANTO:
+            return 'Esperanto'
+        if self is cls.FILIPINO:
+            return 'Filipino'
+        if self is cls.FRENCH:
+            return 'French'
+        if self is cls.GERMAN:
+            return 'German'
+        if self is cls.GIBBERISH:
+            return 'Gibberish'
+        if self is cls.GREEK:
+            return 'Greek'
+        if self is cls.HINDI:
+            return 'Hindi'
+        if self is cls.HUNGARIAN:
+            return 'Hungarian'
+        if self is cls.INDONESIAN:
+            return 'Indonesian'
+        if self is cls.ITALIAN:
+            return 'Italian'
+        if self is cls.KOREAN:
+            return 'Korean'
+        if self is cls.MALAY:
+            return 'Malay'
+        if self is cls.PERSIAN:
+            return 'Persian'
+        if self is cls.POLISH:
+            return 'Polish'
+        if self is cls.ROMANIAN:
+            return 'Romanian'
+        if self is cls.RUSSIAN:
+            return 'Russian'
+        if self is cls.SERBIAN:
+            return 'Serbian'
+        if self is cls.SPANISH:
+            return 'Spanish'
+        if self is cls.SPANISH_LATIN_AMERICA:
+            return 'SpanishLatinAmerica'
+        if self is cls.SPANISH_SPAIN:
+            return 'SpanishSpain'
+        if self is cls.SLOVAK:
+            return 'Slovak'
+        if self is cls.SWEDISH:
+            return 'Swedish'
+        if self is cls.TAMIL:
+            return 'Tamil'
+        if self is cls.THAI:
+            return 'Thai'
+        if self is cls.TURKISH:
+            return 'Turkish'
+        if self is cls.UKRAINIAN:
+            return 'Ukrainian'
+        if self is cls.VENETIAN:
+            return 'Venetian'
+        if self is cls.VIETNAMESE:
+            return 'Vietnamese'
+        if self is cls.KAZAKH:
+            return 'Kazakh'
+        if self is cls.JAPANESE:
+            return 'Japanese'
+
+        # Make sure we've covered all cases.
+        assert_never(self)
+
+    @classmethod
+    def from_long_value(cls, value: str) -> Locale:
+        """Given a long value, return a Locale."""
+
+        # Build a map of long-values to locales on demand.
+        storekey = '_from_long_value'
+        fromvals: dict[str, Locale] | None = getattr(cls, storekey, None)
+        if fromvals is None:
+            fromvals = {val.long_value: val for val in cls}
+            setattr(cls, storekey, fromvals)
+
+        try:
+            return fromvals[value]
+        except KeyError as exc:
+            raise ValueError(f'Invalid long value "{value}"') from exc
+
+    @cached_property
+    def description(self) -> str:
+        """A human readable description for the locale.
+
+        Intended as instructions to humans or AI for translating. For
+        most locales this is simply the language name, but for special
+        ones like pirate-speak it may include instructions.
+        """
+        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-return-statements
+
+        cls = Locale
+
+        if self is cls.ENGLISH:
+            return 'English'
+        if self is cls.CHINESE:
+            return 'Chinese'
+        if self is cls.CHINESE_TRADITIONAL:
+            return 'Chinese (Traditional)'
+        if self is cls.CHINESE_SIMPLIFIED:
+            return 'Chinese (Simplified)'
+        if self is cls.PORTUGUESE:
+            return 'Portuguese'
+        if self is cls.PORTUGUESE_PORTUGAL:
+            return 'Portuguese (Portugal)'
+        if self is cls.PORTUGUESE_BRAZIL:
+            return 'Portuguese (Brazil)'
+        if self is cls.ARABIC:
+            return 'Arabic'
+        if self is cls.BELARUSSIAN:
+            return 'Belarussian'
+        if self is cls.CROATIAN:
+            return 'Croatian'
+        if self is cls.CZECH:
+            return 'Czech'
+        if self is cls.DANISH:
+            return 'Danish'
+        if self is cls.DUTCH:
+            return 'Dutch'
+        if self is cls.PIRATE_SPEAK:
+            return 'Pirate-Speak (English as spoken by a pirate)'
+        if self is cls.ESPERANTO:
+            return 'Esperanto'
+        if self is cls.FILIPINO:
+            return 'Filipino'
+        if self is cls.FRENCH:
+            return 'French'
+        if self is cls.GERMAN:
+            return 'German'
+        if self is cls.GIBBERISH:
+            return (
+                'Gibberish (imaginary words vaguely reminiscent of'
+                ' English; translated phrases should be roughly'
+                ' 150%-200% as long as the English versions)'
+            )
+        if self is cls.GREEK:
+            return 'Greek'
+        if self is cls.HINDI:
+            return 'Hindi'
+        if self is cls.HUNGARIAN:
+            return 'Hungarian'
+        if self is cls.INDONESIAN:
+            return 'Indonesian'
+        if self is cls.ITALIAN:
+            return 'Italian'
+        if self is cls.KOREAN:
+            return 'Korean'
+        if self is cls.MALAY:
+            return 'Malay'
+        if self is cls.PERSIAN:
+            return 'Persian'
+        if self is cls.POLISH:
+            return 'Polish'
+        if self is cls.ROMANIAN:
+            return 'Romanian'
+        if self is cls.RUSSIAN:
+            return 'Russian'
+        if self is cls.SERBIAN:
+            return 'Serbian'
+        if self is cls.SPANISH:
+            return 'Spanish'
+        if self is cls.SPANISH_LATIN_AMERICA:
+            return 'Spanish (Latin America)'
+        if self is cls.SPANISH_SPAIN:
+            return 'Spanish (Spain)'
+        if self is cls.SLOVAK:
+            return 'Slovak'
+        if self is cls.SWEDISH:
+            return 'Swedish'
+        if self is cls.TAMIL:
+            return 'Tamil'
+        if self is cls.THAI:
+            return 'Thai'
+        if self is cls.TURKISH:
+            return 'Turkish'
+        if self is cls.UKRAINIAN:
+            return 'Ukrainian'
+        if self is cls.VENETIAN:
+            return 'Venetian'
+        if self is cls.VIETNAMESE:
+            return 'Vietnamese'
+        if self is cls.KAZAKH:
+            return 'Kazakh'
+        if self is cls.JAPANESE:
+            return 'Japanese'
+
+        # Make sure we've covered all cases.
+        assert_never(self)
+
+    @cached_property
+    def resolved(self) -> LocaleResolved:
+        """Return the associated resolved locale."""
+        # pylint: disable=too-many-return-statements
+        # pylint: disable=too-many-branches
+
+        cls = Locale
+        R = LocaleResolved
+
+        if self is cls.ENGLISH:
+            return R.ENGLISH
+        if self is cls.CHINESE_SIMPLIFIED or self is cls.CHINESE:
+            return R.CHINESE_SIMPLIFIED
+        if self is cls.CHINESE_TRADITIONAL:
+            return R.CHINESE_TRADITIONAL
+        if self is cls.PORTUGUESE_BRAZIL or self is cls.PORTUGUESE:
+            return R.PORTUGUESE_BRAZIL
+        if self is cls.PORTUGUESE_PORTUGAL:
+            return R.PORTUGUESE_PORTUGAL
+        if self is cls.SPANISH_LATIN_AMERICA or self is cls.SPANISH:
+            return R.SPANISH_LATIN_AMERICA
+        if self is cls.SPANISH_SPAIN:
+            return R.SPANISH_SPAIN
+        if self is cls.ARABIC:
+            return R.ARABIC
+        if self is cls.BELARUSSIAN:
+            return R.BELARUSSIAN
+        if self is cls.CROATIAN:
+            return R.CROATIAN
+        if self is cls.CZECH:
+            return R.CZECH
+        if self is cls.DANISH:
+            return R.DANISH
+        if self is cls.DUTCH:
+            return R.DUTCH
+        if self is cls.PIRATE_SPEAK:
+            return R.PIRATE_SPEAK
+        if self is cls.ESPERANTO:
+            return R.ESPERANTO
+        if self is cls.FILIPINO:
+            return R.FILIPINO
+        if self is cls.FRENCH:
+            return R.FRENCH
+        if self is cls.GERMAN:
+            return R.GERMAN
+        if self is cls.GIBBERISH:
+            return R.GIBBERISH
+        if self is cls.GREEK:
+            return R.GREEK
+        if self is cls.HINDI:
+            return R.HINDI
+        if self is cls.HUNGARIAN:
+            return R.HUNGARIAN
+        if self is cls.INDONESIAN:
+            return R.INDONESIAN
+        if self is cls.ITALIAN:
+            return R.ITALIAN
+        if self is cls.KOREAN:
+            return R.KOREAN
+        if self is cls.MALAY:
+            return R.MALAY
+        if self is cls.PERSIAN:
+            return R.PERSIAN
+        if self is cls.POLISH:
+            return R.POLISH
+        if self is cls.ROMANIAN:
+            return R.ROMANIAN
+        if self is cls.RUSSIAN:
+            return R.RUSSIAN
+        if self is cls.SERBIAN:
+            return R.SERBIAN
+        if self is cls.SLOVAK:
+            return R.SLOVAK
+        if self is cls.SWEDISH:
+            return R.SWEDISH
+        if self is cls.TAMIL:
+            return R.TAMIL
+        if self is cls.THAI:
+            return R.THAI
+        if self is cls.TURKISH:
+            return R.TURKISH
+        if self is cls.UKRAINIAN:
+            return R.UKRAINIAN
+        if self is cls.VENETIAN:
+            return R.VENETIAN
+        if self is cls.VIETNAMESE:
+            return R.VIETNAMESE
+        if self is cls.KAZAKH:
+            return R.KAZAKH
+        if self is cls.JAPANESE:
+            return R.JAPANESE
+
+        # Make sure we're covering all cases.
+        assert_never(self)
+
+
+class LocaleResolved(Enum):
+    """A resolved :class:`Locale` for use in logic.
+
+    These values should never be stored or transmitted and should always
+    come from resolving a :class:`Locale` which *can* be
+    stored/transmitted. This gives us the freedom to revise this list as
+    needed to keep our actual list of implemented resolved-locales as
+    trim as possible.
+    """
+
+    ENGLISH = 'eng'
+    CHINESE_TRADITIONAL = 'chn_tr'
+    CHINESE_SIMPLIFIED = 'chn_sim'
+    PORTUGUESE_PORTUGAL = 'prtg_pr'
+    PORTUGUESE_BRAZIL = 'prtg_brz'
+    ARABIC = 'arabc'
+    BELARUSSIAN = 'blrs'
+    CROATIAN = 'croat'
+    CZECH = 'czch'
+    DANISH = 'dnsh'
+    DUTCH = 'dtch'
+    PIRATE_SPEAK = 'pirate'
+    ESPERANTO = 'esprnto'
+    FILIPINO = 'filp'
+    FRENCH = 'frnch'
+    GERMAN = 'grmn'
+    GIBBERISH = 'gibber'
+    GREEK = 'greek'
+    HINDI = 'hndi'
+    HUNGARIAN = 'hngr'
+    INDONESIAN = 'indnsn'
+    ITALIAN = 'italn'
+    KOREAN = 'kor'
+    MALAY = 'mlay'
+    PERSIAN = 'pers'
+    POLISH = 'pol'
+    ROMANIAN = 'rom'
+    RUSSIAN = 'rusn'
+    SERBIAN = 'srbn'
+    SPANISH_LATIN_AMERICA = 'spn_lat'
+    SPANISH_SPAIN = 'spn_spn'
+    SLOVAK = 'slvk'
+    SWEDISH = 'swed'
+    TAMIL = 'taml'
+    THAI = 'thai'
+    TURKISH = 'turk'
+    UKRAINIAN = 'ukrn'
+    VENETIAN = 'venetn'
+    VIETNAMESE = 'viet'
+    KAZAKH = 'kazk'
+    JAPANESE = 'jpn'
+
+    # Note: We use if-statement chains here so we can use assert_never()
+    # to ensure we cover all existing values. But we cache lookups so
+    # that we only have to go through those long if-statement chains
+    # once per enum value.
+
+    @cached_property
+    def locale(self) -> Locale:
+        """Return a locale that resolves to this resolved locale.
+
+        In some cases, such as when presenting locale options to the
+        user, it makes sense to iterate over resolved locale values, as
+        regular locales may include obsolete or redundant values. When
+        storing locale values to disk or transmitting them, however, it
+        is important to use plain locales. This method can be used to
+        get back to a plain locale from a resolved one.
+        """
+        # pylint: disable=too-many-return-statements
+        # pylint: disable=too-many-branches
+
+        cls = LocaleResolved
+
+        if self is cls.ENGLISH:
+            return Locale.ENGLISH
+        if self is cls.CHINESE_TRADITIONAL:
+            return Locale.CHINESE_TRADITIONAL
+        if self is cls.CHINESE_SIMPLIFIED:
+            return Locale.CHINESE_SIMPLIFIED
+        if self is cls.PORTUGUESE_PORTUGAL:
+            return Locale.PORTUGUESE_PORTUGAL
+        if self is cls.PORTUGUESE_BRAZIL:
+            return Locale.PORTUGUESE_BRAZIL
+        if self is cls.ARABIC:
+            return Locale.ARABIC
+        if self is cls.BELARUSSIAN:
+            return Locale.BELARUSSIAN
+        if self is cls.CROATIAN:
+            return Locale.CROATIAN
+        if self is cls.CZECH:
+            return Locale.CZECH
+        if self is cls.DANISH:
+            return Locale.DANISH
+        if self is cls.DUTCH:
+            return Locale.DUTCH
+        if self is cls.PIRATE_SPEAK:
+            return Locale.PIRATE_SPEAK
+        if self is cls.ESPERANTO:
+            return Locale.ESPERANTO
+        if self is cls.FILIPINO:
+            return Locale.FILIPINO
+        if self is cls.FRENCH:
+            return Locale.FRENCH
+        if self is cls.GERMAN:
+            return Locale.GERMAN
+        if self is cls.GIBBERISH:
+            return Locale.GIBBERISH
+        if self is cls.GREEK:
+            return Locale.GREEK
+        if self is cls.HINDI:
+            return Locale.HINDI
+        if self is cls.HUNGARIAN:
+            return Locale.HUNGARIAN
+        if self is cls.INDONESIAN:
+            return Locale.INDONESIAN
+        if self is cls.ITALIAN:
+            return Locale.ITALIAN
+        if self is cls.KOREAN:
+            return Locale.KOREAN
+        if self is cls.MALAY:
+            return Locale.MALAY
+        if self is cls.PERSIAN:
+            return Locale.PERSIAN
+        if self is cls.POLISH:
+            return Locale.POLISH
+        if self is cls.ROMANIAN:
+            return Locale.ROMANIAN
+        if self is cls.RUSSIAN:
+            return Locale.RUSSIAN
+        if self is cls.SERBIAN:
+            return Locale.SERBIAN
+        if self is cls.SPANISH_LATIN_AMERICA:
+            return Locale.SPANISH_LATIN_AMERICA
+        if self is cls.SPANISH_SPAIN:
+            return Locale.SPANISH_SPAIN
+        if self is cls.SLOVAK:
+            return Locale.SLOVAK
+        if self is cls.SWEDISH:
+            return Locale.SWEDISH
+        if self is cls.TAMIL:
+            return Locale.TAMIL
+        if self is cls.THAI:
+            return Locale.THAI
+        if self is cls.TURKISH:
+            return Locale.TURKISH
+        if self is cls.UKRAINIAN:
+            return Locale.UKRAINIAN
+        if self is cls.VENETIAN:
+            return Locale.VENETIAN
+        if self is cls.VIETNAMESE:
+            return Locale.VIETNAMESE
+        if self is cls.KAZAKH:
+            return Locale.KAZAKH
+        if self is cls.JAPANESE:
+            return Locale.JAPANESE
+
+        # Make sure we're covering all cases.
+        assert_never(self)
+
+    @cached_property
+    def endonym(self) -> str:
+        """This locale's name written in this locale's own language.
+
+        Static per-locale data, deliberately *not* a translated string:
+        a language picker shows every option at once, which no
+        single-locale string table can do (a client holds one locale's
+        strings at a time). It is also what lets a user find their
+        language whatever the ui is currently set to. Pair it with a
+        translated language name -- see the ``strings/locales`` group in
+        BaCommonAssets -- to render e.g. "Svenska (Swedish)".
+
+        Values match what shipped in the legacy ``lang_names_translated``
+        blob, so players see no churn, with these deliberate deviations:
+
+        * English was simply absent there and is supplied here.
+        * Slovak's stray trailing space is dropped.
+        * Latin-American Spanish gains the accent it was missing
+          ("Latinoamérica").
+        * Gibberish's was 'Abuktarika', which sorted it to the very top
+          of every picker -- a surprising spot for a joke locale. It now
+          starts with a G so it lands where someone hunting for it would
+          look, keeping the mock-English style of the locale's own
+          output ('Germaunish', 'Sveendishsprok').
+        * Persian's wrapping bidi controls (U+2066/U+200E) are dropped.
+          Directional isolation is a *rendering* concern, and both
+          consumers already give each entry its own container (an html
+          ``<option>``, a popup-menu row), so the run cannot bleed into
+          a neighbor. A caller placing one of these inline in mixed
+          text should isolate it there.
+        """
+        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-return-statements
+
+        cls = LocaleResolved
+
+        if self is cls.ENGLISH:
+            return 'English'
+        if self is cls.CHINESE_TRADITIONAL:
+            return '繁體中文'
+        if self is cls.CHINESE_SIMPLIFIED:
+            return '简体中文'
+        if self is cls.PORTUGUESE_PORTUGAL:
+            return 'Português (Portugal)'
+        if self is cls.PORTUGUESE_BRAZIL:
+            return 'Português (Brasil)'
+        if self is cls.ARABIC:
+            return 'العربية'
+        if self is cls.BELARUSSIAN:
+            return 'Беларуская'
+        if self is cls.CROATIAN:
+            return 'Hrvatski'
+        if self is cls.CZECH:
+            return 'Čeština'
+        if self is cls.DANISH:
+            return 'Dansk'
+        if self is cls.DUTCH:
+            return 'Nederlands'
+        if self is cls.PIRATE_SPEAK:
+            return 'Pirate Speak'
+        if self is cls.ESPERANTO:
+            return 'Esperanto'
+        if self is cls.FILIPINO:
+            return 'Wikang Pilipino'
+        if self is cls.FRENCH:
+            return 'Français'
+        if self is cls.GERMAN:
+            return 'Deutsch'
+        if self is cls.GIBBERISH:
+            return 'Gibbereesh'
+        if self is cls.GREEK:
+            return 'Ελληνικά'
+        if self is cls.HINDI:
+            return 'हिंदी'
+        if self is cls.HUNGARIAN:
+            return 'Magyar'
+        if self is cls.INDONESIAN:
+            return 'Bahasa Indonesia'
+        if self is cls.ITALIAN:
+            return 'Italiano'
+        if self is cls.KOREAN:
+            return '한국어'
+        if self is cls.MALAY:
+            return 'Melayu'
+        if self is cls.PERSIAN:
+            return 'فارسی'
+        if self is cls.POLISH:
+            return 'Polski'
+        if self is cls.ROMANIAN:
+            return 'Română'
+        if self is cls.RUSSIAN:
+            return 'Русский'
+        if self is cls.SERBIAN:
+            return 'Српски'
+        if self is cls.SPANISH_LATIN_AMERICA:
+            return 'Español (Latinoamérica)'
+        if self is cls.SPANISH_SPAIN:
+            return 'Español (España)'
+        if self is cls.SLOVAK:
+            return 'Slovenčina'
+        if self is cls.SWEDISH:
+            return 'Svenska'
+        if self is cls.TAMIL:
+            return 'தமிழ்'
+        if self is cls.THAI:
+            return 'ภาษาไทย'
+        if self is cls.TURKISH:
+            return 'Türkçe'
+        if self is cls.UKRAINIAN:
+            return 'Українська'
+        if self is cls.VENETIAN:
+            return 'Veneto'
+        if self is cls.VIETNAMESE:
+            return 'Tiếng Việt'
+        if self is cls.KAZAKH:
+            return 'Қазақша'
+        if self is cls.JAPANESE:
+            return '日本語'
+
+        # Make sure we're covering all cases.
+        assert_never(self)
+
+    @cached_property
+    def endonym_sort_key(self) -> str:
+        """Sort key for listing locales by :attr:`endonym`.
+
+        Endonym order is what a language picker wants: it is the half of
+        the label the eye scans for, and unlike ordering by translated
+        name it does not reshuffle the whole list when the ui language
+        changes.
+
+        Accents are folded so a leading diacritic doesn't exile an entry
+        from its own alphabet -- raw codepoint order files "Čeština"
+        after "Wikang Pilipino". Non-Latin scripts still land after Latin
+        ones, which reads as a reasonable grouping rather than an error.
+        Deliberately not full locale-aware collation: that needs ICU, and
+        the result here is stable and good enough for a few dozen
+        entries.
+
+        Lives here rather than in each picker because there are two of
+        them -- the client's settings window and the master server's
+        account-settings page -- and they silently disagreed about
+        ordering until 2026-07-30.
+        """
+        decomposed = unicodedata.normalize('NFD', self.endonym)
+        return ''.join(
+            c for c in decomposed if not unicodedata.combining(c)
+        ).casefold()
+
+    @cached_property
+    def duration_separator(self) -> str:
+        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-return-statements
+        """The joiner between composed duration parts ("1h 23m").
+
+        Locale *data*, not translated content, same as
+        :attr:`decimal_mark`: most languages join abbreviated duration
+        parts with a space, while CJK compounds join with none
+        ("1\u6642\u959345\u5206"). Curated here and applied by
+        formatting code so it can never be a confidently wrong
+        translation, and so a new locale is a *type* error rather than
+        a silent space.
+        """
+        cls = LocaleResolved
+
+        if self is cls.ENGLISH:
+            return ' '
+        if self is cls.CHINESE_TRADITIONAL:
+            return ''
+        if self is cls.CHINESE_SIMPLIFIED:
+            return ''
+        if self is cls.PORTUGUESE_PORTUGAL:
+            return ' '
+        if self is cls.PORTUGUESE_BRAZIL:
+            return ' '
+        if self is cls.ARABIC:
+            return ' '
+        if self is cls.BELARUSSIAN:
+            return ' '
+        if self is cls.CROATIAN:
+            return ' '
+        if self is cls.CZECH:
+            return ' '
+        if self is cls.DANISH:
+            return ' '
+        if self is cls.DUTCH:
+            return ' '
+        if self is cls.PIRATE_SPEAK:
+            return ' '
+        if self is cls.ESPERANTO:
+            return ' '
+        if self is cls.FILIPINO:
+            return ' '
+        if self is cls.FRENCH:
+            return ' '
+        if self is cls.GERMAN:
+            return ' '
+        if self is cls.GIBBERISH:
+            return ' '
+        if self is cls.GREEK:
+            return ' '
+        if self is cls.HINDI:
+            return ' '
+        if self is cls.HUNGARIAN:
+            return ' '
+        if self is cls.INDONESIAN:
+            return ' '
+        if self is cls.ITALIAN:
+            return ' '
+        if self is cls.KOREAN:
+            return ' '
+        if self is cls.MALAY:
+            return ' '
+        if self is cls.PERSIAN:
+            return ' '
+        if self is cls.POLISH:
+            return ' '
+        if self is cls.ROMANIAN:
+            return ' '
+        if self is cls.RUSSIAN:
+            return ' '
+        if self is cls.SERBIAN:
+            return ' '
+        if self is cls.SPANISH_LATIN_AMERICA:
+            return ' '
+        if self is cls.SPANISH_SPAIN:
+            return ' '
+        if self is cls.SLOVAK:
+            return ' '
+        if self is cls.SWEDISH:
+            return ' '
+        if self is cls.TAMIL:
+            return ' '
+        if self is cls.THAI:
+            return ' '
+        if self is cls.TURKISH:
+            return ' '
+        if self is cls.UKRAINIAN:
+            return ' '
+        if self is cls.VENETIAN:
+            return ' '
+        if self is cls.VIETNAMESE:
+            return ' '
+        if self is cls.KAZAKH:
+            return ' '
+        if self is cls.JAPANESE:
+            return ''
+        # Make sure we cover all cases.
+        assert_never(self)
+
+    @cached_property
+    def decimal_mark(self) -> str:
+        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-return-statements
+        """The character separating a number's whole and fraction parts.
+
+        Locale *data*, not translated content: a decimal mark is a
+        fact about a language, and asking a translation model for
+        one invites a confidently wrong answer that no reviewer
+        would catch by reading the string. So it is curated here
+        and applied by formatting code rather than authored into
+        any asset package.
+
+        Deliberately covers only the mark. Digit grouping is not
+        modelled: our formatted numbers scale their units (``1.2
+        GB``, never ``1234.5 MB``), so a group separator has
+        nothing to separate, and skipping it avoids the messier
+        per-locale rules (``1,234,567`` / ``1 234 567`` /
+        ``12,34,567``). Digit *shaping* is likewise out: locales
+        that could use non-ASCII digits read Western ones fine.
+
+        Arabic and Persian are ``'.'`` rather than ``'\u066b'``
+        on purpose -- that mark pairs with Eastern Arabic digits,
+        which we do not emit.
+        """
+        cls = LocaleResolved
+
+        if self is cls.ENGLISH:
+            return '.'
+        if self is cls.CHINESE_TRADITIONAL:
+            return '.'
+        if self is cls.CHINESE_SIMPLIFIED:
+            return '.'
+        if self is cls.PORTUGUESE_PORTUGAL:
+            return ','
+        if self is cls.PORTUGUESE_BRAZIL:
+            return ','
+        if self is cls.ARABIC:
+            return '.'
+        if self is cls.BELARUSSIAN:
+            return ','
+        if self is cls.CROATIAN:
+            return ','
+        if self is cls.CZECH:
+            return ','
+        if self is cls.DANISH:
+            return ','
+        if self is cls.DUTCH:
+            return ','
+        if self is cls.PIRATE_SPEAK:
+            return '.'
+        if self is cls.ESPERANTO:
+            return ','
+        if self is cls.FILIPINO:
+            return '.'
+        if self is cls.FRENCH:
+            return ','
+        if self is cls.GERMAN:
+            return ','
+        if self is cls.GIBBERISH:
+            return '.'
+        if self is cls.GREEK:
+            return ','
+        if self is cls.HINDI:
+            return '.'
+        if self is cls.HUNGARIAN:
+            return ','
+        if self is cls.INDONESIAN:
+            return ','
+        if self is cls.ITALIAN:
+            return ','
+        if self is cls.KOREAN:
+            return '.'
+        if self is cls.MALAY:
+            return '.'
+        if self is cls.PERSIAN:
+            return '.'
+        if self is cls.POLISH:
+            return ','
+        if self is cls.ROMANIAN:
+            return ','
+        if self is cls.RUSSIAN:
+            return ','
+        if self is cls.SERBIAN:
+            return ','
+        if self is cls.SPANISH_LATIN_AMERICA:
+            return ','
+        if self is cls.SPANISH_SPAIN:
+            return ','
+        if self is cls.SLOVAK:
+            return ','
+        if self is cls.SWEDISH:
+            return ','
+        if self is cls.TAMIL:
+            return '.'
+        if self is cls.THAI:
+            return '.'
+        if self is cls.TURKISH:
+            return ','
+        if self is cls.UKRAINIAN:
+            return ','
+        if self is cls.VENETIAN:
+            return ','
+        if self is cls.VIETNAMESE:
+            return ','
+        if self is cls.KAZAKH:
+            return ','
+        if self is cls.JAPANESE:
+            return '.'
+
+        assert_never(self)
+
+    @cached_property
+    def tag(self) -> str:
+        # pylint: disable=too-many-statements
+        """An IETF BCP 47 tag for this locale.
+
+        This is often simply a language code ('en') but may in some
+        cases include the country ('pt-BR') or script ('zh-Hans').
+        Locales which are not "real" will include an 'x' in the middle
+        ('en-x-pirate').
+        """
+        # pylint: disable=too-many-branches
+        cls = LocaleResolved
+
+        val: str | None = None
+
+        if self is cls.ENGLISH:
+            val = 'en'
+        elif self is cls.CHINESE_TRADITIONAL:
+            val = 'zh-Hant'
+        elif self is cls.CHINESE_SIMPLIFIED:
+            val = 'zh-Hans'
+        elif self is cls.PORTUGUESE_PORTUGAL:
+            val = 'pt-PT'
+        elif self is cls.PORTUGUESE_BRAZIL:
+            val = 'pt-BR'
+        elif self is cls.ARABIC:
+            val = 'ar'
+        elif self is cls.BELARUSSIAN:
+            val = 'be'
+        elif self is cls.CROATIAN:
+            val = 'hr'
+        elif self is cls.CZECH:
+            val = 'cs'
+        elif self is cls.DANISH:
+            val = 'da'
+        elif self is cls.DUTCH:
+            val = 'nl'
+        elif self is cls.PIRATE_SPEAK:
+            # 'x' in BCP 47 denotes private-use values.
+            val = 'en-x-pirate'
+        elif self is cls.ESPERANTO:
+            val = 'eo'
+        elif self is cls.FILIPINO:
+            val = 'fil'
+        elif self is cls.FRENCH:
+            val = 'fr'
+        elif self is cls.GERMAN:
+            val = 'de'
+        elif self is cls.GIBBERISH:
+            # 'x' in BCP 47 denotes private-use values.
+            val = 'en-x-gibberish'
+        elif self is cls.GREEK:
+            val = 'el'
+        elif self is cls.HINDI:
+            val = 'hi'
+        elif self is cls.HUNGARIAN:
+            val = 'hu'
+        elif self is cls.INDONESIAN:
+            val = 'id'
+        elif self is cls.ITALIAN:
+            val = 'it'
+        elif self is cls.KOREAN:
+            val = 'ko'
+        elif self is cls.MALAY:
+            val = 'ms'
+        elif self is cls.PERSIAN:
+            val = 'fa'
+        elif self is cls.POLISH:
+            val = 'pl'
+        elif self is cls.ROMANIAN:
+            val = 'ro'
+        elif self is cls.RUSSIAN:
+            val = 'ru'
+        elif self is cls.SERBIAN:
+            val = 'sr'
+        elif self is cls.SPANISH_LATIN_AMERICA:
+            val = 'es-419'
+        elif self is cls.SPANISH_SPAIN:
+            val = 'es-ES'
+        elif self is cls.SLOVAK:
+            val = 'sk'
+        elif self is cls.SWEDISH:
+            val = 'sv'
+        elif self is cls.TAMIL:
+            val = 'ta'
+        elif self is cls.THAI:
+            val = 'th'
+        elif self is cls.TURKISH:
+            val = 'tr'
+        elif self is cls.UKRAINIAN:
+            val = 'uk'
+        elif self is cls.VENETIAN:
+            val = 'vec'
+        elif self is cls.VIETNAMESE:
+            val = 'vi'
+        elif self is cls.KAZAKH:
+            val = 'kk'
+        elif self is cls.JAPANESE:
+            val = 'ja'
+        else:
+            # Make sure we cover all cases.
+            assert_never(self)
+
+        assert_type(val, str)
+
+        # Sanity check: the tag we return should lead back to us if we
+        # use it to get a Locale and then resolve that Locale. Make some
+        # noise if not so we can fix it.
+        lrcheck = LocaleResolved.from_tag(val)
+        if lrcheck is not self:
+            logging.warning(
+                'LocaleResolved.from_tag().resolved for "%s" yielded %s;'
+                ' expected %s.',
+                val,
+                lrcheck.name,
+                self.name,
+            )
+
+        return val
+
+    @staticmethod
+    def from_tag(tag: str) -> LocaleResolved:
+        """Return a locale for a given string tag.
+
+        Tags can be provided in BCP 47 form ('en-US') or POSIX locale
+        string form ('en_US.UTF-8'). A tag naming a language we have no
+        locale for falls back to English (with a warning, so we can add
+        it); a malformed tag raises :class:`ValueError`.
+
+        Use :meth:`from_tag_or_none` when a non-match is an ordinary
+        outcome rather than something to complain about -- negotiating a
+        browser's ``Accept-Language`` list, say, where most entries are
+        expected to miss.
+        """
+        out = LocaleResolved._from_tag_impl(tag)
+        if out is None:
+            # Make noise if we come across something unexpected so we
+            # can add it.
+            fallback = LocaleResolved.ENGLISH
+            logging.warning(
+                '%s: Unknown tag "%s"; returning %s.',
+                LocaleResolved.__name__,
+                tag,
+                fallback.name,
+            )
+            return fallback
+        return out
+
+    @staticmethod
+    def from_tag_or_none(tag: str) -> LocaleResolved | None:
+        """Return a locale for a string tag, or None if we have none.
+
+        The quiet counterpart to :meth:`from_tag`: returns ``None``
+        instead of warning and falling back to English, and swallows the
+        malformed-tag :class:`ValueError`. This is what locale
+        negotiation wants -- walking a client's preference list, a miss
+        is the normal case and must be distinguishable from a genuine
+        match on English.
+
+        Note that an unknown *region* within a known language is still a
+        match (``zh-XX`` resolves to simplified Chinese), and still
+        warns -- that one is worth adding.
+        """
+        try:
+            return LocaleResolved._from_tag_impl(tag)
+        except ValueError:
+            return None
+
+    @staticmethod
+    @lru_cache(maxsize=128)
+    def _from_tag_impl(tag: str) -> LocaleResolved | None:
+        """Resolve a tag, or None if its language is unknown to us.
+
+        Raises :class:`ValueError` for a structurally invalid tag. The
+        shared implementation behind :meth:`from_tag` and
+        :meth:`from_tag_or_none`, which differ only in how they report a
+        non-match.
+        """
+        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-return-statements
+
+        cls = LocaleResolved
+
+        # POSIX locale strings can contain a dot followed by an
+        # encoding. Strip that off.
+        tag2 = tag.split('.')[0]
+
+        # Normalize things to lowercase and underscores (we should see
+        # 'zh_HANT' and 'zh-Hant' as the same).
+        bits = [bit.lower() for bit in tag2.replace('-', '_').split('_')]
+
+        if not bits or not bits[0]:
+            raise ValueError(f'Invalid tag "{tag}".')
+
+        lang = bits[0]
+        extras = bits[1:]
+
+        if lang == 'en':
+            if 'x' in extras and 'pirate' in extras:
+                return cls.PIRATE_SPEAK
+            if 'x' in extras and 'gibberish' in extras:
+                return cls.GIBBERISH
+            return cls.ENGLISH
+        if lang == 'zh':
+            # With no extras, default to simplified.
+            if not extras or any(val in extras for val in ['hans', 'cn', 'sg']):
+                return cls.CHINESE_SIMPLIFIED
+            if any(val in extras for val in ['hant', 'tw']):
+                return cls.CHINESE_TRADITIONAL
+
+            # Make noise if we come across something unexpected so we
+            # can add it.
+            fallback = cls.CHINESE_SIMPLIFIED
+            logging.warning(
+                '%s: Unknown Chinese tag variant "%s"; returning %s.',
+                cls.__name__,
+                tag,
+                fallback.name,
+            )
+            return fallback
+        if lang == 'pt':
+            # With no extras, default to Brazil.
+            if not extras or 'br' in extras:
+                return cls.PORTUGUESE_BRAZIL
+            if any(
+                val in extras
+                for val in ['pt', 'ao', 'mz', 'tl', 'cv', 'gw', 'st']
+            ):
+                return cls.PORTUGUESE_PORTUGAL
+
+            # Make noise if we come across something unexpected so we
+            # can add it.
+            fallback = cls.PORTUGUESE_BRAZIL
+            logging.warning(
+                '%s: Unknown Portuguese tag variant "%s"; returning %s.',
+                cls.__name__,
+                tag,
+                fallback.name,
+            )
+            return fallback
+        if lang == 'es':
+            # With no extras, default to latin-america spanish.
+            if not extras or any(
+                val in extras
+                for val in [
+                    '419',  # Latin America / Carribean region
+                    'mx',  # Mexico
+                    'ar',  # Argentina
+                    'co',  # Colombia
+                    'cl',  # Chile
+                    'pe',  # Peru
+                    've',  # Venezuela
+                    'cr',  # Costa Rica
+                    'pr',  # Puerto Rico
+                    'do',  # Dominican Republic
+                    'uy',  # Uruguay
+                    'ec',  # Ecuador
+                    'pa',  # Panama
+                    'bo',  # Bolivia
+                ]
+            ):
+                return cls.SPANISH_LATIN_AMERICA
+            if 'es' in extras:
+                return cls.SPANISH_SPAIN
+
+            # Make noise if we come across something unexpected so we
+            # can add it.
+            fallback = cls.SPANISH_LATIN_AMERICA
+            logging.warning(
+                '%s: Unknown Spanish tag variant "%s"; returning %s.',
+                cls.__name__,
+                tag,
+                fallback.name,
+            )
+            return fallback
+        if lang == 'c':
+            # The C.UTF-8 is a minimal locale defined by POSIX we
+            # sometimes run into.
+            return cls.ENGLISH
+        if lang == 'ar':
+            return cls.ARABIC
+        if lang == 'be':
+            return cls.BELARUSSIAN
+        if lang == 'hr':
+            return cls.CROATIAN
+        if lang == 'cs':
+            return cls.CZECH
+        if lang == 'da':
+            return cls.DANISH
+        if lang == 'nl':
+            return cls.DUTCH
+        if lang == 'eo':
+            return cls.ESPERANTO
+        if lang == 'fil':
+            return cls.FILIPINO
+        if lang == 'fr':
+            return cls.FRENCH
+        if lang == 'de':
+            return cls.GERMAN
+        if lang == 'el':
+            return cls.GREEK
+        if lang == 'hi':
+            return cls.HINDI
+        if lang == 'hu':
+            return cls.HUNGARIAN
+        if lang == 'id':
+            return cls.INDONESIAN
+        if lang == 'it':
+            return cls.ITALIAN
+        if lang == 'ko':
+            return cls.KOREAN
+        if lang == 'ms':
+            return cls.MALAY
+        if lang == 'fa':
+            return cls.PERSIAN
+        if lang == 'pl':
+            return cls.POLISH
+        if lang == 'ro':
+            return cls.ROMANIAN
+        if lang == 'ru':
+            return cls.RUSSIAN
+        if lang == 'sr':
+            return cls.SERBIAN
+        if lang == 'sk':
+            return cls.SLOVAK
+        if lang == 'sv':
+            return cls.SWEDISH
+        if lang == 'ta':
+            return cls.TAMIL
+        if lang == 'th':
+            return cls.THAI
+        if lang == 'tr':
+            return cls.TURKISH
+        if lang == 'uk':
+            return cls.UKRAINIAN
+        if lang == 'vec':
+            return cls.VENETIAN
+        if lang == 'vi':
+            return cls.VIETNAMESE
+        if lang == 'kk':
+            return cls.KAZAKH
+        if lang == 'ja':
+            return cls.JAPANESE
+
+        # An unknown language. Callers decide whether that's worth
+        # complaining about (see from_tag / from_tag_or_none).
+        return None

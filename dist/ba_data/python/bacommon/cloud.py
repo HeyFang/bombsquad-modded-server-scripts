@@ -1,0 +1,907 @@
+# Released under the MIT License. See LICENSE for details.
+#
+"""Cloud related functionality.
+
+.. warning::
+
+  This is an internal api and subject to change at any time. Do not use
+  it in mod code.
+"""
+
+import datetime
+from enum import Enum
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Annotated, override
+
+from efro.message import Message, Response
+from efro.logging import LogLevel
+from efro.dataclassio import ioprepped, IOAttrs
+from bacommon.analytics import AnalyticsEvent
+from bacommon import securedata
+from bacommon.transfer import DirectoryManifest
+from bacommon.locale import Locale
+from bacommon.login import LoginType
+from bacommon.logreporting import LogReportSpec
+from bacommon.docui import DocUIRequest, DocUIResponse
+import bacommon.displayitem as ditm
+import bacommon.clienteffect as clfx
+
+if TYPE_CHECKING:
+    pass
+
+
+class WebLocation(Enum):
+    """Set of places we can be directed on ballistica.net."""
+
+    ACCOUNT_EDITOR = 'e'
+    ACCOUNT_DELETE_SECTION = 'd'
+
+
+@ioprepped
+@dataclass
+class CloudValsPersistent:
+    """Engine config values provided by the master server.
+
+    These are stored to the client config and restored at the next
+    launch, so they apply from the start of a run even before
+    connectivity comes up. That also means they can be restored into
+    a newer build than the one the server computed them for, so
+    values here must be safe to apply blindly across app updates;
+    anything tailored to a specific client build belongs in
+    :class:`CloudValsTransient` instead.
+
+    Used to convey things such as debug logging.
+    """
+
+    #: Fully qualified type names we should emit extra debug logs for
+    #: when garbage-collected (for debugging ref loops).
+    gc_debug_types: Annotated[
+        list[str], IOAttrs('gct', store_default=False)
+    ] = field(default_factory=list)
+
+    #: Max number of objects of a given type to emit debug logs for.
+    gc_debug_type_limit: Annotated[int, IOAttrs('gdl', store_default=False)] = 2
+
+
+@ioprepped
+@dataclass
+class CloudValsTransient:
+    """Engine config values applying only to the current app run.
+
+    Unlike :class:`CloudValsPersistent`, these are never stored to
+    the client config; they take effect once fetched (shortly after
+    connectivity comes up) and evaporate when the run ends. That
+    makes them the right home for values the server tailors to the
+    exact client it sees at request time (its build number, etc.).
+    """
+
+    #: When set, the triggered log-report the client should perform
+    #: this run: what trips it and how much surrounding context
+    #: ships (see :class:`~bacommon.logreporting.LogReportSpec`).
+    #: ``None`` (the default) leaves log reporting off entirely, so a
+    #: client only ever reports when the server explicitly asks it
+    #: to - which is what keeps this off for the whole fleet by
+    #: default and lets us enable it for, say, one build number.
+    log_report: Annotated[
+        LogReportSpec | None, IOAttrs('lr', store_default=False)
+    ] = None
+
+
+@ioprepped
+@dataclass
+class LoginProxyRequestMessage(Message):
+    """Request send to the cloud to ask for a login-proxy."""
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [LoginProxyRequestResponse]
+
+
+@ioprepped
+@dataclass
+class LoginProxyRequestResponse(Response):
+    """Response to a request for a login proxy."""
+
+    # URL to direct the user to for sign in.
+    url: Annotated[str, IOAttrs('u')]
+
+    # URL to use for overlay-web-browser sign ins.
+    url_overlay: Annotated[str, IOAttrs('uo')]
+
+    # Proxy-Login id for querying results.
+    proxyid: Annotated[str, IOAttrs('p')]
+
+    # Proxy-Login key for querying results.
+    proxykey: Annotated[str, IOAttrs('k')]
+
+
+@ioprepped
+@dataclass
+class LoginProxyStateQueryMessage(Message):
+    """Soo.. how is that login proxy going?"""
+
+    proxyid: Annotated[str, IOAttrs('p')]
+    proxykey: Annotated[str, IOAttrs('k')]
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [LoginProxyStateQueryResponse]
+
+
+@ioprepped
+@dataclass
+class LoginProxyStateQueryResponse(Response):
+    """Here's the info on that login-proxy you asked about, boss."""
+
+    class State(Enum):
+        """States a login-proxy can be in."""
+
+        WAITING = 'waiting'
+        SUCCESS = 'success'
+        FAIL = 'fail'
+
+    state: Annotated[State, IOAttrs('s')]
+
+    # On success, these will be filled out.
+    credentials: Annotated[str | None, IOAttrs('tk')]
+
+
+@ioprepped
+@dataclass
+class LoginProxyCompleteMessage(Message):
+    """Just so you know, we're done with this proxy."""
+
+    proxyid: Annotated[str, IOAttrs('p')]
+
+
+@ioprepped
+@dataclass
+class PingMessage(Message):
+    """Standard ping."""
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [PingResponse]
+
+
+@ioprepped
+@dataclass
+class PingResponse(Response):
+    """pong."""
+
+
+@ioprepped
+@dataclass
+class TestMessage(Message):
+    """Can I get some of that workspace action?"""
+
+    testfoo: Annotated[int, IOAttrs('f')]
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [TestResponse]
+
+
+@ioprepped
+@dataclass
+class TestResponse(Response):
+    """Here's that workspace you asked for, boss."""
+
+    testfoo: Annotated[int, IOAttrs('f')]
+
+
+@ioprepped
+@dataclass
+class WorkspaceFetchState:
+    """Common state data for a workspace fetch."""
+
+    manifest: Annotated[DirectoryManifest, IOAttrs('m')]
+    iteration: Annotated[int, IOAttrs('i')] = 0
+    total_deletes: Annotated[int, IOAttrs('tdels')] = 0
+    total_downloads: Annotated[int, IOAttrs('tdlds')] = 0
+    total_up_to_date: Annotated[int | None, IOAttrs('tunmd')] = None
+
+
+@ioprepped
+@dataclass
+class WorkspaceFetchMessage(Message):
+    """Can I get some of that workspace action?"""
+
+    workspaceid: Annotated[str, IOAttrs('w')]
+    state: Annotated[WorkspaceFetchState, IOAttrs('s')]
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [WorkspaceFetchResponse]
+
+
+@ioprepped
+@dataclass
+class WorkspaceFetchResponse(Response):
+    """Here's that workspace you asked for, boss."""
+
+    state: Annotated[WorkspaceFetchState, IOAttrs('s')]
+    deletes: Annotated[list[str], IOAttrs('dlt', store_default=False)] = field(
+        default_factory=list
+    )
+    downloads_inline: Annotated[
+        dict[str, bytes], IOAttrs('dinl', store_default=False)
+    ] = field(default_factory=dict)
+
+    done: Annotated[bool, IOAttrs('d')] = False
+
+    #: If set, the client should treat the sync as failed and display
+    #: this message. Allows the server to communicate user-facing errors
+    #: without relying on the protocol's ``forward_clean_errors`` flag.
+    error: Annotated[
+        str | None, IOAttrs('e', soft_default=None, store_default=False)
+    ] = None
+
+
+@ioprepped
+@dataclass
+class MerchAvailabilityMessage(Message):
+    """Can we show merch link?"""
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [MerchAvailabilityResponse]
+
+
+@ioprepped
+@dataclass
+class MerchAvailabilityResponse(Response):
+    """About that merch..."""
+
+    url: Annotated[str | None, IOAttrs('u')]
+
+
+@ioprepped
+@dataclass
+class SignInMessage(Message):
+    """Can I sign in please?"""
+
+    login_type: Annotated[LoginType, IOAttrs('l')]
+    sign_in_token: Annotated[str, IOAttrs('t')]
+
+    # For debugging. Can remove soft_default once build 20988+ is ubiquitous.
+    description: Annotated[str, IOAttrs('d', soft_default='-')]
+    apptime: Annotated[float, IOAttrs('at', soft_default=-1.0)]
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [SignInResponse]
+
+
+@ioprepped
+@dataclass
+class SignInResponse(Response):
+    """Here's that sign-in result you asked for, boss."""
+
+    credentials: Annotated[str | None, IOAttrs('c')]
+
+
+@ioprepped
+@dataclass
+class ManageAccountMessage(Message):
+    """Message asking for a manage-account url."""
+
+    weblocation: Annotated[WebLocation, IOAttrs('l')] = (
+        WebLocation.ACCOUNT_EDITOR
+    )
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [ManageAccountResponse]
+
+
+@ioprepped
+@dataclass
+class ManageAccountResponse(Response):
+    """Here's that sign-in result you asked for, boss."""
+
+    url: Annotated[str | None, IOAttrs('u')]
+
+
+@ioprepped
+@dataclass
+class StoreQueryMessage(Message):
+    """Message asking about purchasable stuff and store related state."""
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [StoreQueryResponse]
+
+
+@ioprepped
+@dataclass
+class StoreQueryResponse(Response):
+    """Here's that store info you asked for, boss."""
+
+    class Result(Enum):
+        """Our overall result."""
+
+        SUCCESS = 's'
+        ERROR = 'e'
+
+    @dataclass
+    class Purchase:
+        """Info about a purchasable thing."""
+
+        purchaseid: Annotated[str, IOAttrs('id')]
+
+    # Overall result; all data is undefined if not SUCCESS.
+    result: Annotated[Result, IOAttrs('r')]
+
+    tokens: Annotated[int, IOAttrs('t')]
+    gold_pass: Annotated[bool, IOAttrs('g')]
+
+    available_purchases: Annotated[list[Purchase], IOAttrs('p')]
+    token_info_url: Annotated[str, IOAttrs('tiu')]
+
+
+@ioprepped
+@dataclass
+class SecureDataCheckerRequest(Message):
+    """Can I get a checker over here?."""
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [SecureDataCheckerResponse]
+
+
+@ioprepped
+@dataclass
+class SecureDataCheckerResponse(Response):
+    """Here's that checker ya asked for, boss."""
+
+    checker: Annotated[securedata.Reader, IOAttrs('c')]
+
+
+@ioprepped
+@dataclass
+class SecureDataSigningTestRequest(Message):
+    """Ask basn to sign a test payload two ways for client verification.
+
+    Test-only round-trip used to confirm that ed25519 verify
+    (``_babase.verify_ed25519`` in the app binary; ``cryptography``
+    fallback in pytest) accepts both master-signed and
+    delegate-signed payloads against the embedded
+    :data:`~bacommon.securedata.STATIC_DATA_PUBLIC_KEYS`. basn
+    handles this without forwarding to bamaster.
+    """
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [SecureDataSigningTestResponse]
+
+
+@ioprepped
+@dataclass
+class SecureDataSigningTestResponse(Response):
+    """Master- and delegate-signed archives over the same payload.
+
+    The verifier recovers the original payload via
+    :meth:`~bacommon.securedata.Reader.read` regardless of which
+    signing flow produced the archive.
+    """
+
+    #: Archive built with basn's cached static-data master key
+    #: (no cert).
+    master_archive: Annotated[securedata.Archive, IOAttrs('m')]
+
+    #: Archive built with basn's delegated
+    #: :class:`~bacommon.securedata.Writer` (carries a
+    #: master-signed cert).
+    delegate_archive: Annotated[securedata.Archive, IOAttrs('d')]
+
+
+@ioprepped
+@dataclass
+class ResolvedFlavorManifest:
+    """A resolved flavor-manifest blob, delivered inline (Tier 1).
+
+    Client-facing counterpart to the basn↔master
+    ``basntobamaster.ResolvedFlavorManifest``; basn relays it unchanged
+    when returning a resolved manifest to the client.
+
+    The flavor-manifest's canonical JSON bytes travel inline in
+    :attr:`data` (they are small — a ``logical_path -> {hash, size}``
+    map). The client writes them verbatim into its CAS store under
+    :attr:`hash` (sha256-verified), references that hash from its
+    top-level cache manifest exactly as the bundled manifest does, and
+    parses :attr:`data` (the ``{"e": {logical_path: {"h", "s"}}}``
+    shape) to discover the data-blob hashes to fetch via
+    ``GET /casblob/{hash}`` (Tier 2).
+    """
+
+    #: sha256 hex of :attr:`data` — the flavor-manifest's CAS hash.
+    hash: Annotated[str, IOAttrs('h')]
+
+    #: Canonical flavor-manifest JSON bytes (stored verbatim client-side
+    #: as a CAS blob; its sha256 equals :attr:`hash`).
+    data: Annotated[bytes, IOAttrs('d')]
+
+
+class AssetPackageResolveError(Enum):
+    """Why an asset-package resolve failed (structured for client branching).
+
+    Travels back to the client on :class:`ResolveAssetPackageResponse` so
+    the runtime can react precisely (e.g. prompt for sign-in on
+    ``AUTH_REQUIRED``) rather than parsing the human-readable ``error``
+    string.
+    """
+
+    #: Caller is unauthenticated and the version is non-public; signing in
+    #: with an account that has access may resolve it.
+    AUTH_REQUIRED = 'auth'
+    #: Caller is authenticated but lacks access to this (non-public)
+    #: version (not the owner / not on the package's dev team).
+    ACCESS_DENIED = 'access'
+    #: The requested asset-package-version id is unknown / invalid.
+    NOT_FOUND = 'notfound'
+    #: A requested dimension value was invalid (texture profile/quality,
+    #: language, etc.).
+    INVALID = 'invalid'
+    #: An internal/assemble error occurred server-side.
+    INTERNAL = 'internal'
+    #: The client build is too old to address current asset-package
+    #: manifests (which use clean source-named logical paths); the user
+    #: must update. Clients predating the build-number field also land
+    #: here.
+    CLIENT_TOO_OLD = 'tooold'
+    #: The package's own source content failed to build — a problem the
+    #: package author can fix (e.g. a malformed sound or texture file).
+    #: The human-readable ``error`` names the offending source file(s);
+    #: clients should surface it verbatim. Old clients see this as
+    #: ``INTERNAL`` via ``enum_fallback``.
+    CONTENT = 'content'
+
+
+class AssetPackageBuildPhase(Enum):
+    """Coarse phase of an in-progress server-side asset-package build.
+
+    Client-facing and deliberately decoupled from internal cloud-build
+    state — the master translates its build status into this. Combined
+    with the optional counts on :class:`AssetPackageBuildProgress` it
+    lets the client render a localized progress message (today English
+    only; structured so it can be translated later).
+    """
+
+    #: Spinning up / queued — the build hasn't begun real work yet.
+    PREPARING = 'prep'
+    #: Building the package's constituent assets.
+    BUILDING = 'build'
+    #: Assembling built outputs into the final manifest.
+    FINALIZING = 'final'
+
+
+@ioprepped
+@dataclass
+class AssetPackageBuildProgress:
+    """Progress of a server-side asset-package build, for the client.
+
+    Returned on :class:`ResolveAssetPackageResponse` when a resolve
+    can't be satisfied immediately because the master is (re)building
+    the requested flavors (a build can take noticeably longer than a
+    plain download). The client renders this and re-sends the same
+    resolve to poll until the manifest is ready.
+
+    Intentionally a resolve-specific, client-facing type — it does
+    **not** expose internal cloud-build types. The master translates
+    its build status into this at the resolve boundary.
+    """
+
+    #: Coarse phase, for a phase-appropriate (localized) message.
+    phase: Annotated[AssetPackageBuildPhase, IOAttrs('p')]
+
+    #: Optional 'done of total' unit counts (e.g. assets built) for a
+    #: progress readout. Typically both set or both unset.
+    units_done: Annotated[int | None, IOAttrs('ud', store_default=False)] = None
+    units_total: Annotated[int | None, IOAttrs('ut', store_default=False)] = (
+        None
+    )
+
+    #: Optional free-form text shown as-is (untranslated) — an escape
+    #: hatch for custom/modder build status the fixed phases can't
+    #: express.
+    detail: Annotated[str | None, IOAttrs('d', store_default=False)] = None
+
+
+@ioprepped
+@dataclass
+class ResolveAssetPackageMessage(Message):
+    """Resolve an asset-package-version's manifest for download (Tier 1).
+
+    Sent by a client to the basn node it is connected to when it needs
+    to download an asset package. basn resolves the manifest via
+    bamaster on the client's behalf and returns, per bucket, the
+    resolved flavor-manifest blob (its CAS hash + canonical bytes,
+    inline) plus a short-lived capability token. The client then fetches
+    each data blob the flavor-manifests reference from the same node via
+    ``GET /casblob/{hash}`` (Tier 2), presenting the token.
+
+    Texture dimensions travel as plain strings (the ``TextureProfile``
+    / ``TextureTier`` enum values) so this module stays decoupled
+    from the master-only ``baserver.workspace.assetsv1``; the master
+    converts + validates them.
+
+    The requesting account is conveyed via the standard
+    account-session-channel sidecar that basn auto-attaches to every
+    client message (no explicit field needed): a signed-in client
+    resolves against its account (required for non-public DEV/TEST
+    versions), while an anonymous client resolves PROD versions only
+    (which are public).
+    """
+
+    #: Fully-qualified ``account.package.version`` id to resolve.
+    apverid: Annotated[str, IOAttrs('a')]
+
+    #: Chosen locale for the ``language`` bucket.
+    language: Annotated[Locale, IOAttrs('l')]
+
+    #: Chosen ``TextureProfile`` value (e.g. ``'fallback_v1'``).
+    texture_profile: Annotated[str, IOAttrs('tp')]
+
+    #: Chosen ``TextureTier`` value (e.g. ``'regular'``). Wire key stays
+    #: the historical ``'tq'`` (it predates the tier/quality rename) so
+    #: this message stays compatible with un-migrated basn nodes and
+    #: older clients — construct-mode asset resolve sends it on every
+    #: boot, so the key must not break across versions.
+    texture_tier: Annotated[str, IOAttrs('tq')]
+
+    #: The client's engine build number. basn relays it to master, which
+    #: gates the resolve on it (clients too old to address current
+    #: source-named manifests get a ``CLIENT_TOO_OLD`` error). Soft-
+    #: defaults to 0 so older clients (and un-migrated basn) read as
+    #: build 0 -- always below the floor.
+    build_number: Annotated[int, IOAttrs('bn', soft_default=0)] = 0
+
+    #: End-to-end asset-pipeline test seed. Normally empty. A non-empty
+    #: value asks the master to rebuild this package's entire build graph
+    #: from scratch (workspace compile, every leaf build, and the resolve
+    #: meta-build) rather than serving any of it from cache, so a client
+    #: launch can be measured against a genuinely cold pipeline. Seeded
+    #: output is byte-identical to unseeded output, so this disturbs no
+    #: live cache entry and costs only compute; the master accordingly
+    #: gates it to a single operator account and refuses it (with
+    #: ``ACCESS_DENIED``) for anyone else rather than quietly ignoring
+    #: it. Set on the client via the ``BA_ASSET_TEST_SEED`` env var.
+    #: ``soft_default`` keeps older clients / basn nodes (which don't
+    #: send it) reading as unseeded.
+    testseed: Annotated[str, IOAttrs('ts', soft_default='')] = ''
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [ResolveAssetPackageResponse]
+
+
+@ioprepped
+@dataclass
+class ResolveAssetPackageResponse(Response):
+    """Resolved flavor-manifests + capability token for a download.
+
+    ``buckets`` maps a ``bucket/flavor`` coordinate (e.g.
+    ``'textures/fallback_v1.gamma.regular'``, ``'constant'``) to that
+    flavor's resolved flavor-manifest blob (CAS hash + canonical bytes,
+    delivered inline). On failure ``error`` carries a human-readable
+    message and ``buckets`` is empty / ``token`` is ``None``.
+    """
+
+    #: Human-readable failure message (bad apverid, access denied, bad
+    #: dimension value, assemble failure), or ``None`` on success.
+    error: Annotated[str | None, IOAttrs('e')]
+
+    #: Structured failure reason accompanying ``error`` (lets the client
+    #: branch — e.g. prompt for sign-in — without parsing the message).
+    #: ``None`` on success, or when an older server didn't supply one.
+    #: ``enum_fallback`` makes a *future* unrecognized code degrade to
+    #: ``INTERNAL`` (message decode is lossy) instead of failing the whole
+    #: response — so a new error reason never bricks an older client's
+    #: resolve; it just surfaces the human ``error`` under a generic code.
+    error_code: Annotated[
+        AssetPackageResolveError | None,
+        IOAttrs(
+            'ec',
+            soft_default=None,
+            enum_fallback=AssetPackageResolveError.INTERNAL,
+        ),
+    ]
+
+    #: ``bucket/flavor`` coordinate -> the resolved flavor-manifest blob
+    #: for that flavor. Empty when ``error`` is set.
+    buckets: Annotated[dict[str, ResolvedFlavorManifest], IOAttrs('b')]
+
+    #: Short-lived capability token the client presents to
+    #: ``GET /casblob/{hash}`` to fetch the resolved blobs. ``None``
+    #: when ``error`` is set.
+    token: Annotated[securedata.Archive | None, IOAttrs('tok')]
+
+    #: Set when the manifest isn't ready yet because the master is
+    #: building the requested flavors; the client renders this progress
+    #: and re-sends the same resolve to poll. ``None`` once resolved
+    #: (then ``buckets`` / ``token`` are populated) or on ``error``.
+    build_progress: Annotated[
+        AssetPackageBuildProgress | None, IOAttrs('bp', soft_default=None)
+    ]
+
+
+@ioprepped
+@dataclass
+class CloudValsRequest(Message):
+    """Can a fella get some cloud vals around here?."""
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [CloudValsResponse]
+
+
+@ioprepped
+@dataclass
+class CloudValsResponse(Response):
+    """Here's them cloud vals ya asked for, boss."""
+
+    persistent: Annotated[CloudValsPersistent, IOAttrs('v')]
+
+    transient: Annotated[
+        CloudValsTransient,
+        IOAttrs(
+            't', store_default=False, soft_default_factory=CloudValsTransient
+        ),
+    ]
+
+
+@ioprepped
+@dataclass
+class ChestActionMessage(Message):
+    """Request action about a chest."""
+
+    class Action(Enum):
+        """Types of actions we can request."""
+
+        # Unlocking (for free or with tokens).
+        UNLOCK = 'u'
+
+        # Watched an ad to reduce wait.
+        AD = 'ad'
+
+    action: Annotated[Action, IOAttrs('a')]
+
+    # Tokens we are paying (only applies to unlock).
+    token_payment: Annotated[int, IOAttrs('t')]
+
+    chest_id: Annotated[str, IOAttrs('i')]
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [ChestActionResponse]
+
+
+@ioprepped
+@dataclass
+class ChestActionResponse(Response):
+    """Here's the results of that action you asked for, boss."""
+
+    # Tokens that were actually charged.
+    tokens_charged: Annotated[int, IOAttrs('t')] = 0
+
+    # If present, signifies the chest has been opened and we should show
+    # the user this stuff that was in it.
+    contents: Annotated[list[ditm.Wrapper] | None, IOAttrs('c')] = None
+
+    # If contents are present, which of the chest's prize-sets they
+    # represent.
+    prizeindex: Annotated[int, IOAttrs('i')] = 0
+
+    # Printable error if something goes wrong.
+    error: Annotated[str | None, IOAttrs('e')] = None
+
+    # If True, ``error`` is display-final text already translated to
+    # the client's held locale server-side (the lifetime-rule
+    # convention; see 'Server-sent strings' in efrohome
+    # asset-packages.md). Clients seeing this must render the text via
+    # the literal path -- never legacy serverResponses translation or
+    # Lstr-json interpretation. Absent/False means legacy behavior:
+    # English text the client may translate via its local corpus.
+    error_is_final: Annotated[bool, IOAttrs('ef', store_default=False)] = False
+
+    # Printable warning. Shown in orange with an error sound. Does not
+    # mean the action failed; only that there's something to tell the
+    # users such as 'It looks like you are faking ad views; stop it or
+    # you won't have ad options anymore.'
+    warning: Annotated[str | None, IOAttrs('w', store_default=False)] = None
+
+    # Printable success message. Shown in green with a cash-register
+    # sound. Can be used for things like successful wait reductions via
+    # ad views. Used in builds earlier than 22311; can remove once
+    # 22311+ is ubiquitous.
+    success_msg: Annotated[str | None, IOAttrs('s', store_default=False)] = None
+
+    # Effects to show on the client. Replaces warning and success_msg in
+    # build 22311 or newer.
+    effects: Annotated[
+        list[clfx.Effect], IOAttrs('fx', store_default=False)
+    ] = field(default_factory=list)
+
+
+@ioprepped
+@dataclass
+class FulfillDocUIRequest(Message):
+    """Can a fella get a doc-ui round here?"""
+
+    request: Annotated[DocUIRequest, IOAttrs('r')]
+    domain: Annotated[str, IOAttrs('d')]
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [FulfillDocUIResponse]
+
+
+@ioprepped
+@dataclass
+class FulfillDocUIResponse(Response):
+    """Here's that doc-ui you asked for, boss."""
+
+    response: Annotated[DocUIResponse, IOAttrs('r')]
+
+
+@ioprepped
+@dataclass
+class ClientLogReportMessage(Message):
+    """A slice of a client's log history from a triggered report.
+
+    Sent only when the server has enabled reporting for this client
+    via :attr:`CloudValsTransient.log_report`. A single triggered
+    window is shipped as one or more of these - the pre-trigger
+    context first, then further slices as post-trigger entries
+    accumulate. The sender advances past a slice only once its send
+    round trip completes, re-sending the same range otherwise, so a
+    receiver may see overlapping ranges and should dedupe by app
+    instance and entry index
+    (:func:`bacommon.logreporting.trim_archive_overlap`).
+
+    Unlike the fatal-error reports that arrive at basn's ``/fatalerror``
+    over unauthenticated plaintext, this rides the client's authenticated
+    transport -- so the receiving side knows the account and session and
+    does not have to treat the contents as forgeable.
+    """
+
+    #: A zstd-compressed JSON :class:`~efro.logging.LogArchive`.
+    #:
+    #: Compressed because log text is extremely compressible (~10x is
+    #: typical) and the archive can approach the client's whole log
+    #: cache. That matters here: the message path applies no
+    #: compression of its own, and bytes ride as base64, so an
+    #: uncompressed archive would be the largest thing a client ever
+    #: sends. Decompress with an explicit size cap -- the client is
+    #: authenticated but that is no reason to accept a zip bomb.
+    archive_zstd: Annotated[bytes, IOAttrs('a')]
+
+    #: The level of the log entry that tripped this report's window.
+    #: The entry itself is in (one of) the archives; this saves the
+    #: receiver scanning for it just to bucket the report.
+    trigger_level: Annotated[LogLevel, IOAttrs('tl')]
+
+    #: The trigger phrase that tripped this report's window, or None
+    #: when the level trigger did.
+    trigger_phrase: Annotated[str | None, IOAttrs('tp', soft_default=None)]
+
+    #: Entries the report's window covered that were evicted from the
+    #: client's log cache before this slice could gather them (the
+    #: gap sits immediately before this archive's first entry).
+    #: Nonzero when a long pre-roll outruns the cache or shipping
+    #: falls behind a chatty logger; the receiver surfaces it as an
+    #: explicit placeholder so a gap never reads as a quiet moment.
+    entries_lost: Annotated[int, IOAttrs('el', soft_default=0)]
+
+    #: What the client's own UTC clock read as this report was built.
+    #:
+    #: Entry times come from the device wall clock, so a device whose
+    #: clock is wrong yields entries that cannot be lined up against
+    #: server logs -- and Cloud Logging refuses anything more than a
+    #: day in the future outright. Comparing this against the
+    #: receiver's clock measures the skew, letting the whole archive be
+    #: shifted onto the receiver's timeline. Shifting keeps every
+    #: interval and ordering within the dump intact, which clamping
+    #: individual times would not.
+    #:
+    #: None from clients built before this field existed; those reports
+    #: are submitted with their times exactly as sent.
+    client_time: Annotated[
+        datetime.datetime | None, IOAttrs('ct', soft_default=None)
+    ]
+
+
+@ioprepped
+@dataclass
+class AnalyticsEventMessage(Message):
+    """Have a nice analytics event!"""
+
+    event: Annotated[AnalyticsEvent, IOAttrs('e')]
+
+
+@ioprepped
+@dataclass
+class AuthRequestMessage(Message):
+    """Request access to a server for a current account."""
+
+    global_app_instance_uuid: Annotated[str, IOAttrs('a')]
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [AuthRequestResponse]
+
+
+class JoinRejectReason(Enum):
+    """Wire-stable join-rejection reason codes; APPEND ONLY.
+
+    A client renders a recognized reason as its own localized builtin
+    string and any unrecognized value as a generic rejection, so
+    reasons added later degrade gracefully on older clients. Values
+    must stay in sync with the ``BA_REJECT_REASON_*`` defines in the
+    engine's ``networking.h``.
+    """
+
+    UNKNOWN = 0
+    PASSWORD_INCORRECT = 1
+    ACCOUNT_REJECTED = 2
+    AUTH_ERROR = 3
+    MUST_SIGN_IN = 4
+
+
+@ioprepped
+@dataclass
+class AuthRequestResponse(Response):
+    """Here's that access ya asked for boss."""
+
+    error: Annotated[str | None, IOAttrs('e')]
+    token: Annotated[str | None, IOAttrs('t')]
+
+    #: Optional :class:`JoinRejectReason` value accompanying a
+    #: rejection. Kept as a plain int on the wire so clients tolerate
+    #: reasons added after they shipped (rendering them as a generic
+    #: rejection). ``None`` (e.g. free-form host-supplied rejection
+    #: text) means no code applies; show ``error`` text instead.
+    reason: Annotated[int | None, IOAttrs('r', soft_default=None)]
+
+
+@ioprepped
+@dataclass
+class TransientAPIKeyRequest(Message):
+    """Request a transient API key for the currently signed-in account."""
+
+    @override
+    @classmethod
+    def get_response_types(cls) -> list[type[Response] | None]:
+        return [TransientAPIKeyResponse]
+
+
+@ioprepped
+@dataclass
+class TransientAPIKeyResponse(Response):
+    """Response to a transient API key request."""
+
+    class Error(Enum):
+        """Failure modes."""
+
+        INTERNAL_ERROR = 'ie'
+        KEY_LIMIT_REACHED = 'klr'
+
+    key: Annotated[str | None, IOAttrs('k')]
+    error: Annotated[Error | None, IOAttrs('e')]

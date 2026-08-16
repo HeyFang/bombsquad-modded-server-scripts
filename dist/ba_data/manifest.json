@@ -1,0 +1,13 @@
+{
+ "asset_package_versions": {
+  "a-0.babuiltinassets.260806d": {
+   "flavor_manifests": {
+    "audio/null.regular": "057f13667674abfcce921504b1e308dae80f0734a1933547b542943c27c84226",
+    "constant": "2157782846d5bacedfe1298b906ad9b43c25565b50d39344d8924a77a5b4d35a",
+    "language/eng": "85cb07cb1660ad7fb07156ceacd6f33b340fa72adaf3fbd6e9d82378f8ab27e8",
+    "meshes/null.regular": "189428aeca2adbe9e4e91824f7270b6f19a6667a97a19221cfb755c9321d549d",
+    "textures/null.gamma.regular": "90bb69d5db6bbd14ae052b0c2ad07e1013d56e6b2d66d9bbeb3efef829e6eec5"
+   }
+  }
+ }
+}

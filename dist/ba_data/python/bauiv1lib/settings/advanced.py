@@ -1,0 +1,944 @@
+# Released under the MIT License. See LICENSE for details.
+#
+
+"""UI functionality for advanced settings."""
+
+from typing import TYPE_CHECKING, override
+
+from bacommon.locale import (
+    Locale,
+    LocaleResolved,
+    language_picker_label,
+)
+import bauiv1 as bui
+from bauiv1 import _commonassets, classicassets
+
+from bauiv1lib.utils import scroll_fade_bottom, scroll_fade_top
+from bauiv1lib.popup import PopupMenu
+
+if TYPE_CHECKING:
+    from typing import Any
+
+
+_advstrs = classicassets.strings.settings.advanced
+
+
+class AdvancedSettingsWindow(bui.MainWindow):
+    """Window for editing advanced app settings."""
+
+    def __init__(
+        self,
+        transition: str | None = 'in_right',
+        origin_widget: bui.Widget | None = None,
+    ):
+
+        if bui.app.classic is None:
+            raise RuntimeError('This requires classic support.')
+
+        # Preload some modules we use in a background thread so we won't
+        # have a visual hitch when the user taps them.
+        bui.app.threadpool.submit_no_wait(self._preload_modules)
+
+        app = bui.app
+        assert app.classic is not None
+
+        uiscale = bui.app.ui_v1.uiscale
+        self._width = 1030.0 if uiscale is bui.UIScale.SMALL else 670.0
+        self._height = (
+            490.0
+            if uiscale is bui.UIScale.SMALL
+            else 450.0 if uiscale is bui.UIScale.MEDIUM else 600.0
+        )
+        self._lang_status_text: bui.Widget | None = None
+
+        self._spacing = 32
+        self._menu_open = False
+
+        # Do some fancy math to fill all available screen area up to the
+        # size of our backing container. This lets us fit to the exact
+        # screen shape at small ui scale.
+        screensize = bui.get_virtual_screen_size()
+        scale = (
+            2.2
+            if uiscale is bui.UIScale.SMALL
+            else 1.3 if uiscale is bui.UIScale.MEDIUM else 0.9
+        )
+
+        # Calc screen size in our local container space and clamp to a
+        # bit smaller than our container size.
+        target_width = min(self._width - 80, screensize[0] / scale)
+        target_height = min(self._height - 80, screensize[1] / scale)
+
+        # To get top/left coords, go to the center of our window and
+        # offset by half the width/height of our target area.
+        yoffs = 0.5 * self._height + 0.5 * target_height + 30.0
+
+        self._scroll_width = target_width
+        self._scroll_height = target_height - 25
+        scroll_bottom = yoffs - 56 - self._scroll_height
+
+        # Go with full-screen scrollable area in small ui.
+        if uiscale is bui.UIScale.SMALL:
+            self._scroll_height += 27
+            scroll_bottom += 1
+
+        super().__init__(
+            root_widget=bui.containerwidget(
+                size=(self._width, self._height),
+                toolbar_visibility=(
+                    'menu_full' if bui.in_main_menu() else 'menu_minimal'
+                ),
+                scale=scale,
+            ),
+            transition=transition,
+            origin_widget=origin_widget,
+            # We're affected by screen size only at small ui-scale.
+            refresh_on_screen_size_changes=uiscale is bui.UIScale.SMALL,
+        )
+
+        self._prev_lang: str | None = ''
+        self._prev_lang_list: list[str] = []
+        self._complete_langs_list: list | None = None
+        self._complete_langs_error = False
+        self._language_popup: PopupMenu | None = None
+
+        # In vr-mode, the internal keyboard is currently the *only* option,
+        # so no need to show this.
+        self._show_always_use_internal_keyboard = not app.env.vr
+
+        self._sub_width = min(550, self._scroll_width * 0.95)
+        self._sub_height = 920.0
+
+        # For fullscreen scrollable, account for toolbar.
+        if uiscale is bui.UIScale.SMALL:
+            self._sub_height += 27
+
+        if self._show_always_use_internal_keyboard:
+            self._sub_height += 62
+
+        self._show_disable_gyro = app.classic.platform in {'ios', 'android'}
+        if self._show_disable_gyro:
+            self._sub_height += 42
+
+        self._show_use_insecure_connections = True
+        if self._show_use_insecure_connections:
+            # 42 for the label+popup row, ~25 for extra descender so
+            # the description sits below the popup rather than
+            # overlapping it, 40 for spacing to the next row.
+            self._sub_height += 107
+
+        self._do_vr_test_button = app.env.vr
+        self._do_net_test_button = True
+        self._extra_button_spacing = self._spacing * 2.5
+
+        if self._do_vr_test_button:
+            self._sub_height += self._extra_button_spacing
+        if self._do_net_test_button:
+            self._sub_height += self._extra_button_spacing
+        self._sub_height += self._spacing * 2.0  # plugins
+        self._sub_height += self._spacing * 2.0  # dev tools
+
+        self._r = 'settingsWindowAdvanced'
+
+        if uiscale is bui.UIScale.SMALL:
+            bui.containerwidget(
+                edit=self._root_widget, on_cancel_call=self.main_window_back
+            )
+            self._back_button = None
+        else:
+            self._back_button = bui.buttonwidget(
+                parent=self._root_widget,
+                id=f'{self.main_window_id_prefix}|back',
+                position=(50, yoffs - 48),
+                size=(60, 60),
+                scale=0.8,
+                autoselect=True,
+                label=bui.charstr(bui.SpecialChar.BACK),
+                button_type='backSmall',
+                on_activate_call=self.main_window_back,
+            )
+            bui.containerwidget(
+                edit=self._root_widget, cancel_button=self._back_button
+            )
+
+        self._scrollwidget = bui.scrollwidget(
+            parent=self._root_widget,
+            size=(self._scroll_width, self._scroll_height),
+            position=(
+                self._width * 0.5 - self._scroll_width * 0.5,
+                scroll_bottom,
+            ),
+            simple_culling_v=20.0,
+            highlight=False,
+            center_small_content_horizontally=True,
+            selection_loops_to_parent=True,
+            border_opacity=0.4,
+        )
+        bui.containerwidget(
+            edit=self._root_widget, selected_child=self._scrollwidget
+        )
+        bui.widget(edit=self._scrollwidget, right_widget=self._scrollwidget)
+
+        self._subcontainer = bui.containerwidget(
+            parent=self._scrollwidget,
+            size=(self._sub_width, self._sub_height),
+            background=False,
+            selection_loops_to_parent=True,
+        )
+
+        # With full-screen scrolling, fade content as it approaches
+        # toolbars. (but only in the main menu where we're showing said
+        # toolbars).
+        if uiscale is bui.UIScale.SMALL and bui.in_main_menu():
+            scroll_fade_top(
+                self._root_widget,
+                self._width * 0.5 - self._scroll_width * 0.5,
+                scroll_bottom,
+                self._scroll_width,
+                self._scroll_height,
+            )
+            scroll_fade_bottom(
+                self._root_widget,
+                self._width * 0.5 - self._scroll_width * 0.5,
+                scroll_bottom,
+                self._scroll_width,
+                self._scroll_height,
+            )
+
+        self._title_text = bui.textwidget(
+            parent=self._root_widget,
+            position=(
+                self._width * 0.5,
+                yoffs - (43 if uiscale is bui.UIScale.SMALL else 25),
+            ),
+            size=(0, 0),
+            scale=0.75 if uiscale is bui.UIScale.SMALL else 1.0,
+            text=_advstrs.title,
+            color=app.ui_v1.title_color,
+            h_align='center',
+            v_align='center',
+        )
+
+        self._rebuild()
+
+        # Rebuild periodically to pick up language changes/additions/etc.
+        self._rebuild_timer = bui.AppTimer(
+            1.0, bui.WeakCallStrict(self._rebuild), repeat=True
+        )
+
+        # Fetch the list of completed languages.
+        bui.app.classic.master_server_v1_get(
+            'bsLangGetCompleted',
+            {'b': app.env.engine_build_number},
+            callback=bui.WeakCallPartial(self._completed_langs_cb),
+        )
+
+    @override
+    def get_main_window_state(self) -> bui.MainWindowState:
+        # Support recreating our window for back/refresh purposes.
+        cls = type(self)
+        return bui.BasicMainWindowState(
+            create_call=lambda transition, origin_widget: cls(
+                transition=transition, origin_widget=origin_widget
+            )
+        )
+
+    @override
+    def main_window_should_preserve_selection(self) -> bool:
+        return True
+
+    @staticmethod
+    def _preload_modules() -> None:
+        """Preload stuff in bg thread to avoid hitches in logic thread"""
+        from babase import modutils as _unused2
+        from bauiv1lib import config as _unused1
+        from bauiv1lib.settings import vrtesting as _unused3
+        from bauiv1lib.settings import nettesting as _unused4
+        from bauiv1lib import appinvite as _unused5
+        from bauiv1lib import account as _unused6
+        from bauiv1lib import sendinfo as _unused7
+        from bauiv1lib.settings import benchmarks as _unused8
+        from bauiv1lib.settings import plugins as _unused9
+        from bauiv1lib.settings import devtools as _unused10
+
+    def _update_lang_status(self) -> None:
+        if self._complete_langs_list is not None:
+            up_to_date = bui.app.lang.language in self._complete_langs_list
+            bui.textwidget(
+                edit=self._lang_status_text,
+                text=(
+                    ''
+                    if bui.app.lang.language == 'Test'
+                    else (
+                        _advstrs.translation_up_to_date
+                        if up_to_date
+                        else _advstrs.translation_needs_updates
+                    )
+                ),
+                color=(
+                    (0.2, 1.0, 0.2, 0.8) if up_to_date else (1.0, 0.2, 0.2, 0.8)
+                ),
+            )
+        else:
+            bui.textwidget(
+                edit=self._lang_status_text,
+                text=(
+                    _advstrs.translation_fetch_error
+                    if self._complete_langs_error
+                    else _advstrs.translation_checking
+                ),
+                color=(
+                    (1.0, 0.5, 0.2)
+                    if self._complete_langs_error
+                    else (0.7, 0.7, 0.7)
+                ),
+            )
+
+    def _rebuild(self) -> None:
+        # pylint: disable=too-many-statements
+        # pylint: disable=too-many-branches
+
+        from bauiv1lib.config import ConfigCheckBox
+        from babase.modutils import show_user_scripts
+
+        plus = bui.app.plus
+        assert plus is not None
+
+        locale_ss = bui.app.locale
+
+        # Build a list of long-values for locales we are able to display,
+        # ordered by endonym -- the half of each label the user actually
+        # scans. (Was sorted by long_value, i.e. the English name, which
+        # meant "Svenska — Swedish" filed under S and "Deutsch — German"
+        # under G: correctly ordered by something invisible, so the list
+        # read as unsorted. The master server's picker uses this same key.)
+        available_languages = [
+            lr.locale.long_value
+            for lr in sorted(
+                (
+                    lr
+                    for lr in LocaleResolved
+                    if locale_ss.can_display_locale(lr.locale)
+                ),
+                key=lambda lr: lr.endonym_sort_key,
+            )
+        ]
+
+        # Don't rebuild if the menu is open or if our language and
+        # language-list hasn't changed.
+
+        # NOTE - although we now support widgets updating their own
+        # translations, we still change the label formatting on the
+        # language menu based on the language so still need this.
+        # ...however we could make this more limited to it only rebuilds
+        # that one menu instead of everything.
+        if self._menu_open or (
+            self._prev_lang == bui.app.config.get('Lang', None)
+            and self._prev_lang_list == available_languages
+        ):
+            return
+        self._prev_lang = bui.app.config.get('Lang', None)
+        self._prev_lang_list = available_languages
+
+        # Clear out our sub-container.
+        children = self._subcontainer.get_children()
+        for child in children:
+            child.delete()
+
+        v = self._sub_height - 35
+
+        # For fullscreen scrollable, account for toolbar.
+        uiscale = bui.app.ui_v1.uiscale
+        if uiscale is bui.UIScale.SMALL:
+            v -= 27
+
+        v -= self._spacing * 1.2
+
+        # Update our existing back button and title.
+        if self._back_button is not None:
+            bui.buttonwidget(
+                edit=self._back_button, label=_commonassets.strings.actions.back
+            )
+            bui.buttonwidget(
+                edit=self._back_button, label=bui.charstr(bui.SpecialChar.BACK)
+            )
+
+        bui.textwidget(
+            edit=self._title_text,
+            text=_advstrs.title,
+        )
+
+        this_button_width = 410
+
+        assert bui.app.classic is not None
+        bui.textwidget(
+            parent=self._subcontainer,
+            position=(70, v + 10),
+            size=(0, 0),
+            text=_advstrs.language,
+            maxwidth=150,
+            scale=1.2,
+            color=bui.app.ui_v1.title_color,
+            h_align='left',
+            v_align='center',
+        )
+
+        cur_lang = bui.app.locale.current_locale.long_value
+
+        # Label shape lives in
+        # bacommon.locale.language_picker_label, shared with the master
+        # server's account-settings picker so the two can't drift. (It
+        # documents a known RTL-ordering defect that is engine-level, not
+        # fixable here.)
+        resolved_by_long_value = {
+            lr.locale.long_value: lr for lr in LocaleResolved
+        }
+        locale_strs = _commonassets.strings.locales
+
+        langs_full = {}
+        for lang in available_languages:
+            lang_resolved = resolved_by_long_value[lang]
+            langs_full[lang] = language_picker_label(
+                lang_resolved,
+                getattr(locale_strs, lang_resolved.value).evaluate(),
+            )
+
+        self._language_popup = PopupMenu(
+            parent=self._subcontainer,
+            button_id=f'{self.main_window_id_prefix}|language',
+            position=(210, v - 19),
+            width=250,
+            opening_call=bui.WeakCallStrict(self._on_menu_open),
+            closing_call=bui.WeakCallStrict(self._on_menu_close),
+            autoselect=True,
+            on_value_change_call=bui.WeakCallPartial(self._on_menu_choice),
+            choices=['Auto'] + available_languages,
+            button_size=(300, 60),
+            choices_display=(
+                [
+                    _commonassets.strings.compose.paren_suffix(
+                        main=_commonassets.strings.values.auto,
+                        note=getattr(
+                            locale_strs,
+                            bui.app.locale.default_locale.resolved.value,
+                        ),
+                    )
+                ]
+                + [
+                    bui.langstr_value(langs_full[l])
+                    for l in available_languages
+                ]
+            ),
+            current_choice=cur_lang,
+        )
+
+        if self._back_button is not None:
+            bui.widget(
+                edit=self._language_popup.get_button(),
+                up_widget=self._back_button,
+                left_widget=self._back_button,
+            )
+
+        v -= self._spacing * 1.8
+
+        bui.textwidget(
+            parent=self._subcontainer,
+            position=(90, v + 10),
+            size=(0, 0),
+            text=_advstrs.help_translate(
+                app_name=classicassets.strings.ui.app_name
+            ),
+            maxwidth=self._sub_width * 0.9 - 10,
+            max_height=55,
+            flatness=1.0,
+            scale=0.65,
+            color=(0.4, 0.9, 0.4, 0.8),
+            h_align='left',
+            v_align='center',
+        )
+        v -= self._spacing * 1.9
+        this_button_width = 410
+        self._translation_editor_button = bui.buttonwidget(
+            parent=self._subcontainer,
+            id=f'{self.main_window_id_prefix}|translationedit',
+            position=(self._sub_width / 2 - this_button_width / 2, v - 24),
+            size=(this_button_width, 60),
+            label=_advstrs.translation_editor(
+                app_name=classicassets.strings.ui.app_name
+            ),
+            autoselect=True,
+            on_activate_call=bui.CallStrict(
+                bui.open_url, 'https://legacy.ballistica.net/translate'
+            ),
+        )
+
+        self._lang_status_text = bui.textwidget(
+            parent=self._subcontainer,
+            position=(self._sub_width * 0.5, v - 40),
+            size=(0, 0),
+            text='',
+            flatness=1.0,
+            scale=0.63,
+            h_align='center',
+            v_align='center',
+            maxwidth=400.0,
+        )
+        self._update_lang_status()
+        v -= 50
+
+        lang_inform = plus.get_v1_account_misc_val('langInform', False)
+
+        self._language_inform_checkbox = cbw = bui.checkboxwidget(
+            parent=self._subcontainer,
+            id=f'{self.main_window_id_prefix}|langinform',
+            position=(50, v - 50),
+            size=(self._sub_width - 100, 30),
+            autoselect=True,
+            maxwidth=430,
+            textcolor=(0.8, 0.8, 0.8),
+            value=lang_inform,
+            text=_advstrs.translation_inform_me,
+            on_value_change_call=bui.WeakCallPartial(
+                self._on_lang_inform_value_change
+            ),
+        )
+
+        bui.widget(
+            edit=self._translation_editor_button,
+            down_widget=cbw,
+            up_widget=self._language_popup.get_button(),
+        )
+
+        v -= self._spacing * 3.0
+
+        self._kick_idle_players_check_box = ConfigCheckBox(
+            parent=self._subcontainer,
+            check_box_id=f'{self.main_window_id_prefix}|kickidleplayers',
+            position=(50, v),
+            size=(self._sub_width - 100, 30),
+            configkey='Kick Idle Players',
+            displayname=_advstrs.kick_idle_players,
+            scale=1.0,
+            maxwidth=430,
+        )
+
+        v -= 42
+        self._show_game_ping_check_box = ConfigCheckBox(
+            parent=self._subcontainer,
+            check_box_id=f'{self.main_window_id_prefix}|showping',
+            position=(50, v),
+            size=(self._sub_width - 100, 30),
+            configkey='Show Ping',
+            displayname=_advstrs.show_in_game_ping,
+            scale=1.0,
+            maxwidth=430,
+        )
+
+        v -= 42
+        self._show_demos_when_idle_check_box = ConfigCheckBox(
+            parent=self._subcontainer,
+            check_box_id=f'{self.main_window_id_prefix}|showdemoswhenidle',
+            position=(50, v),
+            size=(self._sub_width - 100, 30),
+            configkey='Show Demos When Idle',
+            displayname=_advstrs.show_demos_when_idle,
+            scale=1.0,
+            maxwidth=430,
+        )
+
+        v -= 42
+        self._show_deprecated_login_types_check_box = ConfigCheckBox(
+            parent=self._subcontainer,
+            check_box_id=(
+                f'{self.main_window_id_prefix}|showdeprecatedlogintypes'
+            ),
+            position=(50, v),
+            size=(self._sub_width - 100, 30),
+            configkey='Show Deprecated Login Types',
+            displayname=_advstrs.show_deprecated_login_types,
+            scale=1.0,
+            maxwidth=430,
+        )
+
+        v -= 42
+        self._disable_camera_shake_check_box = ConfigCheckBox(
+            parent=self._subcontainer,
+            check_box_id=f'{self.main_window_id_prefix}|disablecamerashake',
+            position=(50, v),
+            size=(self._sub_width - 100, 30),
+            configkey='Disable Camera Shake',
+            displayname=_advstrs.disable_camera_shake,
+            scale=1.0,
+            maxwidth=430,
+        )
+
+        self._disable_gyro_check_box: ConfigCheckBox | None = None
+        if self._show_disable_gyro:
+            v -= 42
+            self._disable_gyro_check_box = ConfigCheckBox(
+                parent=self._subcontainer,
+                check_box_id=f'{self.main_window_id_prefix}|disablegyro',
+                position=(50, v),
+                size=(self._sub_width - 100, 30),
+                configkey='Disable Camera Gyro',
+                displayname=_advstrs.disable_camera_gyro,
+                scale=1.0,
+                maxwidth=430,
+            )
+
+        self._insecure_connections_popup: PopupMenu | None
+        if self._show_use_insecure_connections:
+            v -= 42
+
+            # Popup on the left, label on the right — same row.
+            # Resolve the current stored value, normalizing legacy
+            # states so the popup always reflects a valid choice.
+            current_mode = bui.app.config.resolve('Insecure Connections')
+            if current_mode not in ('always', 'auto', 'never'):
+                current_mode = 'auto'
+
+            self._insecure_connections_popup = PopupMenu(
+                parent=self._subcontainer,
+                button_id=(f'{self.main_window_id_prefix}|insecureconnections'),
+                position=(50, v - 18),
+                width=180,
+                choices=['always', 'auto', 'never'],
+                choices_display=[
+                    _commonassets.strings.values.always,
+                    _commonassets.strings.values.auto,
+                    _commonassets.strings.values.never,
+                ],
+                current_choice=current_mode,
+                # WeakCallPartial so the popup's callback reference
+                # to self doesn't cycle with
+                # self._insecure_connections_popup — otherwise gc
+                # flags this window every open. Partial rather than
+                # Strict because PopupMenu passes the selected value
+                # as a runtime arg.
+                on_value_change_call=bui.WeakCallPartial(
+                    self._set_insecure_connections_mode
+                ),
+            )
+
+            # Label sits to the right of the popup.
+            bui.textwidget(
+                parent=self._subcontainer,
+                position=(224, v + 5),
+                size=(0, 0),
+                text=_advstrs.insecure_connections,
+                maxwidth=300,
+                color=(0.8, 0.8, 0.8),
+                h_align='left',
+                v_align='center',
+            )
+
+            bui.textwidget(
+                parent=self._subcontainer,
+                position=(90, v - 45),
+                size=(0, 0),
+                text=_advstrs.insecure_connections_description,
+                maxwidth=400,
+                flatness=1.0,
+                scale=0.65,
+                color=(0.4, 0.9, 0.4, 0.8),
+                h_align='left',
+                v_align='center',
+            )
+            v -= 65
+        else:
+            self._insecure_connections_popup = None
+
+        self._always_use_internal_keyboard_check_box: ConfigCheckBox | None
+        if self._show_always_use_internal_keyboard:
+            v -= 42
+            self._always_use_internal_keyboard_check_box = ConfigCheckBox(
+                parent=self._subcontainer,
+                check_box_id=(
+                    f'{self.main_window_id_prefix}|alwaysuseinternalkb'
+                ),
+                position=(50, v),
+                size=(self._sub_width - 100, 30),
+                configkey='Always Use Internal Keyboard',
+                autoselect=True,
+                displayname=_advstrs.always_use_internal_keyboard,
+                scale=1.0,
+                maxwidth=430,
+            )
+            bui.textwidget(
+                parent=self._subcontainer,
+                position=(90, v - 10),
+                size=(0, 0),
+                text=_advstrs.always_use_internal_keyboard_description,
+                maxwidth=400,
+                flatness=1.0,
+                scale=0.65,
+                color=(0.4, 0.9, 0.4, 0.8),
+                h_align='left',
+                v_align='center',
+            )
+            v -= 20
+        else:
+            self._always_use_internal_keyboard_check_box = None
+
+        v -= self._spacing * 2.1
+
+        this_button_width = 410
+        self._modding_guide_button = bui.buttonwidget(
+            parent=self._subcontainer,
+            id=f'{self.main_window_id_prefix}|moddingguide',
+            position=(self._sub_width / 2 - this_button_width / 2, v - 10),
+            size=(this_button_width, 60),
+            autoselect=True,
+            label=_advstrs.modding_guide,
+            text_scale=1.0,
+            on_activate_call=bui.CallStrict(
+                bui.open_url, 'https://ballistica.net/wiki/modding-guide'
+            ),
+        )
+
+        v -= self._spacing * 2.0
+
+        self._dev_tools_button = bui.buttonwidget(
+            parent=self._subcontainer,
+            id=f'{self.main_window_id_prefix}|devtools',
+            position=(self._sub_width / 2 - this_button_width / 2, v - 10),
+            size=(this_button_width, 60),
+            autoselect=True,
+            label=classicassets.strings.settings.dev_tools.title,
+            text_scale=1.0,
+            on_activate_call=self._on_dev_tools_button_press,
+        )
+
+        if self._show_always_use_internal_keyboard:
+            assert self._always_use_internal_keyboard_check_box is not None
+            bui.widget(
+                edit=self._always_use_internal_keyboard_check_box.widget,
+                down_widget=self._modding_guide_button,
+            )
+            bui.widget(
+                edit=self._modding_guide_button,
+                up_widget=self._always_use_internal_keyboard_check_box.widget,
+            )
+        else:
+            # ew.
+            next_widget_up = (
+                self._disable_gyro_check_box.widget
+                if self._disable_gyro_check_box is not None
+                else self._disable_camera_shake_check_box.widget
+            )
+            bui.widget(
+                edit=self._modding_guide_button,
+                up_widget=next_widget_up,
+            )
+            bui.widget(
+                edit=next_widget_up,
+                down_widget=self._modding_guide_button,
+            )
+
+        v -= self._spacing * 2.0
+
+        self._show_user_mods_button = bui.buttonwidget(
+            parent=self._subcontainer,
+            id=f'{self.main_window_id_prefix}|showusermods',
+            position=(self._sub_width / 2 - this_button_width / 2, v - 10),
+            size=(this_button_width, 60),
+            autoselect=True,
+            label=_advstrs.show_mods_folder,
+            text_scale=1.0,
+            on_activate_call=show_user_scripts,
+        )
+
+        v -= self._spacing * 2.0
+
+        self._plugins_button = bui.buttonwidget(
+            parent=self._subcontainer,
+            id=f'{self.main_window_id_prefix}|plugins',
+            position=(self._sub_width / 2 - this_button_width / 2, v - 10),
+            size=(this_button_width, 60),
+            autoselect=True,
+            label=classicassets.strings.settings.plugins.title,
+            text_scale=1.0,
+            on_activate_call=self._on_plugins_button_press,
+        )
+
+        v -= self._spacing * 0.6
+
+        self._vr_test_button: bui.Widget | None
+        if self._do_vr_test_button:
+            v -= self._extra_button_spacing
+            self._vr_test_button = bui.buttonwidget(
+                parent=self._subcontainer,
+                id=f'{self.main_window_id_prefix}|vrtest',
+                position=(self._sub_width / 2 - this_button_width / 2, v - 14),
+                size=(this_button_width, 60),
+                autoselect=True,
+                label=classicassets.strings.settings.vr_testing.title,
+                text_scale=1.0,
+                on_activate_call=self._on_vr_test_press,
+            )
+        else:
+            self._vr_test_button = None
+
+        self._net_test_button: bui.Widget | None
+        if self._do_net_test_button:
+            v -= self._extra_button_spacing
+            self._net_test_button = bui.buttonwidget(
+                parent=self._subcontainer,
+                id=f'{self.main_window_id_prefix}|nettest',
+                position=(self._sub_width / 2 - this_button_width / 2, v - 14),
+                size=(this_button_width, 60),
+                autoselect=True,
+                label=classicassets.strings.settings.net_testing.title,
+                text_scale=1.0,
+                on_activate_call=self._on_net_test_press,
+            )
+        else:
+            self._net_test_button = None
+
+        v -= 70
+        self._benchmarks_button = bui.buttonwidget(
+            parent=self._subcontainer,
+            id=f'{self.main_window_id_prefix}|benchmarks',
+            position=(self._sub_width / 2 - this_button_width / 2, v - 14),
+            size=(this_button_width, 60),
+            autoselect=True,
+            label=classicassets.strings.settings.benchmarks.title,
+            text_scale=1.0,
+            on_activate_call=self._on_benchmark_press,
+        )
+
+        v -= 100
+        self._send_info_button = bui.buttonwidget(
+            parent=self._subcontainer,
+            id=f'{self.main_window_id_prefix}|sendinfo',
+            position=(self._sub_width / 2 - this_button_width / 2, v - 14),
+            size=(this_button_width, 60),
+            autoselect=True,
+            label=_advstrs.send_info,
+            text_scale=1.0,
+            on_activate_call=self._on_send_info_press,
+        )
+
+        for child in self._subcontainer.get_children():
+            bui.widget(edit=child, show_buffer_bottom=80, show_buffer_top=80)
+
+        pbtn = bui.get_special_widget('squad_button')
+        bui.widget(edit=self._scrollwidget, right_widget=pbtn)
+        if self._back_button is None:
+            bui.widget(
+                edit=self._scrollwidget,
+                left_widget=bui.get_special_widget('back_button'),
+            )
+
+    def _show_restart_needed(self, value: Any) -> None:
+        del value  # Unused.
+        bui.screenmessage(
+            _commonassets.strings.status.must_restart, color=(1, 1, 0)
+        )
+
+    def _on_lang_inform_value_change(self, val: bool) -> None:
+        plus = bui.app.plus
+        assert plus is not None
+        plus.add_v1_account_transaction(
+            {'type': 'SET_MISC_VAL', 'name': 'langInform', 'value': val}
+        )
+        plus.run_v1_account_transactions()
+
+    def _set_insecure_connections_mode(self, value: str) -> None:
+        """Persist the user's tri-state ``Insecure Connections`` choice.
+
+        Takes effect on the next outbound server connection — existing
+        live transports keep running until they naturally cycle.
+        """
+        if value not in ('always', 'auto', 'never'):
+            # Defensive — shouldn't happen with our fixed choices.
+            value = 'auto'
+        cfg = bui.app.config
+        cfg['Insecure Connections'] = value
+        cfg.commit()
+
+    def _on_vr_test_press(self) -> None:
+        from bauiv1lib.settings.vrtesting import VRTestingWindow
+
+        self.main_window_replace(lambda: VRTestingWindow(transition='in_right'))
+
+    def _on_net_test_press(self) -> None:
+        from bauiv1lib.settings.nettesting import NetTestingWindow
+
+        self.main_window_replace(
+            lambda: NetTestingWindow(transition='in_right')
+        )
+
+    def _on_friend_promo_code_press(self) -> None:
+        from bauiv1lib import appinvite
+        from bauiv1lib.account.signin import show_sign_in_prompt
+
+        plus = bui.app.plus
+        assert plus is not None
+
+        if plus.get_v1_account_state() != 'signed_in':
+            show_sign_in_prompt()
+            return
+        appinvite.handle_app_invites_press()
+
+    def _on_plugins_button_press(self) -> None:
+        from bauiv1lib.settings.plugins import PluginWindow
+
+        self.main_window_replace(
+            lambda: PluginWindow(origin_widget=self._plugins_button)
+        )
+
+    def _on_dev_tools_button_press(self) -> None:
+        # pylint: disable=cyclic-import
+        from bauiv1lib.settings.devtools import DevToolsWindow
+
+        self.main_window_replace(
+            lambda: DevToolsWindow(origin_widget=self._dev_tools_button)
+        )
+
+    def _on_send_info_press(self) -> None:
+        from bauiv1lib.sendinfo import SendInfoWindow
+
+        self.main_window_replace(
+            lambda: SendInfoWindow(origin_widget=self._send_info_button)
+        )
+
+    def _on_benchmark_press(self) -> None:
+        from bauiv1lib.settings.benchmarks import BenchmarksAndStressTestsWindow
+
+        self.main_window_replace(
+            lambda: BenchmarksAndStressTestsWindow(transition='in_right')
+        )
+
+    def _on_menu_open(self) -> None:
+        self._menu_open = True
+
+    def _on_menu_close(self) -> None:
+        self._menu_open = False
+
+    def _on_menu_choice(self, choice: str) -> None:
+        # Switching is now an elective asset-resolve (the target locale's
+        # language flavor is downloaded if not already local) that commits
+        # only on success -- driven by LocaleSubsystem.set_locale, which
+        # writes/clears the 'Lang' config itself. 'Auto' = no override
+        # (follow the OS-default locale).
+        locale_ss = bui.app.locale
+        if choice == 'Auto':
+            locale_ss.set_locale(
+                locale_ss.default_locale, store_to_config=False
+            )
+        else:
+            locale_ss.set_locale(
+                Locale.from_long_value(choice), store_to_config=True
+            )
+
+        self.main_window_save_shared_state()
+
+    def _completed_langs_cb(self, results: dict[str, Any] | None) -> None:
+        if results is not None and results['langs'] is not None:
+            self._complete_langs_list = results['langs']
+            self._complete_langs_error = False
+        else:
+            self._complete_langs_list = None
+            self._complete_langs_error = True
+        bui.apptimer(0.001, bui.WeakCallStrict(self._update_lang_status))
