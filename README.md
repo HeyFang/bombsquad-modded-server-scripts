@@ -1,7 +1,8 @@
 # About
 - Game party server for <a href="https://www.froemling.net/apps/bombsquad">BombSquad</a>
-- Modded Linux x86_64 server, build 1.7.61 (API v9)
+- Modded Linux x86_64 server, 1.8.
 - For the vanilla server, see <a href="https://ballistica.net/downloads">ballistica.net/downloads</a>
+- Lot of stuff broke after updatin to 1.8 version... n i havent fixed it yet, ill start workin on this repo soon; till en i suggest u to use diff server scripts >.<
 
 # Install and setup
 Follow the steps below on a Debian/Ubuntu-based system.
